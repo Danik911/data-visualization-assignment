@@ -1,0 +1,17 @@
+{
+  "mcp.filesystem.allowedDirectories": [
+    "${workspaceFolder}"
+  ],
+  "mcp": {
+    "servers": {
+      "filesystem": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-filesystem",
+          "${workspaceFolder}"
+        ]
+      }
+    }
+  }
+}

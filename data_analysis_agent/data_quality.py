@@ -17,6 +17,7 @@ import pandas as pd
 import numpy as np
 import scipy.stats as stats
 from typing import Dict, List, Tuple, Any, Optional
+import os 
 
 # Import helpers from extracted module
 from data_quality_utils import (
@@ -191,9 +192,48 @@ class DataQualityAssessment:
         return distribution_stats
 
     def generate_report(self) -> Dict[str, Any]:
-        # ...existing code...
-        # (No change, just call the above concise methods)
-        # ...existing code...
+        """Generate a comprehensive data quality report by running all assessment methods"""
+        # Run all assessment methods if not already run
+        if not self.results.get('type_verification'):
+            self.verify_data_types()
+        if not self.results.get('missing_values'):
+            self.check_missing_values()
+        if not self.results.get('outliers_tukey'):
+            self.detect_outliers_tukey()
+        if not self.results.get('duplicates'):
+            self.check_duplicates()
+        if not self.results.get('impossible_values'):
+            self.identify_impossible_values()
+        if not self.results.get('distribution_stats'):
+            self.check_distribution()
+            
+        # Prepare recommendations based on findings
+        recommendations = {
+            'data_types': [],
+            'missing_values': [],
+            'outliers': [],
+            'duplicates': [],
+            'impossible_values': []
+        }
+        
+        # Add results to final report
+        return {
+            'assessment_data': self.results,
+            'recommendations': recommendations,
+            'timestamp': pd.Timestamp.now().isoformat()
+        }
+        
+    def save_report(self, file_path: str) -> bool:
+        """Save the assessment report to a JSON file"""
+        if not self.results:
+            self.generate_report()
+        try:
+            from utils import save_json_atomic
+            report_data = self.generate_report()
+            return save_json_atomic(report_data, file_path)
+        except Exception as e:
+            print(f"Error saving assessment report: {str(e)}")
+            return False
 
 class DataCleaner:
     """

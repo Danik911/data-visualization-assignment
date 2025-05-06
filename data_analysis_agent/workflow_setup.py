@@ -110,11 +110,46 @@ class WorkflowSetup:
             report_path='reports/data_quality_report.json'
         )
         
+        # Calculate a quality score based on assessment results
+        missing_percentage = sum(val['count'] for col, val in assessment_report.get('assessment_data', {}).get('missing_values', {}).get('column_details', {}).items()) / (df.size or 1) * 100
+        duplicate_percentage = assessment_report.get('assessment_data', {}).get('duplicates', {}).get('percentage', 0)
+        
+        # Lower percentages mean higher quality (100 - percentage)
+        missing_score = max(0, 100 - missing_percentage)
+        duplicate_score = max(0, 100 - duplicate_percentage)
+        
+        # Simple average for quality score (can be made more sophisticated)
+        quality_score = (missing_score + duplicate_score) / 2
+        
+        # Add dataset_info structure with quality_score to match what's expected
+        if 'dataset_info' not in assessment_report:
+            assessment_report['dataset_info'] = {
+                'quality_score': quality_score,
+                'row_count': len(df),
+                'column_count': len(df.columns)
+            }
+            
+            # Add summary of issues for reporting
+            assessment_report['issue_summary'] = {
+                'total_rows': len(df),
+                'total_columns': len(df.columns),
+                'missing_value_count': int(df.isna().sum().sum()),
+                'duplicate_row_count': int(df.duplicated().sum()),
+                'outlier_count': sum(
+                    col_data.get('outlier_count', 0) 
+                    for col, col_data in assessment_report.get('assessment_data', {}).get('outliers_tukey', {}).items()
+                ),
+                'impossible_value_count': sum(
+                    col_data.get('total_violations', 0) 
+                    for col, col_data in assessment_report.get('assessment_data', {}).get('impossible_values', {}).items()
+                )
+            }
+        
         # Store assessment report in context
         await ctx.set("assessment_report", assessment_report)
         
         quality_score = assessment_report['dataset_info']['quality_score']
-        print(f"Data quality assessment completed with quality score: {quality_score}")
+        print(f"Data quality assessment completed with quality score: {quality_score:.2f}")
         
         return assessment_report
     

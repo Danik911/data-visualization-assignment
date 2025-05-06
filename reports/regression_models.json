@@ -2,178 +2,178 @@
   "full_dataset": {
     "model_type": "full_dataset",
     "metrics": {
-      "r": 0.6312782814626053,
-      "r_squared": 0.39851226864638134,
-      "adjusted_r_squared": 0.3982627921920663,
-      "rmse": 47669.350952686495,
-      "mae": 38965.68801272151
+      "r": 0.13555929240408623,
+      "r_squared": 0.01837632175709658,
+      "adjusted_r_squared": 0.017969177966867256,
+      "rmse": 60897.345874656785,
+      "mae": 48780.361162848705
     },
     "coefficients": {
-      "intercept": 69830.10970530454,
-      "coefficient": 100.97981739782128,
-      "p_value": 1.8542985862764212e-268,
+      "intercept": 158743.76182675778,
+      "coefficient": 253.78083454815962,
+      "p_value": 2.2869814681575215e-11,
       "is_significant": true
     },
     "confidence_intervals": {
       "intercept_ci": [
-        64432.82500312341,
-        75227.39440748566
+        153981.94708167674,
+        163505.5765718388
       ],
       "coefficient_ci": [
-        96.02537615969867,
-        105.93425863594389
+        179.70618541579267,
+        327.85548368052656
       ]
     },
-    "formula": "Sale_Price = 69830.11 + 100.98 * Total_Bsmt_SF"
+    "formula": "Sale_Price = 158743.76 + 253.78 * Lot_Frontage"
   },
   "category_OneFam": {
     "model_type": "category_OneFam",
     "category": "OneFam",
     "sample_size": 2002,
     "metrics": {
-      "r": 0.6368595480093469,
-      "r_squared": 0.4055900838906702,
-      "adjusted_r_squared": 0.40529287893261556,
-      "rmse": 48133.89999656383,
-      "mae": 40091.138647359374
+      "r": 0.1383890756279174,
+      "r_squared": 0.01915153625314958,
+      "adjusted_r_squared": 0.018661112021276183,
+      "rmse": 61831.386691661755,
+      "mae": 49804.02234030598
     },
     "coefficients": {
-      "intercept": 66773.96577583964,
-      "coefficient": 106.26555806528147,
-      "p_value": 3.412365979349279e-228,
+      "intercept": 160529.41339226495,
+      "coefficient": 261.3767915788344,
+      "p_value": 5.031629821870498e-10,
       "is_significant": true
     },
     "confidence_intervals": {
       "intercept_ci": [
-        60610.439099154326,
-        72937.49245252494
+        155007.1225231193,
+        166051.7042614106
       ],
       "coefficient_ci": [
-        100.6241452167897,
-        111.90697091377324
+        179.34878271432305,
+        343.4048004433457
       ]
     },
-    "formula": "Sale_Price = 66773.97 + 106.27 * Total_Bsmt_SF"
+    "formula": "Sale_Price = 160529.41 + 261.38 * Lot_Frontage"
   },
   "category_TwnhsE": {
     "model_type": "category_TwnhsE",
     "category": "TwnhsE",
     "sample_size": 188,
     "metrics": {
-      "r": 0.77012403924944,
-      "r_squared": 0.593091035829872,
-      "adjusted_r_squared": 0.5909033532268069,
-      "rmse": 37371.466183574004,
-      "mae": 29325.73977086586
+      "r": 0.21963710592369562,
+      "r_squared": 0.048240458298536626,
+      "adjusted_r_squared": 0.043123471515195466,
+      "rmse": 57155.118266854915,
+      "mae": 44732.070149104
     },
     "coefficients": {
-      "intercept": 49833.731205736134,
-      "coefficient": 121.89132404999378,
-      "p_value": 3.645131952734891e-38,
+      "intercept": 163198.00073030684,
+      "coefficient": 620.1652476921834,
+      "p_value": 0.0024577468401852246,
       "is_significant": true
     },
     "confidence_intervals": {
       "intercept_ci": [
-        32965.09528004979,
-        66702.36713142248
+        147898.54622117383,
+        178497.45523943985
       ],
       "coefficient_ci": [
-        107.28680177098835,
-        136.49584632899922
+        221.69862819000775,
+        1018.631867194359
       ]
     },
-    "formula": "Sale_Price = 49833.73 + 121.89 * Total_Bsmt_SF"
+    "formula": "Sale_Price = 163198.00 + 620.17 * Lot_Frontage"
   },
   "category_Twnhs": {
     "model_type": "category_Twnhs",
     "category": "Twnhs",
     "sample_size": 93,
     "metrics": {
-      "r": 0.7685930513690742,
-      "r_squared": 0.5907352786128243,
-      "adjusted_r_squared": 0.5862378640920861,
-      "rmse": 26656.146080704002,
-      "mae": 21649.106164408353
+      "r": 0.30875503945285326,
+      "r_squared": 0.09532967438753304,
+      "adjusted_r_squared": 0.0853882422379455,
+      "rmse": 39631.48787653689,
+      "mae": 31709.91478026899
     },
     "coefficients": {
-      "intercept": 50711.499106744035,
-      "coefficient": 114.30823595338394,
-      "p_value": 2.3908229082645537e-19,
+      "intercept": 102154.34485644483,
+      "coefficient": 1537.3301904620487,
+      "p_value": 0.002602252453052233,
       "is_significant": true
     },
     "confidence_intervals": {
       "intercept_ci": [
-        34683.07719067343,
-        66739.92102281464
+        77998.90698147505,
+        126309.78273141461
       ],
       "coefficient_ci": [
-        94.49642207430782,
-        134.12004983246007
+        551.1885686758029,
+        2523.4718122482946
       ]
     },
-    "formula": "Sale_Price = 50711.50 + 114.31 * Total_Bsmt_SF"
+    "formula": "Sale_Price = 102154.34 + 1537.33 * Lot_Frontage"
   },
   "category_Duplex": {
     "model_type": "category_Duplex",
     "category": "Duplex",
     "sample_size": 78,
     "metrics": {
-      "r": 0.37031365458856885,
-      "r_squared": 0.13713220277474192,
-      "adjusted_r_squared": 0.12577867912704122,
-      "rmse": 37857.09767075564,
-      "mae": 26466.013576176363
+      "r": -0.24123155968434085,
+      "r_squared": 0.058192665387739595,
+      "adjusted_r_squared": 0.04580046361652568,
+      "rmse": 39550.88621267103,
+      "mae": 27437.9804120575
     },
     "coefficients": {
-      "intercept": 115729.75630783189,
-      "coefficient": 24.077616090456353,
-      "p_value": 0.0008462577126718377,
+      "intercept": 158231.58262247243,
+      "coefficient": -299.42519588935454,
+      "p_value": 0.03336760978745279,
       "is_significant": true
     },
     "confidence_intervals": {
       "intercept_ci": [
-        98824.3279306847,
-        132635.1846849791
+        140208.28868285962,
+        176254.87656208524
       ],
       "coefficient_ci": [
-        10.279269653959949,
-        37.875962526952755
+        -574.6239138659973,
+        -24.2264779127118
       ]
     },
-    "formula": "Sale_Price = 115729.76 + 24.08 * Total_Bsmt_SF"
+    "formula": "Sale_Price = 158231.58 + -299.43 * Lot_Frontage"
   },
   "category_TwoFmCon": {
     "model_type": "category_TwoFmCon",
     "category": "TwoFmCon",
     "sample_size": 52,
     "metrics": {
-      "r": 0.5627386618901699,
-      "r_squared": 0.31667480158593875,
-      "adjusted_r_squared": 0.30300829761765746,
-      "rmse": 24666.633108314767,
-      "mae": 18803.60293063927
+      "r": -0.14764821831245856,
+      "r_squared": 0.02179999637084329,
+      "adjusted_r_squared": 0.002235996298260101,
+      "rmse": 29512.770874069898,
+      "mae": 22319.974989343165
     },
     "coefficients": {
-      "intercept": 79149.36066027859,
-      "coefficient": 53.4179931701803,
-      "p_value": 1.4098031568651574e-05,
-      "is_significant": true
+      "intercept": 138848.285370561,
+      "coefficient": -201.79555804428816,
+      "p_value": 0.2962250278982457,
+      "is_significant": false
     },
     "confidence_intervals": {
       "intercept_ci": [
-        58378.10346872475,
-        99920.61785183242
+        113285.6200008366,
+        164410.9507402854
       ],
       "coefficient_ci": [
-        31.128810259491352,
-        75.70717608086926
+        -585.7651542441436,
+        182.1740381555672
       ]
     },
-    "formula": "Sale_Price = 79149.36 + 53.42 * Total_Bsmt_SF"
+    "formula": "Sale_Price = 138848.29 + -201.80 * Lot_Frontage"
   },
   "model_config": {
     "target_column": "Sale_Price",
-    "predictor_column": "Total_Bsmt_SF",
+    "predictor_column": "Lot_Frontage",
     "dataset_rows": 2413,
     "dataset_columns": 18
   },

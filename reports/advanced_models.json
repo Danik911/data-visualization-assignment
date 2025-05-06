@@ -2,229 +2,229 @@
   "polynomial_models": {
     "1": {
       "degree": 1,
-      "formula": "Sale_Price = 72489.8323 + 98.8114*Total_Bsmt_SF",
+      "formula": "Sale_Price = 158975.5602 + 257.8933*Lot_Frontage",
       "coefficients": [
-        72489.8323452867,
-        98.81136581024592
+        158975.56017798634,
+        257.8933364607615
       ],
       "metrics": {
-        "r2": 0.4338602047624023,
-        "rmse": 46241.57692388348,
-        "mae": 38402.58075488052,
-        "aic": 47088.44972556375,
-        "bic": 47099.58027612755
+        "r2": 0.012433400458373156,
+        "rmse": 61073.66615623001,
+        "mae": 48750.43785751006,
+        "aic": 48001.852356951225,
+        "bic": 48012.98290751503
       },
       "model_type": "polynomial",
-      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:             Sale_Price   R-squared:                       0.389\nModel:                            OLS   Adj. R-squared:                  0.389\nMethod:                 Least Squares   F-statistic:                     1228.\nDate:                Tue, 06 May 2025   Prob (F-statistic):          1.40e-208\nTime:                        13:36:11   Log-Likelihood:                -23542.\nNo. Observations:                1930   AIC:                         4.709e+04\nDf Residuals:                    1928   BIC:                         4.710e+04\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n=================================================================================\n                    coef    std err          t      P>|t|      [0.025      0.975]\n---------------------------------------------------------------------------------\nconst          7.249e+04   3078.981     23.543      0.000    6.65e+04    7.85e+04\nTotal_Bsmt_SF    98.8114      2.820     35.042      0.000      93.281     104.342\n==============================================================================\nOmnibus:                       91.107   Durbin-Watson:                   2.066\nProb(Omnibus):                  0.000   Jarque-Bera (JB):              103.069\nSkew:                           0.557   Prob(JB):                     4.16e-23\nKurtosis:                       3.201   Cond. No.                     3.08e+03\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.\n[2] The condition number is large, 3.08e+03. This might indicate that there are\nstrong multicollinearity or other numerical problems."
+      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:             Sale_Price   R-squared:                       0.019\nModel:                            OLS   Adj. R-squared:                  0.019\nMethod:                 Least Squares   F-statistic:                     38.05\nDate:                Tue, 06 May 2025   Prob (F-statistic):           8.40e-10\nTime:                        20:43:50   Log-Likelihood:                -23999.\nNo. Observations:                1930   AIC:                         4.800e+04\nDf Residuals:                    1928   BIC:                         4.801e+04\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n================================================================================\n                   coef    std err          t      P>|t|      [0.025      0.975]\n--------------------------------------------------------------------------------\nconst          1.59e+05   2711.403     58.632      0.000    1.54e+05    1.64e+05\nLot_Frontage   257.8933     41.811      6.168      0.000     175.894     339.893\n==============================================================================\nOmnibus:                      140.806   Durbin-Watson:                   2.051\nProb(Omnibus):                  0.000   Jarque-Bera (JB):              172.307\nSkew:                           0.731   Prob(JB):                     3.84e-38\nKurtosis:                       2.924   Cond. No.                         127.\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
     },
     "2": {
       "degree": 2,
-      "formula": "Sale_Price = 108404.3462 + 20.0452*Total_Bsmt_SF + 0.0373*Total_Bsmt_SF^2",
+      "formula": "Sale_Price = 177688.9413 + -1101.7928*Lot_Frontage + 13.5743*Lot_Frontage^2",
       "coefficients": [
         0.0,
-        20.04519621614929,
-        0.037312093752774445
+        -1101.7927515694946,
+        13.574328870154659
       ],
-      "intercept": 108404.34620120673,
+      "intercept": 177688.94133527888,
       "metrics": {
-        "r2": 0.46187325340454655,
-        "rmse": 45083.02858505614,
-        "mae": 36434.44276984056,
-        "aic": 47034.92924047797,
-        "bic": 47051.625066323664
+        "r2": 0.11894319181471169,
+        "rmse": 57686.30872704654,
+        "mae": 45011.448702501744,
+        "aic": 47830.581832249736,
+        "bic": 47847.27765809543
       },
       "model_type": "polynomial",
       "feature_names": [
         "1",
-        "Total_Bsmt_SF",
-        "Total_Bsmt_SF^2"
+        "Lot_Frontage",
+        "Lot_Frontage^2"
       ]
     },
     "3": {
       "degree": 3,
-      "formula": "Sale_Price = 112360.7272 + 1.5503*Total_Bsmt_SF + 0.0592*Total_Bsmt_SF^2 + -0.0000*Total_Bsmt_SF^3",
+      "formula": "Sale_Price = 185199.5737 + -3464.1416*Lot_Frontage + 67.2162*Lot_Frontage^2 + -0.2944*Lot_Frontage^3",
       "coefficients": [
         0.0,
-        1.5502836088204262,
-        0.05919195840202394,
-        -7.276192044658458e-06
+        -3464.141605455135,
+        67.21620736353967,
+        -0.29444171099703453
       ],
-      "intercept": 112360.72724565328,
+      "intercept": 185199.5737375178,
       "metrics": {
-        "r2": 0.46091862821252605,
-        "rmse": 45122.999024317505,
-        "mae": 36521.159216379805,
-        "aic": 47036.314744410156,
-        "bic": 47058.57584553775
+        "r2": 0.1673422349450745,
+        "rmse": 56079.49090464294,
+        "mae": 43932.71603871934,
+        "aic": 47736.07641195157,
+        "bic": 47758.33751307917
       },
       "model_type": "polynomial",
       "feature_names": [
         "1",
-        "Total_Bsmt_SF",
-        "Total_Bsmt_SF^2",
-        "Total_Bsmt_SF^3"
+        "Lot_Frontage",
+        "Lot_Frontage^2",
+        "Lot_Frontage^3"
       ]
     },
     "4": {
       "degree": 4,
-      "formula": "Sale_Price = 107964.5828 + 40.2674*Total_Bsmt_SF + -0.0210*Total_Bsmt_SF^2 + 0.0001*Total_Bsmt_SF^3 + -0.0000*Total_Bsmt_SF^4",
+      "formula": "Sale_Price = 183018.2097 + -828.8018*Lot_Frontage + -36.4658*Lot_Frontage^2 + 0.9890*Lot_Frontage^3 + -0.0050*Lot_Frontage^4",
       "coefficients": [
         0.0,
-        40.26744726320467,
-        -0.021027345635465128,
-        5.276839858086094e-05,
-        -1.4783076096591685e-08
+        -828.8018405551941,
+        -36.46578016239356,
+        0.9889771852944857,
+        -0.004953573407647127
       ],
-      "intercept": 107964.58277270183,
+      "intercept": 183018.20974505972,
       "metrics": {
-        "r2": 0.46112953609929286,
-        "rmse": 45114.17129637447,
-        "mae": 36478.715708040625,
-        "aic": 47037.770018050556,
-        "bic": 47065.59639446005
+        "r2": 0.17267187215633062,
+        "rmse": 55899.72728474437,
+        "mae": 43614.49254103569,
+        "aic": 47709.626712774225,
+        "bic": 47737.45308918372
       },
       "model_type": "polynomial",
       "feature_names": [
         "1",
-        "Total_Bsmt_SF",
-        "Total_Bsmt_SF^2",
-        "Total_Bsmt_SF^3",
-        "Total_Bsmt_SF^4"
+        "Lot_Frontage",
+        "Lot_Frontage^2",
+        "Lot_Frontage^3",
+        "Lot_Frontage^4"
       ]
     },
     "best_model": {
-      "degree": 2,
+      "degree": 4,
       "selection_criterion": "AIC",
       "metrics": {
-        "r2": 0.46187325340454655,
-        "rmse": 45083.02858505614,
-        "mae": 36434.44276984056,
-        "aic": 47034.92924047797,
-        "bic": 47051.625066323664
+        "r2": 0.17267187215633062,
+        "rmse": 55899.72728474437,
+        "mae": 43614.49254103569,
+        "aic": 47709.626712774225,
+        "bic": 47737.45308918372
       }
     },
-    "plot_path": "plots/regression/polynomial_regression_Total_Bsmt_SF_Sale_Price.png"
+    "plot_path": "plots/regression/polynomial_regression_Lot_Frontage_Sale_Price.png"
   },
   "log_transformation_models": {
     "linear": {
       "name": "Linear",
       "formula": "y = a + b*x",
-      "model_formula": "y = a + b*x where a=72489.8323, b=98.8114",
+      "model_formula": "y = a + b*x where a=158717.6668, b=257.8933",
       "coefficients": [
-        72489.8323452867,
-        98.81136581024592
+        158717.66684152567,
+        257.8933364607612
       ],
       "transformed_metrics": {
-        "r2": 0.4338602047624023,
-        "rmse": 46241.57692388348,
-        "mae": 38402.58075488052
+        "r2": 0.012433400458373156,
+        "rmse": 61073.66615623001,
+        "mae": 48750.43785751008
       },
       "original_scale_metrics": {
-        "r2": 0.4338602047624023,
-        "rmse": 46241.57692388348,
-        "mae": 38402.58075488052
+        "r2": 0.012433400458373156,
+        "rmse": 61073.66615623001,
+        "mae": 48750.43785751008
       },
-      "aic": 47088.44972556375,
-      "bic": 47099.58027612755,
-      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:                 target   R-squared:                       0.389\nModel:                            OLS   Adj. R-squared:                  0.389\nMethod:                 Least Squares   F-statistic:                     1228.\nDate:                Tue, 06 May 2025   Prob (F-statistic):          1.40e-208\nTime:                        13:36:11   Log-Likelihood:                -23542.\nNo. Observations:                1930   AIC:                         4.709e+04\nDf Residuals:                    1928   BIC:                         4.710e+04\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n==============================================================================\n                 coef    std err          t      P>|t|      [0.025      0.975]\n------------------------------------------------------------------------------\nconst       7.249e+04   3078.981     23.543      0.000    6.65e+04    7.85e+04\npredictor     98.8114      2.820     35.042      0.000      93.281     104.342\n==============================================================================\nOmnibus:                       91.107   Durbin-Watson:                   2.066\nProb(Omnibus):                  0.000   Jarque-Bera (JB):              103.069\nSkew:                           0.557   Prob(JB):                     4.16e-23\nKurtosis:                       3.201   Cond. No.                     3.08e+03\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.\n[2] The condition number is large, 3.08e+03. This might indicate that there are\nstrong multicollinearity or other numerical problems."
+      "aic": 48001.852356951225,
+      "bic": 48012.98290751503,
+      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:                 target   R-squared:                       0.019\nModel:                            OLS   Adj. R-squared:                  0.019\nMethod:                 Least Squares   F-statistic:                     38.05\nDate:                Tue, 06 May 2025   Prob (F-statistic):           8.40e-10\nTime:                        20:43:50   Log-Likelihood:                -23999.\nNo. Observations:                1930   AIC:                         4.800e+04\nDf Residuals:                    1928   BIC:                         4.801e+04\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n==============================================================================\n                 coef    std err          t      P>|t|      [0.025      0.975]\n------------------------------------------------------------------------------\nconst       1.587e+05   2747.429     57.770      0.000    1.53e+05    1.64e+05\npredictor    257.8933     41.811      6.168      0.000     175.894     339.893\n==============================================================================\nOmnibus:                      140.806   Durbin-Watson:                   2.051\nProb(Omnibus):                  0.000   Jarque-Bera (JB):              172.307\nSkew:                           0.731   Prob(JB):                     3.84e-38\nKurtosis:                       2.924   Cond. No.                         130.\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
     },
     "log_x": {
       "name": "Log-Linear",
       "formula": "y = a + b*log(x)",
-      "model_formula": "y = a + b*log(x) where a=-221490.2844, b=57855.4165",
+      "model_formula": "y = a + b*log(x) where a=175903.7188, b=-748.3375",
       "coefficients": [
-        -221490.28444320132,
-        57855.41648915499
+        175903.71883083478,
+        -748.3374512703462
       ],
       "transformed_metrics": {
-        "r2": 0.27695541358885223,
-        "rmse": 52258.0660642705,
-        "mae": 42953.95996166206
+        "r2": -0.0009285075379470431,
+        "rmse": 61485.445409141765,
+        "mae": 48501.1206842486
       },
       "original_scale_metrics": {
-        "r2": 0.27695541358885223,
-        "rmse": 52258.0660642705,
-        "mae": 42953.95996166206
+        "r2": -0.0009285075379470431,
+        "rmse": 61485.445409141765,
+        "mae": 48501.1206842486
       },
-      "aic": 47472.2173952525,
-      "bic": 47483.3479458163,
-      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:                 target   R-squared:                       0.255\nModel:                            OLS   Adj. R-squared:                  0.254\nMethod:                 Least Squares   F-statistic:                     658.9\nDate:                Tue, 06 May 2025   Prob (F-statistic):          3.06e-125\nTime:                        13:36:11   Log-Likelihood:                -23734.\nNo. Observations:                1930   AIC:                         4.747e+04\nDf Residuals:                    1928   BIC:                         4.748e+04\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n=================================================================================\n                    coef    std err          t      P>|t|      [0.025      0.975]\n---------------------------------------------------------------------------------\nconst         -2.215e+05   1.54e+04    -14.355      0.000   -2.52e+05   -1.91e+05\nlog_predictor  5.786e+04   2253.960     25.668      0.000    5.34e+04    6.23e+04\n==============================================================================\nOmnibus:                      136.661   Durbin-Watson:                   2.041\nProb(Omnibus):                  0.000   Jarque-Bera (JB):              166.262\nSkew:                           0.719   Prob(JB):                     7.88e-37\nKurtosis:                       3.022   Cond. No.                         89.3\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
+      "aic": 48038.78046244094,
+      "bic": 48049.91101300474,
+      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:                 target   R-squared:                       0.000\nModel:                            OLS   Adj. R-squared:                 -0.000\nMethod:                 Least Squares   F-statistic:                    0.7848\nDate:                Tue, 06 May 2025   Prob (F-statistic):              0.376\nTime:                        20:43:50   Log-Likelihood:                -24017.\nNo. Observations:                1930   AIC:                         4.804e+04\nDf Residuals:                    1928   BIC:                         4.805e+04\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n=================================================================================\n                    coef    std err          t      P>|t|      [0.025      0.975]\n---------------------------------------------------------------------------------\nconst          1.759e+05   3201.559     54.943      0.000     1.7e+05    1.82e+05\nlog_predictor  -748.3375    844.720     -0.886      0.376   -2404.998     908.323\n==============================================================================\nOmnibus:                      159.660   Durbin-Watson:                   2.058\nProb(Omnibus):                  0.000   Jarque-Bera (JB):              200.650\nSkew:                           0.789   Prob(JB):                     2.69e-44\nKurtosis:                       3.065   Cond. No.                         9.17\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
     },
     "log_y": {
       "name": "Linear-Log",
       "formula": "log(y) = a + b*x",
-      "model_formula": "log(y) = a + b*x where a=11.4279, b=0.0006",
+      "model_formula": "log(y) = a + b*x where a=11.9293, b=0.0013",
       "coefficients": [
-        11.42788317977707,
-        0.0005624341449592232
+        11.92932315605315,
+        0.0012805838748571965
       ],
       "transformed_metrics": {
-        "r2": 0.4154040395963755,
-        "rmse": 0.2769442281854771,
-        "mae": 0.22321450459250303
+        "r2": 0.00739761079204504,
+        "rmse": 0.3608710734880389,
+        "mae": 0.28642475378053955
       },
       "original_scale_metrics": {
-        "r2": 0.45017189632911725,
-        "rmse": 45570.54907398051,
-        "mae": 36218.35768830222
+        "r2": -0.0003524188334829148,
+        "rmse": 61467.74875624552,
+        "mae": 47561.5589880263
       },
-      "aic": 507.96803250375297,
-      "bic": 519.0985830675509,
-      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:             log_target   R-squared:                       0.385\nModel:                            OLS   Adj. R-squared:                  0.385\nMethod:                 Least Squares   F-statistic:                     1206.\nDate:                Tue, 06 May 2025   Prob (F-statistic):          1.13e-205\nTime:                        13:36:11   Log-Likelihood:                -251.98\nNo. Observations:                1930   AIC:                             508.0\nDf Residuals:                    1928   BIC:                             519.1\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n==============================================================================\n                 coef    std err          t      P>|t|      [0.025      0.975]\n------------------------------------------------------------------------------\nconst         11.4279      0.018    646.249      0.000      11.393      11.463\npredictor      0.0006   1.62e-05     34.729      0.000       0.001       0.001\n==============================================================================\nOmnibus:                       12.701   Durbin-Watson:                   2.087\nProb(Omnibus):                  0.002   Jarque-Bera (JB):               16.352\nSkew:                          -0.085   Prob(JB):                     0.000281\nKurtosis:                       3.418   Cond. No.                     3.08e+03\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.\n[2] The condition number is large, 3.08e+03. This might indicate that there are\nstrong multicollinearity or other numerical problems."
+      "aic": 1417.3718853389355,
+      "bic": 1428.5024359027334,
+      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:             log_target   R-squared:                       0.015\nModel:                            OLS   Adj. R-squared:                  0.014\nMethod:                 Least Squares   F-statistic:                     28.50\nDate:                Tue, 06 May 2025   Prob (F-statistic):           1.05e-07\nTime:                        20:43:50   Log-Likelihood:                -706.69\nNo. Observations:                1930   AIC:                             1417.\nDf Residuals:                    1928   BIC:                             1429.\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n==============================================================================\n                 coef    std err          t      P>|t|      [0.025      0.975]\n------------------------------------------------------------------------------\nconst         11.9293      0.016    756.798      0.000      11.898      11.960\npredictor      0.0013      0.000      5.338      0.000       0.001       0.002\n==============================================================================\nOmnibus:                        5.139   Durbin-Watson:                   2.065\nProb(Omnibus):                  0.077   Jarque-Bera (JB):                5.056\nSkew:                          -0.122   Prob(JB):                       0.0798\nKurtosis:                       3.061   Cond. No.                         130.\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
     },
     "log_log": {
       "name": "Log-Log",
       "formula": "log(y) = a + b*log(x)",
-      "model_formula": "log(y) = a + b*log(x) where a=9.6177, b=0.3494",
+      "model_formula": "log(y) = a + b*log(x) where a=12.0277, b=-0.0075",
       "coefficients": [
-        9.617714176562808,
-        0.34936301590132207
+        12.027721310646736,
+        -0.007546515181687652
       ],
       "transformed_metrics": {
-        "r2": 0.30421008241591274,
-        "rmse": 0.30213669832300843,
-        "mae": 0.24824616720018217
+        "r2": 0.000617444620262253,
+        "rmse": 0.3621014764177553,
+        "mae": 0.2837955268398917
       },
       "original_scale_metrics": {
-        "r2": 0.3116734453940624,
-        "rmse": 50988.009296737124,
-        "mae": 40787.18253174918
+        "r2": -0.012182878700121025,
+        "rmse": 61830.14821951595,
+        "mae": 47170.84860766335
       },
-      "aic": 802.2193742741924,
-      "bic": 813.3499248379903,
-      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:             log_target   R-squared:                       0.284\nModel:                            OLS   Adj. R-squared:                  0.283\nMethod:                 Least Squares   F-statistic:                     762.9\nDate:                Tue, 06 May 2025   Prob (F-statistic):          8.90e-142\nTime:                        13:36:11   Log-Likelihood:                -399.11\nNo. Observations:                1930   AIC:                             802.2\nDf Residuals:                    1928   BIC:                             813.3\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n=================================================================================\n                    coef    std err          t      P>|t|      [0.025      0.975]\n---------------------------------------------------------------------------------\nconst             9.6177      0.087    111.077      0.000       9.448       9.788\nlog_predictor     0.3494      0.013     27.621      0.000       0.325       0.374\n==============================================================================\nOmnibus:                        9.957   Durbin-Watson:                   2.047\nProb(Omnibus):                  0.007   Jarque-Bera (JB):               13.186\nSkew:                          -0.028   Prob(JB):                      0.00137\nKurtosis:                       3.401   Cond. No.                         89.3\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
+      "aic": 1443.2511602501113,
+      "bic": 1454.3817108139092,
+      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:             log_target   R-squared:                       0.001\nModel:                            OLS   Adj. R-squared:                  0.001\nMethod:                 Least Squares   F-statistic:                     2.439\nDate:                Tue, 06 May 2025   Prob (F-statistic):              0.119\nTime:                        20:43:50   Log-Likelihood:                -719.63\nNo. Observations:                1930   AIC:                             1443.\nDf Residuals:                    1928   BIC:                             1454.\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n=================================================================================\n                    coef    std err          t      P>|t|      [0.025      0.975]\n---------------------------------------------------------------------------------\nconst            12.0277      0.018    656.683      0.000      11.992      12.064\nlog_predictor    -0.0075      0.005     -1.562      0.119      -0.017       0.002\n==============================================================================\nOmnibus:                        2.903   Durbin-Watson:                   2.070\nProb(Omnibus):                  0.234   Jarque-Bera (JB):                2.804\nSkew:                          -0.084   Prob(JB):                        0.246\nKurtosis:                       3.080   Cond. No.                         9.17\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
     },
     "best_model": {
-      "transform": "log_y",
-      "name": "Linear-Log",
+      "transform": "linear",
+      "name": "Linear",
       "selection_criterion": "R\u00b2 on original scale",
       "metrics": {
-        "r2": 0.45017189632911725,
-        "rmse": 45570.54907398051,
-        "mae": 36218.35768830222
+        "r2": 0.012433400458373156,
+        "rmse": 61073.66615623001,
+        "mae": 48750.43785751008
       }
     },
-    "plot_path": "plots/models/transformation_models_Total_Bsmt_SF_Sale_Price.png"
+    "plot_path": "plots/models/transformation_models_Lot_Frontage_Sale_Price.png"
   },
   "model_comparison": {
     "linear_model": {
       "name": "Linear Regression",
       "metrics": {
-        "r2": 0.4338602047624023,
-        "rmse": 46241.57692388348,
-        "mae": 38402.58075488052,
-        "aic": 47088.44972556375,
-        "bic": 47099.58027612755
+        "r2": 0.012433400458373156,
+        "rmse": 61073.66615623001,
+        "mae": 48750.43785751006,
+        "aic": 48001.852356951225,
+        "bic": 48012.98290751503
       }
     },
     "best_polynomial": {
-      "name": "Polynomial (degree=2)",
+      "name": "Polynomial (degree=4)",
       "metrics": {
-        "r2": 0.46187325340454655,
-        "rmse": 45083.02858505614,
-        "mae": 36434.44276984056,
-        "aic": 47034.92924047797,
-        "bic": 47051.625066323664
+        "r2": 0.17267187215633062,
+        "rmse": 55899.72728474437,
+        "mae": 43614.49254103569,
+        "aic": 47709.626712774225,
+        "bic": 47737.45308918372
       }
     },
     "best_log_transform": {

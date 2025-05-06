@@ -1,260 +1,867 @@
 {
-  "dataset_info": {
-    "total_rows": 2414,
-    "total_columns": 1,
-    "column_names": [
-      "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data.csv"
-    ],
-    "quality_score": 85.0
-  },
-  "issue_summary": {
-    "total_rows": 2414,
-    "total_columns": 1,
-    "missing_value_count": 0,
-    "duplicate_row_count": 1623,
-    "outlier_count": 0,
-    "impossible_value_count": 0
-  },
-  "type_verification": {
-    "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data.csv": {
-      "has_issues": false,
-      "current_type": "object"
-    }
-  },
-  "missing_values": {
-    "column_details": {
-      "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data.csv": {
-        "count": 0,
-        "percentage": 0.0,
-        "is_significant": "False"
+  "assessment_data": {
+    "type_verification": {
+      "Lot_Frontage": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "Lot_Area": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "Bldg_Type": {
+        "current_type": "object",
+        "inferred_types": [
+          "string"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "object",
+        "mixed_types": false
+      },
+      "House_Style": {
+        "current_type": "object",
+        "inferred_types": [
+          "string"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "object",
+        "mixed_types": false
+      },
+      "Overall_Cond": {
+        "current_type": "object",
+        "inferred_types": [
+          "string"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "object",
+        "mixed_types": false
+      },
+      "Year_Built": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "Exter_Cond": {
+        "current_type": "object",
+        "inferred_types": [
+          "string"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "object",
+        "mixed_types": false
+      },
+      "Total_Bsmt_SF": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "First_Flr_SF": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "Second_Flr_SF": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "Full_Bath": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "Half_Bath": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "Bedroom_AbvGr": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "Kitchen_AbvGr": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "Fireplaces": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
+      },
+      "Longitude": {
+        "current_type": "float64",
+        "inferred_types": [
+          "float"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "float64",
+        "mixed_types": false
+      },
+      "Latitude": {
+        "current_type": "float64",
+        "inferred_types": [
+          "float"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "float64",
+        "mixed_types": false
+      },
+      "Sale_Price": {
+        "current_type": "int64",
+        "inferred_types": [
+          "integer"
+        ],
+        "non_numeric_count": 0,
+        "suggested_type": "int64",
+        "mixed_types": false
       }
     },
-    "total_missing_rows": 0,
-    "missing_patterns": {}
-  },
-  "duplicates": {
-    "count": 1623,
-    "percentage": 67.2328086164043,
-    "indices": [
-      [
-        "24",
-        "2280",
-        "Twnhs",
-        "Two_Story",
-        "Above_Average",
-        "1975",
-        "Typical",
-        "855",
-        "855",
-        "601",
-        "2",
-        "1",
-        "3",
-        "1",
-        "1",
-        "-93.625924",
-        "42.050683"
-      ],
-      [
-        "0",
-        "8880",
-        "OneFam",
-        "Two_Story",
-        "Average",
-        "1994",
-        "Typical",
-        "948",
-        "1222",
-        "888",
-        "2",
-        "1",
-        "3",
-        "1",
-        "2",
-        "-93.68981",
-        "42.036026"
-      ],
-      [
-        "70",
-        "11218",
-        "OneFam",
-        "Two_Story",
-        "Average",
-        "1992",
-        "Typical",
-        "1055",
-        "1055",
-        "790",
-        "2",
-        "1",
-        "3",
-        "1",
-        "1",
-        "-93.687694",
-        "42.036659"
-      ],
-      [
-        "107",
-        "10186",
-        "OneFam",
-        "Two_Story",
-        "Average",
-        "1992",
-        "Typical",
-        "750",
-        "1061",
-        "862",
-        "2",
-        "1",
-        "3",
-        "1",
-        "1",
-        "-93.646749",
-        "42.048253"
-      ],
-      [
-        "39",
-        "3515",
-        "TwnhsE",
-        "Two_Story",
-        "Average",
-        "2004",
-        "Typical",
-        "840",
-        "840",
-        "840",
-        "2",
-        "1",
-        "2",
-        "1",
-        "0",
-        "-93.64614",
-        "42.048086"
-      ],
-      [
-        "24",
-        "2544",
-        "Twnhs",
-        "Two_Story",
-        "Average",
-        "2005",
-        "Typical",
-        "600",
-        "600",
-        "636",
-        "2",
-        "1",
-        "2",
-        "1",
-        "0",
-        "-93.64489",
-        "42.047782"
-      ],
-      [
-        "24",
-        "2572",
-        "Twnhs",
-        "Two_Story",
-        "Average",
-        "1999",
-        "Typical",
-        "696",
-        "696",
-        "720",
-        "2",
-        "1",
-        "3",
-        "1",
-        "0",
-        "-93.645482",
-        "42.046424"
-      ],
-      [
-        "30",
-        "4420",
-        "TwnhsE",
-        "One_Story",
-        "Average",
-        "1980",
-        "Typical",
-        "728",
-        "788",
-        "0",
-        "1",
-        "0",
-        "1",
-        "1",
-        "1",
-        "-93.649361",
-        "42.042565"
-      ],
-      [
-        "0",
-        "10603",
-        "OneFam",
-        "One_Story",
-        "Good",
-        "1977",
-        "Typical",
-        "1610",
-        "1610",
-        "0",
-        "2",
-        "0",
-        "3",
-        "1",
-        "2",
-        "-93.637463",
-        "42.043306"
-      ],
-      [
-        "80",
-        "9600",
-        "OneFam",
-        "Two_Story",
-        "Above_Average",
-        "1971",
-        "Typical",
-        "715",
-        "930",
-        "715",
-        "1",
-        "2",
-        "4",
-        "1",
-        "0",
-        "-93.632554",
-        "42.043821"
-      ]
-    ],
-    "examples": [
-      {
-        "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data.csv": "149900"
+    "missing_values": {
+      "column_details": {
+        "Lot_Frontage": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Lot_Area": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Bldg_Type": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "House_Style": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Overall_Cond": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Year_Built": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Exter_Cond": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Total_Bsmt_SF": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "First_Flr_SF": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Second_Flr_SF": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Full_Bath": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Half_Bath": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Bedroom_AbvGr": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Kitchen_AbvGr": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Fireplaces": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Longitude": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Latitude": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        },
+        "Sale_Price": {
+          "count": 0,
+          "percentage": 0.0,
+          "is_significant": "False"
+        }
       },
-      {
-        "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data.csv": "205000"
+      "total_missing_rows": 0,
+      "missing_patterns": {}
+    },
+    "outliers_tukey": {
+      "Lot_Frontage": {
+        "q1": 37.0,
+        "q3": 77.0,
+        "iqr": 40.0,
+        "lower_bound": -23.0,
+        "upper_bound": 137.0,
+        "outlier_count": 16,
+        "outlier_percentage": 0.6630750103605471,
+        "outlier_indices": [
+          0,
+          16,
+          17,
+          405,
+          434,
+          635,
+          831,
+          1097,
+          1376,
+          1418
+        ],
+        "outlier_values": [
+          141,
+          152,
+          140,
+          149,
+          174,
+          144,
+          150,
+          313,
+          150,
+          195
+        ],
+        "z_score_outlier_count": 4,
+        "method_agreement_percentage": 25.0
       },
-      {
-        "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data.csv": "189000"
+      "Lot_Area": {
+        "q1": 7390.0,
+        "q3": 11404.0,
+        "iqr": 4014.0,
+        "lower_bound": 1369.0,
+        "upper_bound": 17425.0,
+        "outlier_count": 110,
+        "outlier_percentage": 4.5586406962287604,
+        "outlier_indices": [
+          0,
+          15,
+          17,
+          42,
+          51,
+          100,
+          120,
+          182,
+          201,
+          204
+        ],
+        "outlier_values": [
+          31770,
+          53504,
+          19138,
+          18494,
+          17433,
+          18837,
+          19900,
+          24090,
+          20062,
+          23595
+        ],
+        "z_score_outlier_count": 20,
+        "method_agreement_percentage": 18.181818181818183
       },
-      {
-        "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data.csv": "190000"
+      "Year_Built": {
+        "q1": 1953.0,
+        "q3": 1998.0,
+        "iqr": 45.0,
+        "lower_bound": 1885.5,
+        "upper_bound": 2065.5,
+        "outlier_count": 10,
+        "outlier_percentage": 0.4144218814753419,
+        "outlier_indices": [
+          164,
+          188,
+          626,
+          629,
+          704,
+          1132,
+          1143,
+          1676,
+          1690,
+          1691
+        ],
+        "outlier_values": [
+          1885,
+          1875,
+          1880,
+          1882,
+          1880,
+          1880,
+          1872,
+          1885,
+          1880,
+          1879
+        ],
+        "z_score_outlier_count": 7,
+        "method_agreement_percentage": 70.0
       },
-      {
-        "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data.csv": "190000"
+      "Total_Bsmt_SF": {
+        "q1": 784.0,
+        "q3": 1246.0,
+        "iqr": 462.0,
+        "lower_bound": 91.0,
+        "upper_bound": 1939.0,
+        "outlier_count": 116,
+        "outlier_percentage": 4.807293825113966,
+        "outlier_indices": [
+          3,
+          37,
+          56,
+          73,
+          120,
+          135,
+          180,
+          232,
+          242,
+          243
+        ],
+        "outlier_values": [
+          2110,
+          2846,
+          2033,
+          0,
+          1947,
+          0,
+          0,
+          1978,
+          0,
+          0
+        ],
+        "z_score_outlier_count": 14,
+        "method_agreement_percentage": 12.068965517241379
+      },
+      "First_Flr_SF": {
+        "q1": 866.0,
+        "q3": 1350.0,
+        "iqr": 484.0,
+        "lower_bound": 140.0,
+        "upper_bound": 2076.0,
+        "outlier_count": 35,
+        "outlier_percentage": 1.4504765851636967,
+        "outlier_indices": [
+          3,
+          37,
+          120,
+          309,
+          334,
+          370,
+          376,
+          388,
+          389,
+          397
+        ],
+        "outlier_values": [
+          2110,
+          2696,
+          2207,
+          2522,
+          2524,
+          2402,
+          2674,
+          2392,
+          2452,
+          2200
+        ],
+        "z_score_outlier_count": 21,
+        "method_agreement_percentage": 60.0
+      },
+      "Second_Flr_SF": {
+        "q1": 0.0,
+        "q3": 704.0,
+        "iqr": 704.0,
+        "lower_bound": -1056.0,
+        "upper_bound": 1760.0,
+        "outlier_count": 5,
+        "outlier_percentage": 0.20721094073767096,
+        "outlier_indices": [
+          256,
+          1132,
+          1501,
+          2039,
+          2272
+        ],
+        "outlier_values": [
+          1788,
+          1818,
+          1872,
+          1796,
+          1836
+        ],
+        "z_score_outlier_count": 11,
+        "method_agreement_percentage": 100.0
+      },
+      "Full_Bath": {
+        "q1": 1.0,
+        "q3": 2.0,
+        "iqr": 1.0,
+        "lower_bound": -0.5,
+        "upper_bound": 3.5,
+        "outlier_count": 4,
+        "outlier_percentage": 0.16576875259013676,
+        "outlier_indices": [
+          296,
+          705,
+          706,
+          707
+        ],
+        "outlier_values": [
+          4,
+          4,
+          4,
+          4
+        ],
+        "z_score_outlier_count": 4,
+        "method_agreement_percentage": 100.0
+      },
+      "Half_Bath": {
+        "q1": 0.0,
+        "q3": 1.0,
+        "iqr": 1.0,
+        "lower_bound": -1.5,
+        "upper_bound": 2.5,
+        "outlier_count": 0,
+        "outlier_percentage": 0.0,
+        "outlier_indices": [],
+        "outlier_values": [],
+        "z_score_outlier_count": 16,
+        "method_agreement_percentage": 0.0
+      },
+      "Bedroom_AbvGr": {
+        "q1": 2.0,
+        "q3": 3.0,
+        "iqr": 1.0,
+        "lower_bound": 0.5,
+        "upper_bound": 4.5,
+        "outlier_count": 61,
+        "outlier_percentage": 2.527973476999586,
+        "outlier_indices": [
+          119,
+          138,
+          140,
+          204,
+          222,
+          256,
+          260,
+          275,
+          298,
+          508
+        ],
+        "outlier_values": [
+          5,
+          0,
+          5,
+          0,
+          5,
+          6,
+          5,
+          5,
+          5,
+          5
+        ],
+        "z_score_outlier_count": 22,
+        "method_agreement_percentage": 36.0655737704918
+      },
+      "Kitchen_AbvGr": {
+        "q1": 1.0,
+        "q3": 1.0,
+        "iqr": 0.0,
+        "lower_bound": 1.0,
+        "upper_bound": 1.0,
+        "outlier_count": 98,
+        "outlier_percentage": 4.061334438458351,
+        "outlier_indices": [
+          73,
+          119,
+          122,
+          138,
+          153,
+          164,
+          180,
+          181,
+          187,
+          189
+        ],
+        "outlier_values": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "z_score_outlier_count": 98,
+        "method_agreement_percentage": 100.0
+      },
+      "Fireplaces": {
+        "q1": 0.0,
+        "q3": 1.0,
+        "iqr": 1.0,
+        "lower_bound": -1.5,
+        "upper_bound": 2.5,
+        "outlier_count": 11,
+        "outlier_percentage": 0.45586406962287607,
+        "outlier_indices": [
+          303,
+          369,
+          545,
+          684,
+          1629,
+          1883,
+          2011,
+          2071,
+          2073,
+          2089
+        ],
+        "outlier_values": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          4,
+          3,
+          3
+        ],
+        "z_score_outlier_count": 11,
+        "method_agreement_percentage": 100.0
+      },
+      "Longitude": {
+        "q1": -93.661562,
+        "q3": -93.621485,
+        "iqr": 0.04007699999999659,
+        "lower_bound": -93.7216775,
+        "upper_bound": -93.56136950000001,
+        "outlier_count": 0,
+        "outlier_percentage": 0.0,
+        "outlier_indices": [],
+        "outlier_values": [],
+        "z_score_outlier_count": 0,
+        "method_agreement_percentage": 0.0
+      },
+      "Latitude": {
+        "q1": 42.021547,
+        "q3": 42.047997,
+        "iqr": 0.02645000000000408,
+        "lower_bound": 41.981871999999996,
+        "upper_bound": 42.08767200000001,
+        "outlier_count": 0,
+        "outlier_percentage": 0.0,
+        "outlier_indices": [],
+        "outlier_values": [],
+        "z_score_outlier_count": 0,
+        "method_agreement_percentage": 0.0
+      },
+      "Sale_Price": {
+        "q1": 129500.0,
+        "q3": 206900.0,
+        "iqr": 77400.0,
+        "lower_bound": 13400.0,
+        "upper_bound": 323000.0,
+        "outlier_count": 95,
+        "outlier_percentage": 3.937007874015748,
+        "outlier_indices": [
+          15,
+          37,
+          50,
+          51,
+          53,
+          56,
+          80,
+          200,
+          262,
+          281
+        ],
+        "outlier_values": [
+          538000,
+          500000,
+          333168,
+          355000,
+          325000,
+          410000,
+          362500,
+          328000,
+          335000,
+          378500
+        ],
+        "z_score_outlier_count": 33,
+        "method_agreement_percentage": 34.73684210526316
       }
-    ]
+    },
+    "duplicates": {
+      "count": 0,
+      "percentage": 0.0,
+      "indices": [],
+      "examples": []
+    },
+    "impossible_values": {},
+    "distribution_stats": {
+      "Lot_Frontage": {
+        "mean": 55.46249481972648,
+        "median": 60.0,
+        "std": 33.5424155120584,
+        "min": 0.0,
+        "max": 313.0,
+        "skewness": -0.08111445592594824,
+        "kurtosis": 1.165690336036311,
+        "shapiro_p_value": 3.496351776012861e-35,
+        "is_normal": "False",
+        "is_skewed": "False",
+        "skew_direction": "left"
+      },
+      "Lot_Area": {
+        "mean": 10060.2080397845,
+        "median": 9360.0,
+        "std": 8222.759853506777,
+        "min": 1300.0,
+        "max": 215245.0,
+        "skewness": 13.393920620046206,
+        "kurtosis": 270.46606774409696,
+        "shapiro_p_value": 6.430870890269975e-67,
+        "is_normal": "False",
+        "is_skewed": "True",
+        "skew_direction": "right"
+      },
+      "Year_Built": {
+        "mean": 1969.4363862411935,
+        "median": 1971.0,
+        "std": 29.487942593732893,
+        "min": 1872.0,
+        "max": 2010.0,
+        "skewness": -0.5867241005730729,
+        "kurtosis": -0.4386531808961647,
+        "shapiro_p_value": 4.421174284310845e-31,
+        "is_normal": "False",
+        "is_skewed": "False",
+        "skew_direction": "left"
+      },
+      "Total_Bsmt_SF": {
+        "mean": 1022.8276004973062,
+        "median": 970.0,
+        "std": 408.97784766984984,
+        "min": 0.0,
+        "max": 3206.0,
+        "skewness": 0.45638579648376104,
+        "kurtosis": 1.716118515910336,
+        "shapiro_p_value": 1.8230509009475477e-22,
+        "is_normal": "False",
+        "is_skewed": "False",
+        "skew_direction": "right"
+      },
+      "First_Flr_SF": {
+        "mean": 1133.857024450891,
+        "median": 1060.0,
+        "std": 366.44246971732883,
+        "min": 334.0,
+        "max": 3820.0,
+        "skewness": 1.0433010574738528,
+        "kurtosis": 2.2565341909666423,
+        "shapiro_p_value": 5.827298498992638e-29,
+        "is_normal": "False",
+        "is_skewed": "True",
+        "skew_direction": "right"
+      },
+      "Second_Flr_SF": {
+        "mean": 339.2428512225446,
+        "median": 0.0,
+        "std": 423.1984877928352,
+        "min": 0.0,
+        "max": 1872.0,
+        "skewness": 0.804117801386001,
+        "kurtosis": -0.5594041335096982,
+        "shapiro_p_value": 8.455474592054929e-50,
+        "is_normal": "False",
+        "is_skewed": "False",
+        "skew_direction": "right"
+      },
+      "Full_Bath": {
+        "mean": 1.5391628677994198,
+        "median": 2.0,
+        "std": 0.5446670095790446,
+        "min": 0.0,
+        "max": 4.0,
+        "skewness": 0.24501289387833888,
+        "kurtosis": -0.5703071668410042,
+        "shapiro_p_value": 3.296142517298664e-54,
+        "is_normal": "False",
+        "is_skewed": "False",
+        "skew_direction": "right"
+      },
+      "Half_Bath": {
+        "mean": 0.3779527559055118,
+        "median": 0.0,
+        "std": 0.49846659003621013,
+        "min": 0.0,
+        "max": 2.0,
+        "skewness": 0.6639923945958431,
+        "kurtosis": -1.1626671748001847,
+        "shapiro_p_value": 6.855326254687294e-58,
+        "is_normal": "False",
+        "is_skewed": "False",
+        "skew_direction": "right"
+      },
+      "Bedroom_AbvGr": {
+        "mean": 2.854537919602155,
+        "median": 3.0,
+        "std": 0.8134296721806352,
+        "min": 0.0,
+        "max": 6.0,
+        "skewness": 0.18415873770874286,
+        "kurtosis": 1.471746245079689,
+        "shapiro_p_value": 8.9016743473119e-43,
+        "is_normal": "False",
+        "is_skewed": "False",
+        "skew_direction": "right"
+      },
+      "Kitchen_AbvGr": {
+        "mean": 1.040198922503108,
+        "median": 1.0,
+        "std": 0.2006423190188444,
+        "min": 0.0,
+        "max": 3.0,
+        "skewness": 4.681574232610174,
+        "kurtosis": 21.974671971160447,
+        "shapiro_p_value": 1.0623976370535131e-72,
+        "is_normal": "False",
+        "is_skewed": "True",
+        "skew_direction": "right"
+      },
+      "Fireplaces": {
+        "mean": 0.6029838375466224,
+        "median": 1.0,
+        "std": 0.6489111036077537,
+        "min": 0.0,
+        "max": 4.0,
+        "skewness": 0.7390754323691339,
+        "kurtosis": 0.13824658070676232,
+        "shapiro_p_value": 4.0613660301999406e-51,
+        "is_normal": "False",
+        "is_skewed": "False",
+        "skew_direction": "right"
+      },
+      "Longitude": {
+        "mean": -93.64239087633652,
+        "median": -93.640326,
+        "std": 0.026158505885609983,
+        "min": -93.693153,
+        "max": -93.577427,
+        "skewness": -0.33751271965788754,
+        "kurtosis": -0.9725572866101664,
+        "shapiro_p_value": 1.0921426832919313e-27,
+        "is_normal": "False",
+        "is_skewed": "False",
+        "skew_direction": "left"
+      },
+      "Latitude": {
+        "mean": 42.033730263903855,
+        "median": 42.034569,
+        "std": 0.01801530068041116,
+        "min": 41.986498,
+        "max": 42.063381,
+        "skewness": -0.5077781135671717,
+        "kurtosis": -0.08312853543823939,
+        "shapiro_p_value": 2.9454012338449024e-25,
+        "is_normal": "False",
+        "is_skewed": "False",
+        "skew_direction": "left"
+      },
+      "Sale_Price": {
+        "mean": 175567.64318276005,
+        "median": 159000.0,
+        "std": 70979.61444112333,
+        "min": 35000.0,
+        "max": 755000.0,
+        "skewness": 1.7453580480340125,
+        "kurtosis": 5.825763749688768,
+        "shapiro_p_value": 3.1899255876086824e-39,
+        "is_normal": "False",
+        "is_skewed": "True",
+        "skew_direction": "right"
+      }
+    }
   },
-  "outliers": {},
-  "impossible_values": {},
-  "distribution_stats": {},
   "recommendations": {
+    "data_types": [],
     "missing_values": [],
-    "duplicates": [
-      "Remove 1623 duplicate rows from the dataset"
-    ],
     "outliers": [],
-    "impossible_values": [],
-    "data_types": []
-  }
+    "duplicates": [],
+    "impossible_values": []
+  },
+  "timestamp": "2025-05-06T20:41:49.501346"
 }

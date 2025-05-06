@@ -2,231 +2,235 @@
   "polynomial_models": {
     "1": {
       "degree": 1,
-      "formula": "Time = 2.1948 + 5.6379*Distance",
+      "formula": "Sale_Price = 72489.8323 + 98.8114*Total_Bsmt_SF",
       "coefficients": [
-        2.1947528042233997,
-        5.63789474190091
+        72489.8323452867,
+        98.81136581024592
       ],
       "metrics": {
-        "r2": 0.41923545987068345,
-        "rmse": 10.703141909119541,
-        "mae": 8.836643729928655,
-        "aic": 1649.4174947371625,
-        "bic": 1656.2407868408727
+        "r2": 0.4338602047624023,
+        "rmse": 46241.57692388348,
+        "mae": 38402.58075488052,
+        "aic": 47088.44972556375,
+        "bic": 47099.58027612755
       },
       "model_type": "polynomial",
-      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:                   Time   R-squared:                       0.430\nModel:                            OLS   Adj. R-squared:                  0.428\nMethod:                 Least Squares   F-statistic:                     167.7\nDate:                Sat, 03 May 2025   Prob (F-statistic):           6.00e-29\nTime:                        05:47:30   Log-Likelihood:                -822.71\nNo. Observations:                 224   AIC:                             1649.\nDf Residuals:                     222   BIC:                             1656.\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n==============================================================================\n                 coef    std err          t      P>|t|      [0.025      0.975]\n------------------------------------------------------------------------------\nconst          2.1948      1.466      1.498      0.136      -0.693       5.083\nDistance       5.6379      0.435     12.951      0.000       4.780       6.496\n==============================================================================\nOmnibus:                       10.136   Durbin-Watson:                   1.934\nProb(Omnibus):                  0.006   Jarque-Bera (JB):               10.810\nSkew:                           0.532   Prob(JB):                      0.00449\nKurtosis:                       2.841   Cond. No.                         8.28\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
+      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:             Sale_Price   R-squared:                       0.389\nModel:                            OLS   Adj. R-squared:                  0.389\nMethod:                 Least Squares   F-statistic:                     1228.\nDate:                Tue, 06 May 2025   Prob (F-statistic):          1.40e-208\nTime:                        13:36:11   Log-Likelihood:                -23542.\nNo. Observations:                1930   AIC:                         4.709e+04\nDf Residuals:                    1928   BIC:                         4.710e+04\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n=================================================================================\n                    coef    std err          t      P>|t|      [0.025      0.975]\n---------------------------------------------------------------------------------\nconst          7.249e+04   3078.981     23.543      0.000    6.65e+04    7.85e+04\nTotal_Bsmt_SF    98.8114      2.820     35.042      0.000      93.281     104.342\n==============================================================================\nOmnibus:                       91.107   Durbin-Watson:                   2.066\nProb(Omnibus):                  0.000   Jarque-Bera (JB):              103.069\nSkew:                           0.557   Prob(JB):                     4.16e-23\nKurtosis:                       3.201   Cond. No.                     3.08e+03\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.\n[2] The condition number is large, 3.08e+03. This might indicate that there are\nstrong multicollinearity or other numerical problems."
     },
     "2": {
       "degree": 2,
-      "formula": "Time = -1.6461 + 8.6501*Distance + -0.4663*Distance^2",
+      "formula": "Sale_Price = 108404.3462 + 20.0452*Total_Bsmt_SF + 0.0373*Total_Bsmt_SF^2",
       "coefficients": [
         0.0,
-        8.650142138635527,
-        -0.466263039903275
+        20.04519621614929,
+        0.037312093752774445
       ],
-      "intercept": -1.6460782605590936,
+      "intercept": 108404.34620120673,
       "metrics": {
-        "r2": 0.42437204388617655,
-        "rmse": 10.655704706076152,
-        "mae": 8.989492566337397,
-        "aic": 1647.5264943259572,
-        "bic": 1657.7614324815222
+        "r2": 0.46187325340454655,
+        "rmse": 45083.02858505614,
+        "mae": 36434.44276984056,
+        "aic": 47034.92924047797,
+        "bic": 47051.625066323664
       },
       "model_type": "polynomial",
       "feature_names": [
         "1",
-        "Distance",
-        "Distance^2"
+        "Total_Bsmt_SF",
+        "Total_Bsmt_SF^2"
       ]
     },
     "3": {
       "degree": 3,
-      "formula": "Time = 4.2046 + 1.7106*Distance + 1.6532*Distance^2 + -0.1834*Distance^3",
+      "formula": "Sale_Price = 112360.7272 + 1.5503*Total_Bsmt_SF + 0.0592*Total_Bsmt_SF^2 + -0.0000*Total_Bsmt_SF^3",
       "coefficients": [
         0.0,
-        1.7106122524840466,
-        1.6532104212274845,
-        -0.18335154649335683
+        1.5502836088204262,
+        0.05919195840202394,
+        -7.276192044658458e-06
       ],
-      "intercept": 4.204630370105228,
+      "intercept": 112360.72724565328,
       "metrics": {
-        "r2": 0.4313408357384123,
-        "rmse": 10.591007095501094,
-        "mae": 8.825867942662237,
-        "aic": 1645.7455656791572,
-        "bic": 1659.3921498865773
+        "r2": 0.46091862821252605,
+        "rmse": 45122.999024317505,
+        "mae": 36521.159216379805,
+        "aic": 47036.314744410156,
+        "bic": 47058.57584553775
       },
       "model_type": "polynomial",
       "feature_names": [
         "1",
-        "Distance",
-        "Distance^2",
-        "Distance^3"
+        "Total_Bsmt_SF",
+        "Total_Bsmt_SF^2",
+        "Total_Bsmt_SF^3"
       ]
     },
     "4": {
       "degree": 4,
-      "formula": "Time = 3.4176 + 3.1265*Distance + 0.9064*Distance^2 + -0.0375*Distance^3 + -0.0092*Distance^4",
+      "formula": "Sale_Price = 107964.5828 + 40.2674*Total_Bsmt_SF + -0.0210*Total_Bsmt_SF^2 + 0.0001*Total_Bsmt_SF^3 + -0.0000*Total_Bsmt_SF^4",
       "coefficients": [
         0.0,
-        3.126544749353981,
-        0.9064038598593289,
-        -0.037473395118995056,
-        -0.009214856709294228
+        40.26744726320467,
+        -0.021027345635465128,
+        5.276839858086094e-05,
+        -1.4783076096591685e-08
       ],
-      "intercept": 3.4176213850164494,
+      "intercept": 107964.58277270183,
       "metrics": {
-        "r2": 0.4302872316506131,
-        "rmse": 10.600813993171752,
-        "mae": 8.806834613394443,
-        "aic": 1647.7184613559593,
-        "bic": 1664.7766916152345
+        "r2": 0.46112953609929286,
+        "rmse": 45114.17129637447,
+        "mae": 36478.715708040625,
+        "aic": 47037.770018050556,
+        "bic": 47065.59639446005
       },
       "model_type": "polynomial",
       "feature_names": [
         "1",
-        "Distance",
-        "Distance^2",
-        "Distance^3",
-        "Distance^4"
+        "Total_Bsmt_SF",
+        "Total_Bsmt_SF^2",
+        "Total_Bsmt_SF^3",
+        "Total_Bsmt_SF^4"
       ]
     },
     "best_model": {
-      "degree": 3,
+      "degree": 2,
       "selection_criterion": "AIC",
       "metrics": {
-        "r2": 0.4313408357384123,
-        "rmse": 10.591007095501094,
-        "mae": 8.825867942662237,
-        "aic": 1645.7455656791572,
-        "bic": 1659.3921498865773
+        "r2": 0.46187325340454655,
+        "rmse": 45083.02858505614,
+        "mae": 36434.44276984056,
+        "aic": 47034.92924047797,
+        "bic": 47051.625066323664
       }
-    }
+    },
+    "plot_path": "plots/regression/polynomial_regression_Total_Bsmt_SF_Sale_Price.png"
   },
   "log_transformation_models": {
     "linear": {
-      "transformation": "linear",
-      "formula_type": "y ~ x",
-      "detailed_formula": "Time = 2.1948 + 5.6379*Distance",
+      "name": "Linear",
+      "formula": "y = a + b*x",
+      "model_formula": "y = a + b*x where a=72489.8323, b=98.8114",
       "coefficients": [
-        2.1947528042233997,
-        5.63789474190091
+        72489.8323452867,
+        98.81136581024592
       ],
-      "metrics": {
-        "r2": 0.41923545987068345,
-        "rmse": 10.703141909119541,
-        "mae": 8.836643729928655,
-        "aic": 1649.4174947371625,
-        "bic": 1656.2407868408727
+      "transformed_metrics": {
+        "r2": 0.4338602047624023,
+        "rmse": 46241.57692388348,
+        "mae": 38402.58075488052
       },
-      "model_type": "log_transformation"
+      "original_scale_metrics": {
+        "r2": 0.4338602047624023,
+        "rmse": 46241.57692388348,
+        "mae": 38402.58075488052
+      },
+      "aic": 47088.44972556375,
+      "bic": 47099.58027612755,
+      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:                 target   R-squared:                       0.389\nModel:                            OLS   Adj. R-squared:                  0.389\nMethod:                 Least Squares   F-statistic:                     1228.\nDate:                Tue, 06 May 2025   Prob (F-statistic):          1.40e-208\nTime:                        13:36:11   Log-Likelihood:                -23542.\nNo. Observations:                1930   AIC:                         4.709e+04\nDf Residuals:                    1928   BIC:                         4.710e+04\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n==============================================================================\n                 coef    std err          t      P>|t|      [0.025      0.975]\n------------------------------------------------------------------------------\nconst       7.249e+04   3078.981     23.543      0.000    6.65e+04    7.85e+04\npredictor     98.8114      2.820     35.042      0.000      93.281     104.342\n==============================================================================\nOmnibus:                       91.107   Durbin-Watson:                   2.066\nProb(Omnibus):                  0.000   Jarque-Bera (JB):              103.069\nSkew:                           0.557   Prob(JB):                     4.16e-23\nKurtosis:                       3.201   Cond. No.                     3.08e+03\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.\n[2] The condition number is large, 3.08e+03. This might indicate that there are\nstrong multicollinearity or other numerical problems."
     },
     "log_x": {
-      "transformation": "log_x",
-      "formula_type": "y ~ log(x)",
-      "detailed_formula": "Time = 6.4693 + 13.3598*log(Distance)",
+      "name": "Log-Linear",
+      "formula": "y = a + b*log(x)",
+      "model_formula": "y = a + b*log(x) where a=-221490.2844, b=57855.4165",
       "coefficients": [
-        6.469267671176036,
-        13.359798817556749
+        -221490.28444320132,
+        57855.41648915499
       ],
-      "metrics": {
-        "r2": 0.32874418338893396,
-        "rmse": 11.506818655468809,
-        "mae": 10.022472996003312,
-        "aic": 1660.5161032388366,
-        "bic": 1667.3393953425468
+      "transformed_metrics": {
+        "r2": 0.27695541358885223,
+        "rmse": 52258.0660642705,
+        "mae": 42953.95996166206
       },
-      "model_type": "log_transformation"
+      "original_scale_metrics": {
+        "r2": 0.27695541358885223,
+        "rmse": 52258.0660642705,
+        "mae": 42953.95996166206
+      },
+      "aic": 47472.2173952525,
+      "bic": 47483.3479458163,
+      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:                 target   R-squared:                       0.255\nModel:                            OLS   Adj. R-squared:                  0.254\nMethod:                 Least Squares   F-statistic:                     658.9\nDate:                Tue, 06 May 2025   Prob (F-statistic):          3.06e-125\nTime:                        13:36:11   Log-Likelihood:                -23734.\nNo. Observations:                1930   AIC:                         4.747e+04\nDf Residuals:                    1928   BIC:                         4.748e+04\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n=================================================================================\n                    coef    std err          t      P>|t|      [0.025      0.975]\n---------------------------------------------------------------------------------\nconst         -2.215e+05   1.54e+04    -14.355      0.000   -2.52e+05   -1.91e+05\nlog_predictor  5.786e+04   2253.960     25.668      0.000    5.34e+04    6.23e+04\n==============================================================================\nOmnibus:                      136.661   Durbin-Watson:                   2.041\nProb(Omnibus):                  0.000   Jarque-Bera (JB):              166.262\nSkew:                           0.719   Prob(JB):                     7.88e-37\nKurtosis:                       3.022   Cond. No.                         89.3\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
     },
     "log_y": {
-      "transformation": "log_y",
-      "formula_type": "log(y) ~ x",
-      "detailed_formula": "log(Time) = 1.6788 + 0.3472*Distance\nTime = exp(1.6788 + 0.3472*Distance)",
+      "name": "Linear-Log",
+      "formula": "log(y) = a + b*x",
+      "model_formula": "log(y) = a + b*x where a=11.4279, b=0.0006",
       "coefficients": [
-        1.6787974041248266,
-        0.347185862825096
+        11.42788317977707,
+        0.0005624341449592232
       ],
-      "metrics": {
-        "r2": 0.5829821283750369,
-        "rmse": 0.5136801431894376,
-        "mae": 0.447333008371378,
-        "aic": 324.0484153393177,
-        "bic": 330.8717074430278
+      "transformed_metrics": {
+        "r2": 0.4154040395963755,
+        "rmse": 0.2769442281854771,
+        "mae": 0.22321450459250303
       },
-      "model_type": "log_transformation"
+      "original_scale_metrics": {
+        "r2": 0.45017189632911725,
+        "rmse": 45570.54907398051,
+        "mae": 36218.35768830222
+      },
+      "aic": 507.96803250375297,
+      "bic": 519.0985830675509,
+      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:             log_target   R-squared:                       0.385\nModel:                            OLS   Adj. R-squared:                  0.385\nMethod:                 Least Squares   F-statistic:                     1206.\nDate:                Tue, 06 May 2025   Prob (F-statistic):          1.13e-205\nTime:                        13:36:11   Log-Likelihood:                -251.98\nNo. Observations:                1930   AIC:                             508.0\nDf Residuals:                    1928   BIC:                             519.1\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n==============================================================================\n                 coef    std err          t      P>|t|      [0.025      0.975]\n------------------------------------------------------------------------------\nconst         11.4279      0.018    646.249      0.000      11.393      11.463\npredictor      0.0006   1.62e-05     34.729      0.000       0.001       0.001\n==============================================================================\nOmnibus:                       12.701   Durbin-Watson:                   2.087\nProb(Omnibus):                  0.002   Jarque-Bera (JB):               16.352\nSkew:                          -0.085   Prob(JB):                     0.000281\nKurtosis:                       3.418   Cond. No.                     3.08e+03\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.\n[2] The condition number is large, 3.08e+03. This might indicate that there are\nstrong multicollinearity or other numerical problems."
     },
     "log_log": {
-      "transformation": "log_log",
-      "formula_type": "log(y) ~ log(x)",
-      "detailed_formula": "log(Time) = 1.8847 + 0.8825*log(Distance)\nTime = exp(1.8847)*Distance^0.8825",
+      "name": "Log-Log",
+      "formula": "log(y) = a + b*log(x)",
+      "model_formula": "log(y) = a + b*log(x) where a=9.6177, b=0.3494",
       "coefficients": [
-        1.8846667894449067,
-        0.8825489359144806
+        9.617714176562808,
+        0.34936301590132207
       ],
-      "metrics": {
-        "r2": 0.6144196159713944,
-        "rmse": 0.49393853583706687,
-        "mae": 0.45200558068660024,
-        "aic": 305.8375315895441,
-        "bic": 312.66082369325414
+      "transformed_metrics": {
+        "r2": 0.30421008241591274,
+        "rmse": 0.30213669832300843,
+        "mae": 0.24824616720018217
       },
-      "model_type": "log_transformation"
+      "original_scale_metrics": {
+        "r2": 0.3116734453940624,
+        "rmse": 50988.009296737124,
+        "mae": 40787.18253174918
+      },
+      "aic": 802.2193742741924,
+      "bic": 813.3499248379903,
+      "statsmodels_summary": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:             log_target   R-squared:                       0.284\nModel:                            OLS   Adj. R-squared:                  0.283\nMethod:                 Least Squares   F-statistic:                     762.9\nDate:                Tue, 06 May 2025   Prob (F-statistic):          8.90e-142\nTime:                        13:36:11   Log-Likelihood:                -399.11\nNo. Observations:                1930   AIC:                             802.2\nDf Residuals:                    1928   BIC:                             813.3\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n=================================================================================\n                    coef    std err          t      P>|t|      [0.025      0.975]\n---------------------------------------------------------------------------------\nconst             9.6177      0.087    111.077      0.000       9.448       9.788\nlog_predictor     0.3494      0.013     27.621      0.000       0.325       0.374\n==============================================================================\nOmnibus:                        9.957   Durbin-Watson:                   2.047\nProb(Omnibus):                  0.007   Jarque-Bera (JB):               13.186\nSkew:                          -0.028   Prob(JB):                      0.00137\nKurtosis:                       3.401   Cond. No.                         89.3\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
     },
     "best_model": {
-      "transformation": "log_log",
-      "selection_criterion": "AIC",
+      "transform": "log_y",
+      "name": "Linear-Log",
+      "selection_criterion": "R\u00b2 on original scale",
       "metrics": {
-        "r2": 0.6144196159713944,
-        "rmse": 0.49393853583706687,
-        "mae": 0.45200558068660024,
-        "aic": 305.8375315895441,
-        "bic": 312.66082369325414
+        "r2": 0.45017189632911725,
+        "rmse": 45570.54907398051,
+        "mae": 36218.35768830222
       }
-    }
+    },
+    "plot_path": "plots/models/transformation_models_Total_Bsmt_SF_Sale_Price.png"
   },
   "model_comparison": {
     "linear_model": {
       "name": "Linear Regression",
       "metrics": {
-        "r2": 0.41923545987068345,
-        "rmse": 10.703141909119541,
-        "mae": 8.836643729928655,
-        "aic": 1649.4174947371625,
-        "bic": 1656.2407868408727
-      },
-      "formula": "Time = 2.1948 + 5.6379*Distance"
+        "r2": 0.4338602047624023,
+        "rmse": 46241.57692388348,
+        "mae": 38402.58075488052,
+        "aic": 47088.44972556375,
+        "bic": 47099.58027612755
+      }
     },
     "best_polynomial": {
-      "name": "Polynomial (degree=3)",
+      "name": "Polynomial (degree=2)",
       "metrics": {
-        "r2": 0.4313408357384123,
-        "rmse": 10.591007095501094,
-        "mae": 8.825867942662237,
-        "aic": 1645.7455656791572,
-        "bic": 1659.3921498865773
-      },
-      "formula": "Time = 4.2046 + 1.7106*Distance + 1.6532*Distance^2 + -0.1834*Distance^3",
-      "degree": 3
+        "r2": 0.46187325340454655,
+        "rmse": 45083.02858505614,
+        "mae": 36434.44276984056,
+        "aic": 47034.92924047797,
+        "bic": 47051.625066323664
+      }
     },
     "best_log_transform": {
-      "name": "Log Transformation (log_log)",
-      "metrics": {
-        "r2": 0.6144196159713944,
-        "rmse": 0.49393853583706687,
-        "mae": 0.45200558068660024,
-        "aic": 305.8375315895441,
-        "bic": 312.66082369325414
-      },
-      "formula": "log(Time) = 1.8847 + 0.8825*log(Distance)\nTime = exp(1.8847)*Distance^0.8825",
-      "transformation": "log_log"
-    },
-    "overall_best_model": "best_log_transform",
-    "selection_criterion": "AIC",
-    "plot_paths": [
-      "plots/models\\model_comparison.png",
-      "plots/models\\model_selection_criteria.png"
-    ]
+      "name": "Log Transformation (None)",
+      "metrics": {}
+    }
   },
   "status": "success"
 }

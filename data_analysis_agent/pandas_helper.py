@@ -153,14 +153,19 @@ class PandasHelper:
         """Returns the final state of the DataFrame managed by the helper."""
         return self._current_df
     
-    async def generate_plots(self, output_dir: str = "plots") -> list[str]:
+    async def generate_plots(self, output_dir: str = "plots", focus_columns: list = None) -> list[str]:
         """
         Generates standard plots (histogram, countplot, scatterplot, boxplot)
-        for the current DataFrame ('Time', 'Mode', 'Distance') and saves them
-        to the specified directory. Returns a list of saved file paths.
+        for the current DataFrame based on the data types and structure.
+        Automatically determines appropriate columns for visualization if focus_columns is not provided.
 
         Args:
             output_dir (str): The directory to save the plots in. Defaults to 'plots'.
+            focus_columns (list): Optional list of column names to focus on for visualization.
+                                  If not provided, columns will be auto-selected based on data types.
+        
+        Returns:
+            list[str]: List of saved plot file paths.
         """
         plot_paths = []
         df = self._current_df # Use the helper's current dataframe
@@ -171,57 +176,131 @@ class PandasHelper:
         try:
             os.makedirs(output_dir, exist_ok=True)
             sns.set_theme(style="whitegrid")
-            plot_context = "Plotting context active" # Placeholder for actual context management if needed
-
-            # 1. Histogram of Commute Times
-            plt.figure(figsize=(10, 6))
-            sns.histplot(df['Time'], kde=True, bins=15)
-            plt.title('Distribution of Commute Times')
-            plt.xlabel('Time (minutes)')
-            plt.ylabel('Frequency')
-            hist_path = os.path.join(output_dir, "time_histogram.png")
-            plt.savefig(hist_path)
-            plt.close() # Close plot to free memory
-            plot_paths.append(hist_path)
-            print(f"Saved plot: {hist_path}")
-
-            # 2. Bar Chart of Commute Modes
-            plt.figure(figsize=(8, 5))
-            sns.countplot(data=df, x='Mode', order=df['Mode'].value_counts().index)
-            plt.title('Count of Commute Modes')
-            plt.xlabel('Mode of Transport')
-            plt.ylabel('Count')
-            count_path = os.path.join(output_dir, "mode_countplot.png")
-            plt.savefig(count_path)
-            plt.close()
-            plot_paths.append(count_path)
-            print(f"Saved plot: {count_path}")
-
-            # 3. Scatter Plot of Distance vs. Time
-            plt.figure(figsize=(10, 6))
-            sns.scatterplot(data=df, x='Distance', y='Time', hue='Mode')
-            plt.title('Commute Distance vs. Time by Mode')
-            plt.xlabel('Distance (km)')
-            plt.ylabel('Time (minutes)')
-            plt.legend(title='Mode')
-            scatter_path = os.path.join(output_dir, "distance_time_scatter.png")
-            plt.savefig(scatter_path)
-            plt.close()
-            plot_paths.append(scatter_path)
-            print(f"Saved plot: {scatter_path}")
-
-            # 4. Box Plot of Time by Mode
-            plt.figure(figsize=(10, 6))
-            sns.boxplot(data=df, x='Mode', y='Time')
-            plt.title('Commute Time Distribution by Mode')
-            plt.xlabel('Mode of Transport')
-            plt.ylabel('Time (minutes)')
-            box_path = os.path.join(output_dir, "time_mode_boxplot.png")
-            plt.savefig(box_path)
-            plt.close()
-            plot_paths.append(box_path)
-            print(f"Saved plot: {box_path}")
-
+            
+            # Auto-detect appropriate columns if focus_columns not provided
+            if not focus_columns:
+                # Find numeric columns for distribution and correlation plots
+                numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+                
+                # Find categorical columns for countplots
+                categorical_cols = df.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
+                
+                # Select columns based on availability
+                if not numeric_cols and not categorical_cols:
+                    return ["Error: No suitable numeric or categorical columns found for plotting."]
+                
+                # Use at most 3 columns to avoid generating too many plots
+                focus_numeric = numeric_cols[:2] if numeric_cols else []
+                focus_categorical = categorical_cols[:1] if categorical_cols else []
+                focus_columns = focus_numeric + focus_categorical
+            
+            print(f"Generating plots for columns: {focus_columns}")
+            
+            # Generate plots based on column data types
+            for col in focus_columns:
+                if col not in df.columns:
+                    print(f"Warning: Column '{col}' not found in DataFrame. Skipping.")
+                    continue
+                    
+                # Check column data type
+                if pd.api.types.is_numeric_dtype(df[col]):
+                    # 1. Histogram for numeric columns
+                    plt.figure(figsize=(10, 6))
+                    # Use a data-driven approach to determine bin count
+                    # For small datasets use fewer bins, for larger ones use more
+                    bin_count = min(max(10, int(df[col].count() / 10)), 30)
+                    sns.histplot(df[col].dropna(), kde=True, bins=bin_count)
+                    plt.title(f'Distribution of {col}')
+                    plt.xlabel(col)
+                    plt.ylabel('Frequency')
+                    hist_path = os.path.join(output_dir, f"{col.lower().replace(' ', '_')}_histogram.png")
+                    plt.savefig(hist_path)
+                    plt.close()
+                    plot_paths.append(hist_path)
+                    print(f"Saved plot: {hist_path}")
+                
+                elif pd.api.types.is_categorical_dtype(df[col]) or pd.api.types.is_object_dtype(df[col]) or pd.api.types.is_bool_dtype(df[col]):
+                    # 2. Countplot for categorical columns
+                    value_counts = df[col].value_counts()
+                    if len(value_counts) > 20:  # Too many categories
+                        print(f"Skipping countplot for column '{col}' - too many unique values ({len(value_counts)})")
+                        continue
+                        
+                    plt.figure(figsize=(10, 6))
+                    sns.countplot(data=df, x=col, order=df[col].value_counts().iloc[:15].index)  # Limit to top 15 categories
+                    plt.title(f'Count of {col}')
+                    plt.xlabel(col)
+                    plt.ylabel('Count')
+                    plt.xticks(rotation=45, ha='right')
+                    plt.tight_layout()
+                    count_path = os.path.join(output_dir, f"{col.lower().replace(' ', '_')}_countplot.png")
+                    plt.savefig(count_path)
+                    plt.close()
+                    plot_paths.append(count_path)
+                    print(f"Saved plot: {count_path}")
+            
+            # Generate relationship plots if we have numeric columns
+            numeric_cols = [col for col in focus_columns if pd.api.types.is_numeric_dtype(df[col])]
+            categorical_cols = [col for col in focus_columns if pd.api.types.is_categorical_dtype(df[col]) or 
+                              pd.api.types.is_object_dtype(df[col]) or pd.api.types.is_bool_dtype(df[col])]
+            
+            # 3. Scatter plots between numeric columns
+            if len(numeric_cols) >= 2:
+                for i in range(len(numeric_cols)-1):
+                    for j in range(i+1, len(numeric_cols)):
+                        x_col = numeric_cols[i]
+                        y_col = numeric_cols[j]
+                        
+                        plt.figure(figsize=(10, 6))
+                        # If we have a categorical column, use it for hue
+                        if categorical_cols:
+                            hue_col = categorical_cols[0]
+                            unique_values = df[hue_col].nunique()
+                            # Only use hue if not too many categories and not too few data points
+                            if unique_values <= 10 and df.shape[0] > unique_values * 5:
+                                sns.scatterplot(data=df, x=x_col, y=y_col, hue=hue_col)
+                                plt.title(f'{x_col} vs. {y_col} by {hue_col}')
+                                plt.legend(title=hue_col)
+                            else:
+                                sns.scatterplot(data=df, x=x_col, y=y_col)
+                                plt.title(f'{x_col} vs. {y_col}')
+                        else:
+                            sns.scatterplot(data=df, x=x_col, y=y_col)
+                            plt.title(f'{x_col} vs. {y_col}')
+                            
+                        plt.xlabel(x_col)
+                        plt.ylabel(y_col)
+                        scatter_path = os.path.join(
+                            output_dir, 
+                            f"{x_col.lower().replace(' ', '_')}_{y_col.lower().replace(' ', '_')}_scatter.png"
+                        )
+                        plt.savefig(scatter_path)
+                        plt.close()
+                        plot_paths.append(scatter_path)
+                        print(f"Saved plot: {scatter_path}")
+            
+            # 4. Box plots of numeric columns by categorical columns
+            if numeric_cols and categorical_cols:
+                for num_col in numeric_cols:
+                    for cat_col in categorical_cols:
+                        # Check if categorical column doesn't have too many unique values
+                        if df[cat_col].nunique() <= 10:
+                            plt.figure(figsize=(10, 6))
+                            sns.boxplot(data=df, x=cat_col, y=num_col)
+                            plt.title(f'Distribution of {num_col} by {cat_col}')
+                            plt.xlabel(cat_col)
+                            plt.ylabel(num_col)
+                            plt.xticks(rotation=45, ha='right')
+                            plt.tight_layout()
+                            box_path = os.path.join(
+                                output_dir, 
+                                f"{num_col.lower().replace(' ', '_')}_{cat_col.lower().replace(' ', '_')}_boxplot.png"
+                            )
+                            plt.savefig(box_path)
+                            plt.close()
+                            plot_paths.append(box_path)
+                            print(f"Saved plot: {box_path}")
+            
             return plot_paths
 
         except Exception as e:
@@ -231,8 +310,8 @@ class PandasHelper:
             plt.close()
             return [error_msg]
         finally:
-            # Reset matplotlib state if necessary, or manage context
-            plt.rcdefaults() # Example reset, might need adjustment
+            # Reset matplotlib state if necessary
+            plt.rcdefaults()
 
     async def generate_advanced_plots(self, output_dir: str = "plots/advanced") -> List[str]:
         """

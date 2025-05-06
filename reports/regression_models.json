@@ -2,144 +2,184 @@
   "full_dataset": {
     "model_type": "full_dataset",
     "metrics": {
-      "r": 0.6543862622960215,
-      "r_squared": 0.4282213802817566,
-      "adjusted_r_squared": 0.4261719945479995,
-      "rmse": 9.805757363429915,
-      "mae": 8.268823034697574
+      "r": 0.6312782814626053,
+      "r_squared": 0.39851226864638134,
+      "adjusted_r_squared": 0.3982627921920663,
+      "rmse": 47669.350952686495,
+      "mae": 38965.68801272151
     },
     "coefficients": {
-      "intercept": 1.7761965227630327,
-      "coefficient": 5.818028821356809,
-      "p_value": 9.866621212347917e-36,
+      "intercept": 69830.10970530454,
+      "coefficient": 100.97981739782128,
+      "p_value": 1.8542985862764212e-268,
       "is_significant": true
     },
     "confidence_intervals": {
       "intercept_ci": [
-        -0.8720480801177557,
-        4.424441125643821
+        64432.82500312341,
+        75227.39440748566
       ],
       "coefficient_ci": [
-        5.0257288174559624,
-        6.610328825257656
+        96.02537615969867,
+        105.93425863594389
       ]
     },
-    "formula": "Time = 1.78 + 5.82 * Distance"
+    "formula": "Sale_Price = 69830.11 + 100.98 * Total_Bsmt_SF"
   },
-  "mode_Car": {
-    "model_type": "mode_Car",
-    "mode": "Car",
-    "sample_size": 86,
+  "category_OneFam": {
+    "model_type": "category_OneFam",
+    "category": "OneFam",
+    "sample_size": 2002,
     "metrics": {
-      "r": 0.9243133876649325,
-      "r_squared": 0.8543552386166235,
-      "adjusted_r_squared": 0.8526213724096786,
-      "rmse": 2.2009864918405007,
-      "mae": 1.1770678330348059
+      "r": 0.6368595480093469,
+      "r_squared": 0.4055900838906702,
+      "adjusted_r_squared": 0.40529287893261556,
+      "rmse": 48133.89999656383,
+      "mae": 40091.138647359374
     },
     "coefficients": {
-      "intercept": 1.5207013366566868,
-      "coefficient": 3.6740805913122343,
-      "p_value": 6.7641988378985205e-37,
+      "intercept": 66773.96577583964,
+      "coefficient": 106.26555806528147,
+      "p_value": 3.412365979349279e-228,
       "is_significant": true
     },
     "confidence_intervals": {
       "intercept_ci": [
-        0.3052722632132361,
-        2.7361304101001376
+        60610.439099154326,
+        72937.49245252494
       ],
       "coefficient_ci": [
-        3.3449359624900525,
-        4.003225220134416
+        100.6241452167897,
+        111.90697091377324
       ]
     },
-    "formula": "Time = 1.52 + 3.67 * Distance"
+    "formula": "Sale_Price = 66773.97 + 106.27 * Total_Bsmt_SF"
   },
-  "mode_Bus": {
-    "model_type": "mode_Bus",
-    "mode": "Bus",
-    "sample_size": 77,
+  "category_TwnhsE": {
+    "model_type": "category_TwnhsE",
+    "category": "TwnhsE",
+    "sample_size": 188,
     "metrics": {
-      "r": 0.9872917197600858,
-      "r_squared": 0.9747449399068288,
-      "adjusted_r_squared": 0.9744082057722532,
-      "rmse": 2.0795948208570914,
-      "mae": 1.7006258863777968
+      "r": 0.77012403924944,
+      "r_squared": 0.593091035829872,
+      "adjusted_r_squared": 0.5909033532268069,
+      "rmse": 37371.466183574004,
+      "mae": 29325.73977086586
     },
     "coefficients": {
-      "intercept": -2.425295983161232,
-      "coefficient": 9.21762783334685,
-      "p_value": 1.1387687703300854e-61,
+      "intercept": 49833.731205736134,
+      "coefficient": 121.89132404999378,
+      "p_value": 3.645131952734891e-38,
       "is_significant": true
     },
     "confidence_intervals": {
       "intercept_ci": [
-        -3.640385844995018,
-        -1.210206121327446
+        32965.09528004979,
+        66702.36713142248
       ],
       "coefficient_ci": [
-        8.876333677989551,
-        9.558921988704148
+        107.28680177098835,
+        136.49584632899922
       ]
     },
-    "formula": "Time = -2.43 + 9.22 * Distance"
+    "formula": "Sale_Price = 49833.73 + 121.89 * Total_Bsmt_SF"
   },
-  "mode_Cycle": {
-    "model_type": "mode_Cycle",
-    "mode": "Cycle",
-    "sample_size": 69,
+  "category_Twnhs": {
+    "model_type": "category_Twnhs",
+    "category": "Twnhs",
+    "sample_size": 93,
     "metrics": {
-      "r": 0.9895081434079479,
-      "r_squared": 0.979126365870643,
-      "adjusted_r_squared": 0.9788148190925928,
-      "rmse": 0.6527123763400491,
-      "mae": 0.48608806719415987
+      "r": 0.7685930513690742,
+      "r_squared": 0.5907352786128243,
+      "adjusted_r_squared": 0.5862378640920861,
+      "rmse": 26656.146080704002,
+      "mae": 21649.106164408353
     },
     "coefficients": {
-      "intercept": 0.3049796161181428,
-      "coefficient": 3.6702360331041235,
-      "p_value": 4.9918784969255254e-58,
+      "intercept": 50711.499106744035,
+      "coefficient": 114.30823595338394,
+      "p_value": 2.3908229082645537e-19,
       "is_significant": true
     },
     "confidence_intervals": {
       "intercept_ci": [
-        -0.07698841715593957,
-        0.6869476493922251
+        34683.07719067343,
+        66739.92102281464
       ],
       "coefficient_ci": [
-        3.5395591976769434,
-        3.8009128685313036
+        94.49642207430782,
+        134.12004983246007
       ]
     },
-    "formula": "Time = 0.30 + 3.67 * Distance"
+    "formula": "Sale_Price = 50711.50 + 114.31 * Total_Bsmt_SF"
   },
-  "mode_Walk": {
-    "model_type": "mode_Walk",
-    "mode": "Walk",
-    "sample_size": 49,
+  "category_Duplex": {
+    "model_type": "category_Duplex",
+    "category": "Duplex",
+    "sample_size": 78,
     "metrics": {
-      "r": 0.9199883884214191,
-      "r_squared": 0.8463786348302391,
-      "adjusted_r_squared": 0.8431100951457762,
-      "rmse": 6.339571613594037,
-      "mae": 3.9729316039347116
+      "r": 0.37031365458856885,
+      "r_squared": 0.13713220277474192,
+      "adjusted_r_squared": 0.12577867912704122,
+      "rmse": 37857.09767075564,
+      "mae": 26466.013576176363
     },
     "coefficients": {
-      "intercept": 6.231744121172039,
-      "coefficient": 9.18147910898045,
-      "p_value": 9.545907496513974e-21,
+      "intercept": 115729.75630783189,
+      "coefficient": 24.077616090456353,
+      "p_value": 0.0008462577126718377,
       "is_significant": true
     },
     "confidence_intervals": {
       "intercept_ci": [
-        2.947496763355142,
-        9.515991478988935
+        98824.3279306847,
+        132635.1846849791
       ],
       "coefficient_ci": [
-        8.033644942945099,
-        10.329313275015803
+        10.279269653959949,
+        37.875962526952755
       ]
     },
-    "formula": "Time = 6.23 + 9.18 * Distance"
+    "formula": "Sale_Price = 115729.76 + 24.08 * Total_Bsmt_SF"
+  },
+  "category_TwoFmCon": {
+    "model_type": "category_TwoFmCon",
+    "category": "TwoFmCon",
+    "sample_size": 52,
+    "metrics": {
+      "r": 0.5627386618901699,
+      "r_squared": 0.31667480158593875,
+      "adjusted_r_squared": 0.30300829761765746,
+      "rmse": 24666.633108314767,
+      "mae": 18803.60293063927
+    },
+    "coefficients": {
+      "intercept": 79149.36066027859,
+      "coefficient": 53.4179931701803,
+      "p_value": 1.4098031568651574e-05,
+      "is_significant": true
+    },
+    "confidence_intervals": {
+      "intercept_ci": [
+        58378.10346872475,
+        99920.61785183242
+      ],
+      "coefficient_ci": [
+        31.128810259491352,
+        75.70717608086926
+      ]
+    },
+    "formula": "Sale_Price = 79149.36 + 53.42 * Total_Bsmt_SF"
+  },
+  "model_config": {
+    "target_column": "Sale_Price",
+    "predictor_column": "Total_Bsmt_SF",
+    "dataset_rows": 2413,
+    "dataset_columns": 18
+  },
+  "column_detection": {
+    "target_auto_detected": false,
+    "predictor_auto_detected": false,
+    "detected_domain": "unknown"
   }
 }

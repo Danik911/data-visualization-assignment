@@ -1,127 +1,326 @@
 {
   "cleaning_log": [
     {
-      "action": "standardize_mode_values",
-      "details": {
-        "changes": 6,
-        "value_map": {
-          "Wilk": "Walk",
-          "Cur": "Car",
-          "Bas": "Bus",
-          "Cra": "Car",
-          "Walt": "Walk"
-        }
-      }
-    },
-    {
-      "action": "handle_impossible_values",
-      "details": {
-        "constraints": {
-          "Distance": {
-            "min": 0,
-            "max": 50,
-            "violations_fixed": 2
-          }
-        }
-      }
-    },
-    {
       "action": "handle_outliers",
       "details": {
         "method": "cap",
         "columns": [
-          "Distance",
-          "Time"
+          "Lot_Frontage",
+          "Lot_Area",
+          "Year_Built",
+          "Total_Bsmt_SF",
+          "First_Flr_SF",
+          "Second_Flr_SF",
+          "Full_Bath",
+          "Bedroom_AbvGr",
+          "Kitchen_AbvGr",
+          "Fireplaces",
+          "Sale_Price"
         ]
       }
     },
     {
       "action": "handle_missing_values",
       "details": {
-        "strategies": {
-          "Time": {
-            "strategy": "median_imputation",
-            "value": 16.0
-          }
-        }
+        "strategies": {}
       }
     }
   ],
   "metrics_comparison": {
     "row_count": {
-      "before": 281,
-      "after": 281,
+      "before": 2413,
+      "after": 2413,
       "change": 0
     },
     "missing_values": {
-      "before": 3,
+      "before": 0,
       "after": 0,
-      "change": -3
+      "change": 0
     },
     "numeric_stats": {
-      "Case": {
+      "Lot_Frontage": {
         "mean": {
-          "before": 140.97864768683274,
-          "after": 140.97864768683274,
+          "before": 55.46249481972648,
+          "after": 55.275590551181104,
+          "change": -0.18690426854537634
+        },
+        "std": {
+          "before": 33.5424155120584,
+          "after": 32.825116608823535,
+          "change": -0.7172989032348625
+        },
+        "min": {
+          "before": 0.0,
+          "after": 0.0
+        },
+        "max": {
+          "before": 313.0,
+          "after": 137.0
+        }
+      },
+      "Lot_Area": {
+        "mean": {
+          "before": 10060.2080397845,
+          "after": 9457.194363862413,
+          "change": -603.0136759220877
+        },
+        "std": {
+          "before": 8222.759853506777,
+          "after": 3583.8202466733364,
+          "change": -4638.939606833441
+        },
+        "min": {
+          "before": 1300.0,
+          "after": 1369.0
+        },
+        "max": {
+          "before": 215245.0,
+          "after": 17425.0
+        }
+      },
+      "Year_Built": {
+        "mean": {
+          "before": 1969.4363862411935,
+          "after": 1969.4600082884376,
+          "change": 0.023622047244089117
+        },
+        "std": {
+          "before": 29.487942593732893,
+          "after": 29.417287781132053,
+          "change": -0.07065481260083928
+        },
+        "min": {
+          "before": 1872.0,
+          "after": 1885.5
+        },
+        "max": {
+          "before": 2010.0,
+          "after": 2010.0
+        }
+      },
+      "Total_Bsmt_SF": {
+        "mean": {
+          "before": 1022.8276004973062,
+          "after": 1019.4268545379196,
+          "change": -3.4007459593866542
+        },
+        "std": {
+          "before": 408.97784766984984,
+          "after": 384.16878370027075,
+          "change": -24.809063969579086
+        },
+        "min": {
+          "before": 0.0,
+          "after": 91.0
+        },
+        "max": {
+          "before": 3206.0,
+          "after": 1939.0
+        }
+      },
+      "First_Flr_SF": {
+        "mean": {
+          "before": 1133.857024450891,
+          "after": 1129.0381268130957,
+          "change": -4.818897637795317
+        },
+        "std": {
+          "before": 366.44246971732883,
+          "after": 349.1684521810064,
+          "change": -17.274017536322447
+        },
+        "min": {
+          "before": 334.0,
+          "after": 334.0
+        },
+        "max": {
+          "before": 3820.0,
+          "after": 2076.0
+        }
+      },
+      "Second_Flr_SF": {
+        "mean": {
+          "before": 339.2428512225446,
+          "after": 339.1143804392872,
+          "change": -0.12847078325739858
+        },
+        "std": {
+          "before": 423.1984877928352,
+          "after": 422.75511615874126,
+          "change": -0.44337163409392133
+        },
+        "min": {
+          "before": 0.0,
+          "after": 0.0
+        },
+        "max": {
+          "before": 1872.0,
+          "after": 1760.0
+        }
+      },
+      "Full_Bath": {
+        "mean": {
+          "before": 1.5391628677994198,
+          "after": 1.5383340240364691,
+          "change": -0.0008288437629506706
+        },
+        "std": {
+          "before": 0.5446670095790446,
+          "after": 0.5412901878716846,
+          "change": -0.0033768217073599782
+        },
+        "min": {
+          "before": 0.0,
+          "after": 0.0
+        },
+        "max": {
+          "before": 4.0,
+          "after": 3.5
+        }
+      },
+      "Half_Bath": {
+        "mean": {
+          "before": 0.3779527559055118,
+          "after": 0.3779527559055118,
           "change": 0.0
         },
         "std": {
-          "before": 81.28771370627476,
-          "after": 81.28771370627476,
+          "before": 0.49846659003621013,
+          "after": 0.49846659003621013,
           "change": 0.0
         },
         "min": {
-          "before": 1.0,
+          "before": 0.0,
+          "after": 0.0
+        },
+        "max": {
+          "before": 2.0,
+          "after": 2.0
+        }
+      },
+      "Bedroom_AbvGr": {
+        "mean": {
+          "before": 2.854537919602155,
+          "after": 2.838582677165354,
+          "change": -0.0159552424368008
+        },
+        "std": {
+          "before": 0.8134296721806352,
+          "after": 0.7606016735361752,
+          "change": -0.05282799864445997
+        },
+        "min": {
+          "before": 0.0,
+          "after": 0.5
+        },
+        "max": {
+          "before": 6.0,
+          "after": 4.5
+        }
+      },
+      "Kitchen_AbvGr": {
+        "mean": {
+          "before": 1.040198922503108,
+          "after": 1.0,
+          "change": -0.04019892250310808
+        },
+        "std": {
+          "before": 0.2006423190188444,
+          "after": 0.0,
+          "change": -0.2006423190188444
+        },
+        "min": {
+          "before": 0.0,
           "after": 1.0
         },
         "max": {
-          "before": 281.0,
-          "after": 281.0
+          "before": 3.0,
+          "after": 1.0
         }
       },
-      "Distance": {
+      "Fireplaces": {
         "mean": {
-          "before": 3.6580071174377227,
-          "after": 3.009964412811388,
-          "change": -0.6480427046263348
+          "before": 0.6029838375466224,
+          "after": 0.6002900953170327,
+          "change": -0.002693742229589735
         },
         "std": {
-          "before": 8.20603098858781,
-          "after": 1.4559570976363283,
-          "change": -6.750073890951483
+          "before": 0.6489111036077537,
+          "after": 0.6394408954404808,
+          "change": -0.009470208167272953
         },
         "min": {
-          "before": 0.2,
-          "after": 0.2
+          "before": 0.0,
+          "after": 0.0
         },
         "max": {
-          "before": 99.0,
-          "after": 7.95
+          "before": 4.0,
+          "after": 2.5
         }
       },
-      "Time": {
+      "Longitude": {
         "mean": {
-          "before": 19.62230215827338,
-          "after": 19.28825622775801,
-          "change": -0.3340459305153729
+          "before": -93.64239087633652,
+          "after": -93.64239087633652,
+          "change": 0.0
         },
         "std": {
-          "before": 13.720434801529716,
-          "after": 12.944648817941225,
-          "change": -0.7757859835884915
+          "before": 0.026158505885609983,
+          "after": 0.026158505885609983,
+          "change": 0.0
         },
         "min": {
-          "before": 2.0,
-          "after": 2.0
+          "before": -93.693153,
+          "after": -93.693153
         },
         "max": {
-          "before": 57.0,
-          "after": 46.875
+          "before": -93.577427,
+          "after": -93.577427
+        }
+      },
+      "Latitude": {
+        "mean": {
+          "before": 42.033730263903855,
+          "after": 42.033730263903855,
+          "change": 0.0
+        },
+        "std": {
+          "before": 0.01801530068041116,
+          "after": 0.01801530068041116,
+          "change": 0.0
+        },
+        "min": {
+          "before": 41.986498,
+          "after": 41.986498
+        },
+        "max": {
+          "before": 42.063381,
+          "after": 42.063381
+        }
+      },
+      "Sale_Price": {
+        "mean": {
+          "before": 175567.64318276005,
+          "after": 172771.64732697885,
+          "change": -2795.9958557811915
+        },
+        "std": {
+          "before": 70979.61444112333,
+          "after": 61451.969388391495,
+          "change": -9527.64505273183
+        },
+        "min": {
+          "before": 35000.0,
+          "after": 35000.0
+        },
+        "max": {
+          "before": 755000.0,
+          "after": 323000.0
         }
       }
     }
   },
-  "original_rows": 281,
-  "cleaned_rows": 281,
-  "timestamp": "2025-05-03T05:47:24.221307"
+  "original_rows": 2413,
+  "cleaned_rows": 2413,
+  "timestamp": "2025-05-06T14:17:55.971201"
 }

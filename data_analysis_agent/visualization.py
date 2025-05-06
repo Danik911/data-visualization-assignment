@@ -56,7 +56,7 @@ def create_visualization_agent(df: pd.DataFrame, llm) -> FunctionCallingAgent:
     print("[VISUALIZATION] Visualization agent created successfully")
     return visualization_agent
 
-async def generate_visualizations(df: pd.DataFrame, llm, modified_data_path: str) -> Dict[str, Any]:
+async def generate_visualizations(df: pd.DataFrame, llm, modified_data_path: str, dataset_analysis: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Generate both standard and advanced visualizations for the given DataFrame
     
@@ -64,6 +64,7 @@ async def generate_visualizations(df: pd.DataFrame, llm, modified_data_path: str
         df: DataFrame containing the data to visualize
         llm: Language model to use for the agent
         modified_data_path: Path to the modified data file (for reference in prompt)
+        dataset_analysis: Optional dictionary containing dataset analysis results to guide visualization
         
     Returns:
         Dictionary containing visualization results including confirmation and plot paths
@@ -81,14 +82,78 @@ async def generate_visualizations(df: pd.DataFrame, llm, modified_data_path: str
     # Create the visualization agent
     visualization_agent = create_visualization_agent(df, llm)
     
+    # Determine which columns to focus on based on dataset analysis
+    focus_columns = []
+    if dataset_analysis:
+        print("[VISUALIZATION] Using dataset analysis to determine visualization targets")
+        
+        # Check for recommended target variable
+        if "potential_targets" in dataset_analysis and "recommended_target" in dataset_analysis["potential_targets"]:
+            target = dataset_analysis["potential_targets"]["recommended_target"]
+            focus_columns.append(target)
+            print(f"[VISUALIZATION] Added recommended target: {target}")
+            
+        # Add recommended predictors if available
+        if "potential_targets" in dataset_analysis and "recommended_predictors" in dataset_analysis["potential_targets"]:
+            predictors = dataset_analysis["potential_targets"]["recommended_predictors"]
+            # Add up to 3 top predictors
+            for predictor in predictors[:3]:
+                if predictor not in focus_columns:
+                    focus_columns.append(predictor)
+                    print(f"[VISUALIZATION] Added recommended predictor: {predictor}")
+        
+        # If still fewer than 3 columns, add some important numeric columns
+        if len(focus_columns) < 3 and "column_types" in dataset_analysis:
+            for col, info in dataset_analysis["column_types"].items():
+                if info["type"] == "numeric" and col not in focus_columns:
+                    focus_columns.append(col)
+                    if len(focus_columns) >= 3:
+                        break
+        
+        # If still fewer than 3 columns, add top categorical columns
+        if len(focus_columns) < 3 and "column_types" in dataset_analysis:
+            for col, info in dataset_analysis["column_types"].items():
+                if info["type"] == "categorical" and col not in focus_columns:
+                    focus_columns.append(col)
+                    if len(focus_columns) >= 3:
+                        break
+    
+    # If no columns were determined from analysis or no analysis provided,
+    # get the top numerical and categorical columns
+    if not focus_columns:
+        print("[VISUALIZATION] No dataset analysis available or no columns determined, defaulting to column selection")
+        # Get numerical columns
+        numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+        if numeric_cols:
+            focus_columns.extend(numeric_cols[:2])  # Add at most 2 numeric columns
+            
+        # Get categorical columns
+        categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+        if categorical_cols:
+            focus_columns.append(categorical_cols[0])  # Add 1 categorical column
+            
+        # If still no columns, just take the first 3 columns
+        if not focus_columns and len(df.columns) > 0:
+            focus_columns = df.columns[:min(3, len(df.columns))].tolist()
+    
+    # Ensure we have a comma-separated string of focus columns for the prompt
+    focus_columns_str = ", ".join([f"'{col}'" for col in focus_columns])
+    print(f"[VISUALIZATION] Focus columns: {focus_columns_str}")
+
     # Create the visualization request
     visualization_request = (
         f"The data analysis report is complete. Now, generate both standard and advanced visualizations "
         f"for the cleaned data (referenced by path: {modified_data_path}). To generate comprehensive visualizations:\n\n"
         f"1. First, use the 'generate_standard_visualizations_tool' to create standard plots (histogram, countplot, scatterplot, boxplot)\n"
         f"2. Then, use the 'generate_advanced_visualizations_tool' to create advanced statistical plots (density plots, Q-Q plots, violin plots, correlation heatmaps, pair plots)\n\n"
-        f"Focus on columns 'Time', 'Distance', and 'Mode'. Ensure both visualization tools are called."
     )
+    
+    if focus_columns:
+        visualization_request += f"Focus on these important columns: {focus_columns_str}. "
+    else:
+        visualization_request += "Analyze all suitable columns. "
+        
+    visualization_request += "Ensure both visualization tools are called."
 
     print(f"--- Prompting Enhanced Visualization Agent ---\n{visualization_request}\n---------------------------------")
 

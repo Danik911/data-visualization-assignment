@@ -256,14 +256,18 @@ def perform_tukey_hsd(df: pd.DataFrame, group_column: str, numeric_column: str) 
             "anova_result": anova_result
         }
 
-def generate_advanced_plots(df: pd.DataFrame, output_dir: str = "plots/advanced") -> List[str]:
+def generate_advanced_plots(df: pd.DataFrame, output_dir: str = "plots/advanced", 
+                       focus_columns: Optional[Dict[str, List[str]]] = None) -> List[str]:
     """
     Generate advanced statistical plots including density plots, Q-Q plots, violin plots,
-    correlation heatmaps, and pair plots.
+    correlation heatmaps, and pair plots. Works with any dataset by automatically
+    detecting appropriate columns.
     
     Args:
         df: The DataFrame to visualize
         output_dir: Directory to save plots in
+        focus_columns: Optional dictionary with keys 'numeric' and 'categorical'
+                      containing lists of column names to focus on
         
     Returns:
         List of saved plot file paths
@@ -277,62 +281,91 @@ def generate_advanced_plots(df: pd.DataFrame, output_dir: str = "plots/advanced"
     sns.set_theme(style="whitegrid")
     
     try:
-        # 1. Density plots for Time and Distance
-        numeric_cols = ['Time', 'Distance']
-        for col in numeric_cols:
-            if col in df.columns and pd.api.types.is_numeric_dtype(df[col]):
-                plt.figure(figsize=(10, 6))
-                # Plot the density for the whole dataset
-                sns.kdeplot(data=df, x=col, fill=True, color='gray', alpha=0.5, label='Overall')
-                
-                # Plot density by Mode
-                if 'Mode' in df.columns:
-                    for mode in df['Mode'].unique():
-                        subset = df[df['Mode'] == mode]
-                        if len(subset) > 1:  # Need at least 2 points for density
-                            sns.kdeplot(data=subset, x=col, fill=True, alpha=0.3, label=mode)
-                
-                plt.title(f'Density Plot of {col} by Mode')
-                plt.xlabel(col)
-                plt.ylabel('Density')
-                plt.legend()
-                
-                density_path = os.path.join(output_dir, f"{col.lower()}_density_plot.png")
-                plt.savefig(density_path)
-                plt.close()
-                plot_paths.append(density_path)
-                print(f"Saved plot: {density_path}")
+        # Detect numeric and categorical columns automatically
+        numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+        categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
         
-        # 2. Q-Q plots for Time and Distance
-        for col in numeric_cols:
-            if col in df.columns and pd.api.types.is_numeric_dtype(df[col]):
-                plt.figure(figsize=(8, 8))
-                stats.probplot(df[col].dropna(), dist="norm", plot=plt)
-                plt.title(f'Q-Q Plot of {col}')
-                
-                qq_path = os.path.join(output_dir, f"{col.lower()}_qq_plot.png")
-                plt.savefig(qq_path)
-                plt.close()
-                plot_paths.append(qq_path)
-                print(f"Saved plot: {qq_path}")
+        # Use focus columns if provided
+        if focus_columns:
+            if 'numeric' in focus_columns and focus_columns['numeric']:
+                numeric_cols = [col for col in focus_columns['numeric'] if col in df.columns]
+            if 'categorical' in focus_columns and focus_columns['categorical']:
+                categorical_cols = [col for col in focus_columns['categorical'] if col in df.columns]
         
-        # 3. Violin plots (Time by Mode)
-        if 'Time' in df.columns and 'Mode' in df.columns:
-            plt.figure(figsize=(12, 7))
-            # Update violinplot to use hue instead of palette directly
-            sns.violinplot(data=df, x='Mode', y='Time', inner='quart', hue='Mode', legend=False)
-            plt.title('Violin Plot of Time by Mode')
-            plt.xlabel('Mode of Transport')
-            plt.ylabel('Time (minutes)')
+        # Limit to columns with reasonable number of unique values for categorical columns
+        categorical_cols = [col for col in categorical_cols 
+                           if col in df.columns and df[col].nunique() <= 10]
+        
+        # Select top numeric columns (by non-null count) if we have more than 3
+        if len(numeric_cols) > 3:
+            numeric_cols = sorted(
+                numeric_cols, 
+                key=lambda col: df[col].count(), 
+                reverse=True
+            )[:3]
+        
+        # Select primary categorical column (if available)
+        primary_cat_col = None
+        if categorical_cols:
+            # Prefer column with 3-7 categories as primary grouping variable
+            good_range_cols = [col for col in categorical_cols 
+                              if 3 <= df[col].nunique() <= 7]
+            primary_cat_col = good_range_cols[0] if good_range_cols else categorical_cols[0]
+        
+        # 1. Density plots for numeric columns
+        for col in numeric_cols:
+            plt.figure(figsize=(10, 6))
+            # Plot the density for the whole dataset
+            sns.kdeplot(data=df, x=col, fill=True, color='gray', alpha=0.5, label='Overall')
             
-            violin_path = os.path.join(output_dir, "time_mode_violin_plot.png")
-            plt.savefig(violin_path)
+            # Plot density by primary categorical column if available
+            if primary_cat_col:
+                for category in df[primary_cat_col].dropna().unique():
+                    subset = df[df[primary_cat_col] == category]
+                    if len(subset) > 1:  # Need at least 2 points for density
+                        sns.kdeplot(data=subset, x=col, fill=True, alpha=0.3, label=str(category))
+            
+            plt.title(f'Density Plot of {col}' + 
+                     (f' by {primary_cat_col}' if primary_cat_col else ''))
+            plt.xlabel(col)
+            plt.ylabel('Density')
+            plt.legend()
+            
+            density_path = os.path.join(output_dir, f"{col.lower()}_density_plot.png")
+            plt.savefig(density_path)
             plt.close()
-            plot_paths.append(violin_path)
-            print(f"Saved plot: {violin_path}")
+            plot_paths.append(density_path)
+            print(f"Saved plot: {density_path}")
+        
+        # 2. Q-Q plots for numeric columns
+        for col in numeric_cols:
+            plt.figure(figsize=(8, 8))
+            stats.probplot(df[col].dropna(), dist="norm", plot=plt)
+            plt.title(f'Q-Q Plot of {col}')
+            
+            qq_path = os.path.join(output_dir, f"{col.lower()}_qq_plot.png")
+            plt.savefig(qq_path)
+            plt.close()
+            plot_paths.append(qq_path)
+            print(f"Saved plot: {qq_path}")
+        
+        # 3. Violin plots (if we have both numeric and categorical columns)
+        if numeric_cols and primary_cat_col:
+            for num_col in numeric_cols:
+                plt.figure(figsize=(12, 7))
+                sns.violinplot(data=df, x=primary_cat_col, y=num_col, inner='quart', hue=primary_cat_col, legend=False)
+                plt.title(f'Violin Plot of {num_col} by {primary_cat_col}')
+                plt.xlabel(primary_cat_col)
+                plt.ylabel(num_col)
+                
+                violin_path = os.path.join(output_dir, f"{num_col.lower()}_{primary_cat_col.lower()}_violin_plot.png")
+                plt.savefig(violin_path)
+                plt.close()
+                plot_paths.append(violin_path)
+                print(f"Saved plot: {violin_path}")
         
         # 4. Correlation heatmap
-        numeric_df = df.select_dtypes(include=['number'])
+        numeric_df = df[numeric_cols] if numeric_cols else df.select_dtypes(include=['number'])
         if not numeric_df.empty and numeric_df.shape[1] > 1:
             plt.figure(figsize=(10, 8))
             correlation_matrix = numeric_df.corr()
@@ -355,37 +388,43 @@ def generate_advanced_plots(df: pd.DataFrame, output_dir: str = "plots/advanced"
             print(f"Saved plot: {heatmap_path}")
         
         # 5. Pair plot with regression lines
-        if len(df.select_dtypes(include=['number']).columns) >= 2:
-            plot_cols = ['Time', 'Distance']
-            valid_cols = [col for col in plot_cols if col in df.columns and pd.api.types.is_numeric_dtype(df[col])]
+        if len(numeric_cols) >= 2:
+            plt.figure(figsize=(10, 8))
+            plot_vars = numeric_cols[:min(len(numeric_cols), 3)]  # Limit to maximum 3 numeric columns
             
-            if len(valid_cols) >= 2 and 'Mode' in df.columns:
-                plt.figure(figsize=(10, 8))
+            if primary_cat_col:
                 pair_plot = sns.pairplot(
                     data=df, 
-                    vars=valid_cols, 
-                    hue='Mode', 
+                    vars=plot_vars, 
+                    hue=primary_cat_col, 
                     kind='scatter',
                     diag_kind='kde',
                     plot_kws={'alpha': 0.6},
                     height=2.5
                 )
-                pair_plot.map_lower(sns.regplot, line_kws={'color': 'black'})
-                plt.suptitle('Pair Plot with Regression Lines', y=1.02)
-                
-                pair_path = os.path.join(output_dir, "pair_plot.png")
-                pair_plot.savefig(pair_path)
-                plt.close('all')
-                plot_paths.append(pair_path)
-                print(f"Saved plot: {pair_path}")
+            else:
+                pair_plot = sns.pairplot(
+                    data=df, 
+                    vars=plot_vars, 
+                    kind='scatter',
+                    diag_kind='kde',
+                    plot_kws={'alpha': 0.6},
+                    height=3
+                )
+            
+            pair_plot.fig.suptitle('Pair Plot with Relationships', y=1.02)
+            
+            pairplot_path = os.path.join(output_dir, "pair_plot.png")
+            pair_plot.savefig(pairplot_path)
+            plt.close()
+            plot_paths.append(pairplot_path)
+            print(f"Saved plot: {pairplot_path}")
         
         return plot_paths
+        
     except Exception as e:
-        import traceback
-        print(f"Error generating advanced plots: {e}")
-        print(traceback.format_exc())
-        plt.close('all')  # Ensure all plots are closed
-        return [f"Error: {str(e)}"]
+        print(f"Error generating advanced plots: {str(e)}")
+        return plot_paths
 
 def generate_statistical_report(df: pd.DataFrame) -> Dict[str, Any]:
     """

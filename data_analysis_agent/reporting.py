@@ -83,20 +83,50 @@ async def generate_report(
     modified_file_path = f"{path_parts[0]}_modified{path_parts[1]}"
     print(f"[REPORTING] Modified file path will be: {modified_file_path}")
     
-    # Create the analysis request
+    # Generate dynamic column analysis examples based on what's actually in the dataframe
+    column_analysis_examples = []
+    numeric_columns = df.select_dtypes(include=['number']).columns.tolist()
+    categorical_columns = df.select_dtypes(include=['object', 'category']).columns.tolist()
+    
+    # Take up to 3 numeric columns for description examples
+    for col in numeric_columns[:3]:
+        column_analysis_examples.append(f"df['{col}'].describe()")
+    
+    # Take up to 2 categorical columns for unique value examples
+    for col in categorical_columns[:2]:
+        column_analysis_examples.append(f"df['{col}'].unique()")
+    
+    # Combine the examples or provide a fallback
+    if column_analysis_examples:
+        column_examples_str = ", ".join([f"the description of '{example.split('[')[1].split(']')[0]}'" for example in column_analysis_examples])
+        example_code = ", ".join(column_analysis_examples)
+    else:
+        column_examples_str = "column statistics"
+        example_code = "df.describe()"
+    
+    # Create the analysis request with dataset-specific guidance
     analysis_request = (
         f"The DataFrame (originally from {original_path}) has been modified and comprehensive advanced statistical analysis has been performed.\n\n"
         f"Data Cleaning Summary:\n{modification_summary}\n\n"
         f"Advanced Statistical Analysis Summary:\n{statistical_summary}\n\n"
         f"Now, please perform the following actions:\n"
-        f"1. Perform additional analysis on the modified data as needed. For example, check the description of the 'Time' column (df['Time'].describe()), the unique values in 'Mode' (df['Mode'].unique()), and the description of 'Distance' (df['Distance'].describe()). Use the 'execute_pandas_query_tool'.\n"
+        f"1. Perform additional analysis on the modified data as needed. For example, check {column_examples_str}. Use the 'execute_pandas_query_tool' with queries like {example_code}.\n"
         f"2. Generate a comprehensive Markdown report that includes:\n"
         f"   - A summary of the data preparation steps\n"
         f"   - Key findings from your analysis incorporating the advanced statistical measures (skewness, kurtosis, confidence intervals)\n"
-        f"   - Interpretation of the significance tests between different modes of transport\n"
-        f"   - Insights about the distribution of commute times and distances\n"
-        f"3. Save the current DataFrame to the following path using the 'save_dataframe_tool': '{modified_file_path}'"
     )
+    
+    # Add dataset-specific guidance based on available columns
+    if 'Sale_Price' in df.columns or any('price' in col.lower() for col in df.columns):
+        analysis_request += f"   - Interpretation of the key factors affecting housing prices\n"
+    elif any(col in df.columns for col in ['Mode', 'Time', 'Distance']):
+        analysis_request += f"   - Interpretation of the significance tests between different modes of transport\n"
+        analysis_request += f"   - Insights about the distribution of commute times and distances\n"
+    else:
+        analysis_request += f"   - Interpretation of the relationships between key variables\n"
+        analysis_request += f"   - Insights about the distribution of important metrics\n"
+    
+    analysis_request += f"3. Save the current DataFrame to the following path using the 'save_dataframe_tool': '{modified_file_path}'"
 
     print(f"--- Prompting Analysis & Reporting Agent ---\n{analysis_request[:500]}...\n------------------------------------")
     

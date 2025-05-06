@@ -61,6 +61,7 @@ class DataAnalysisFlow(Workflow):
 
         # --- Load data and create Pandas Query Engine ---
         try:
+            print(f"Loading dataset from {ev.dataset_path}")
             df = pd.read_csv(ev.dataset_path)
             query_engine = PandasQueryEngine(df=df, llm=llm, verbose=True)
 
@@ -70,6 +71,44 @@ class DataAnalysisFlow(Workflow):
             await ctx.set("original_path", ev.dataset_path)
 
             print(f"Successfully loaded {ev.dataset_path} and created PandasQueryEngine.")
+
+            # --- NEW: Dataset Analysis for Dataset-Agnostic Operation ---
+            print("[SETUP] Analyzing dataset to make processing dataset-agnostic")
+            from dataset_analyzer import analyze_dataset
+            
+            # Analyze the dataset structure and content
+            analysis_results = analyze_dataset(
+                df=df,
+                save_report=True,
+                report_path='reports/dataset_analysis.json',
+                generate_plots=True,
+                plots_dir='plots/dataset_analysis'
+            )
+            
+            # Store analysis results in context
+            await ctx.set("dataset_analysis", analysis_results)
+            
+            # Get the domain and detected properties
+            detected_domain = analysis_results.get("dataset_domain", {}).get("detected_domain", "generic")
+            print(f"[SETUP] Detected dataset domain: {detected_domain}")
+            
+            # Report target and predictor variables
+            recommended_target = None
+            if "potential_targets" in analysis_results and "recommended_target" in analysis_results["potential_targets"]:
+                recommended_target = analysis_results["potential_targets"]["recommended_target"]
+                print(f"[SETUP] Recommended target variable: {recommended_target}")
+            
+            # --- Load appropriate configuration based on detected dataset type ---
+            from config import get_config
+            config = get_config()
+            
+            # Update configuration with dataset properties
+            config.set("dataset_properties.detected_domain", detected_domain)
+            config.set("dataset_properties.recommended_target", recommended_target)
+            config.set("dataset_properties.analysis", analysis_results)
+            
+            # Store configuration in context
+            await ctx.set("config", config)
 
             self.data_prep_agent, self.data_analysis_agent = create_agents()
 
@@ -129,8 +168,16 @@ class DataAnalysisFlow(Workflow):
             # Combine quality assessment with basic stats
             combined_summary = f"{quality_summary}\n\nAdditional Statistics:\n{initial_info_str}"
             
+            # Add analysis summary from dataset analyzer
+            if "summary" in analysis_results:
+                analysis_summary = "\n\nDataset Analysis Summary:\n"
+                for point in analysis_results["summary"]:
+                    analysis_summary += f"- {point}\n"
+                combined_summary += analysis_summary
+            
             # Add tracking for required reports
             await ctx.set("required_reports", [
+                "reports/dataset_analysis.json",
                 "reports/data_quality_report.json",
                 "reports/cleaning_report.json", 
                 "reports/statistical_analysis_report.json",
@@ -314,11 +361,75 @@ class DataAnalysisFlow(Workflow):
         """Performs regression analysis including linear regression and advanced models."""
         print("--- Running Regression Modeling Step (Phase 3) ---")
         df: pd.DataFrame = await ctx.get("dataframe")
-        target_column = 'Time'
-        predictor_column = 'Distance'
         
-        # 1. Perform Linear Regression Analysis
-        print("[REGRESSION] Starting linear regression analysis")
+        # Get the dataset analysis to determine appropriate target and predictor columns
+        dataset_analysis = await ctx.get("dataset_analysis", {})
+        potential_targets = dataset_analysis.get("potential_targets", {})
+        
+        # Get recommended target column from dataset analysis or use 'Sale_Price' as fallback
+        target_column = potential_targets.get("recommended_target")
+        
+        # Get recommended predictors from dataset analysis
+        recommended_predictors = potential_targets.get("recommended_predictors", [])
+        
+        # Use first recommended predictor or fallback to a suitable numeric column
+        predictor_column = None
+        if recommended_predictors:
+            predictor_column = recommended_predictors[0]
+        
+        # If no target or predictor found from analysis, try to detect appropriate columns
+        if not target_column or not predictor_column:
+            print("[REGRESSION] Auto-detecting appropriate columns for regression")
+            # For housing data, Sale_Price is likely the target
+            if 'Sale_Price' in df.columns:
+                target_column = 'Sale_Price'
+                # Find a suitable numeric predictor
+                numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+                
+                # Prefer common housing predictors like lot area, house size, etc.
+                preferred_predictors = ['Lot_Area', 'Total_Bsmt_SF', 'First_Flr_SF', 'Year_Built']
+                for col in preferred_predictors:
+                    if col in numeric_cols:
+                        predictor_column = col
+                        break
+                
+                # If no preferred predictor found, use any numeric column that's not the target
+                if not predictor_column:
+                    for col in numeric_cols:
+                        if col != target_column:
+                            predictor_column = col
+                            break
+            else:
+                # For other datasets, look for common target naming patterns
+                for col in df.columns:
+                    col_lower = col.lower()
+                    if any(name in col_lower for name in ['price', 'target', 'outcome', 'result']):
+                        target_column = col
+                        break
+                
+                # Use first numeric column that's not the target as predictor
+                if target_column:
+                    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+                    for col in numeric_cols:
+                        if col != target_column:
+                            predictor_column = col
+                            break
+        
+        # Final fallback - use last column as target and second-to-last as predictor
+        if not target_column:
+            print("[REGRESSION] No suitable target column found, using last column as target")
+            target_column = df.columns[-1]
+        
+        if not predictor_column:
+            print("[REGRESSION] No suitable predictor column found, using a valid numeric column")
+            # Find any numeric column that's not the target
+            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+            for col in numeric_cols:
+                if col != target_column:
+                    predictor_column = col
+                    break
+        
+        print(f"[REGRESSION] Starting regression analysis (auto-detection: target={target_column}, predictor={predictor_column})")
         regression_results = perform_regression_analysis(
             df=df,
             target_column=target_column, 
@@ -350,7 +461,7 @@ class DataAnalysisFlow(Workflow):
                 model=full_model,
                 X=X,
                 y=y,
-                model_name="Time-Distance Regression",
+                model_name=f"{target_column}-{predictor_column} Regression",
                 feature_names=[predictor_column],
                 save_report=True,
                 report_path="reports/model_validation.json",
@@ -450,8 +561,8 @@ class DataAnalysisFlow(Workflow):
         # Add prediction example summary
         if prediction_results.get('status') == 'success':
             regression_summary += "\n### Predictions\n"
-            regression_summary += "- Prediction examples generated for full dataset model"
-            if 'mode_bus' in regression_model.models:
+            regression_summary += f"- Prediction examples generated for {target_column}-{predictor_column} model"
+            if 'Mode' in df.columns:
                 regression_summary += " and mode-specific models"
             regression_summary += "\n"
             regression_summary += "- See prediction plots in plots/predictions/ directory\n"
@@ -654,10 +765,35 @@ class DataAnalysisFlow(Workflow):
                     regression_model.save_model_results(file_path=report_path)
                 else:
                     # Try to rebuild the model if not in context
+                    # Get the dataset analysis to determine target and predictor
+                    dataset_analysis = await ctx.get("dataset_analysis", {})
+                    potential_targets = dataset_analysis.get("potential_targets", {})
+                    
+                    # Get recommended target column 
+                    target_column = potential_targets.get("recommended_target")
+                    if not target_column and 'Sale_Price' in df.columns:
+                        target_column = 'Sale_Price'
+                    elif not target_column:
+                        target_column = df.columns[-1]
+                    
+                    # Get recommended predictor
+                    predictor_column = None
+                    recommended_predictors = potential_targets.get("recommended_predictors", [])
+                    if recommended_predictors:
+                        predictor_column = recommended_predictors[0]
+                    else:
+                        # Find any numeric column that's not the target
+                        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+                        for col in numeric_cols:
+                            if col != target_column:
+                                predictor_column = col
+                                break
+                    
+                    print(f"[REGENERATION] Using target={target_column}, predictor={predictor_column}")
                     perform_regression_analysis(
                         df=df,
-                        target_column='Time',
-                        predictor_column='Distance',
+                        target_column=target_column,
+                        predictor_column=predictor_column,
                         save_report=True,
                         report_path=report_path,
                         generate_plots=False  # Skip plots during regeneration
@@ -675,10 +811,41 @@ class DataAnalysisFlow(Workflow):
             elif "advanced_models" in report_path:
                 # Regenerate advanced models report
                 print("Regenerating advanced models report...")
+                # Get target and predictor columns from regression model or dataset analysis
+                target_column = None
+                predictor_column = None
+                
+                regression_model = await ctx.get("regression_model")
+                if regression_model:
+                    target_column = regression_model.target_column
+                    predictor_column = regression_model.predictor_column
+                else:
+                    # Get from dataset analysis
+                    dataset_analysis = await ctx.get("dataset_analysis", {})
+                    potential_targets = dataset_analysis.get("potential_targets", {})
+                    target_column = potential_targets.get("recommended_target")
+                    recommended_predictors = potential_targets.get("recommended_predictors", [])
+                    if recommended_predictors:
+                        predictor_column = recommended_predictors[0]
+                
+                # Use default columns if neither is available
+                if not target_column and 'Sale_Price' in df.columns:
+                    target_column = 'Sale_Price'
+                elif not target_column:
+                    target_column = df.columns[-1]
+                
+                if not predictor_column:
+                    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+                    for col in numeric_cols:
+                        if col != target_column:
+                            predictor_column = col
+                            break
+                
+                print(f"[REGENERATION] Using target={target_column}, predictor={predictor_column}")
                 perform_advanced_modeling(
                     df=df,
-                    target_column='Time',
-                    predictor_column='Distance',
+                    target_column=target_column,
+                    predictor_column=predictor_column,
                     save_report=True,
                     report_path=report_path,
                     generate_plots=False  # Skip plots during regeneration

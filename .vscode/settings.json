@@ -11,7 +11,19 @@
           "@modelcontextprotocol/server-filesystem",
           "${workspaceFolder}"
         ]
+      },
+      "sqlite": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-sqlite",
+          "--db-path",
+          "${workspaceFolder}/data/sample.db"
+        ]
       }
     }
-  }
+  },
+  "dataworkspace.excludedProjects": [
+    "sample db/sample db.sqlproj"
+  ]
 }

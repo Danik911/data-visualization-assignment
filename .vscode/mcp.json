@@ -3,5 +3,15 @@
     "allowedDirectories": [
       "${workspaceFolder}"
     ]
+  },
+  "servers": {
+    "sqlite": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-sqlite",
+        "--db-path",
+        "${workspaceFolder}/data/sample.db"
+      ]
+    }
   }
 }

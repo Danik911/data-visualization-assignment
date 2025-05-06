@@ -1,170 +1,64 @@
 import os
 import pandas as pd
 import numpy as np
-import re
-import functools
-import json
-import traceback
 from llama_index.experimental.query_engine import PandasQueryEngine
-from llama_index.core.workflow import Event, Workflow, Context, StopEvent, step
+from llama_index.core.workflow import Workflow, Context, StopEvent, step
 from llama_index.core.workflow import StartEvent
 from llama_index.core.agent import FunctionCallingAgent
-from llama_index.core.tools import FunctionTool
-from pandas_helper import PandasHelper
-from events import *
-from agents import create_agents, llm
-from data_quality import DataQualityAssessment, DataCleaner, assess_data_quality, clean_data
-from statistical_analysis import generate_statistical_report
 
-# Import refactored modules
-from visualization import generate_visualizations
+# Import events from events.py and new workflow_events.py
+from events import *
+from workflow_events import (
+    InitialAssessmentEvent, DataAnalysisEvent, ModificationRequestEvent, 
+    ModificationCompleteEvent, RegressionModelingEvent, RegressionCompleteEvent,
+    VisualizationRequestEvent, FinalizeReportsEvent
+)
+
+# Import setup helper
+from workflow_setup import WorkflowSetup
+
+# Import report and regression utilities
+from report_utils import ReportUtils
+from regression_utils import RegressionUtils
+
+# Import existing modules
+from agents import create_agents, llm
+from data_quality import clean_data
 from reporting import generate_report
 from consultation import handle_user_consultation
-from advanced_analysis import perform_advanced_analysis, summarize_statistical_findings, perform_advanced_modeling
-
-# Import new Phase 3 modules
-from regression_analysis import perform_regression_analysis, RegressionModel
-from model_validation import validate_regression_model
-from predictive_application import generate_prediction_examples
-
-# Add a new event for regression analysis
-class RegressionModelingEvent(Event):
-    """Event triggered after advanced analysis to perform regression modeling"""
-    modified_data_path: str
-    statistical_report_path: str
-
-
-class RegressionCompleteEvent(Event):
-    """Event triggered when regression modeling is complete"""
-    modified_data_path: str
-    regression_summary: str
-    model_quality: str
-
-class VisualizationCompleteEvent(Event):
-    """Event triggered when visualization is complete"""
-    final_report: str
-    visualization_info: str
-    plot_paths: list
-
-class FinalizeReportsEvent(Event):
-    """Event triggered to finalize all reports"""
-    final_report: str
-    visualization_info: str
-    plot_paths: list
-    reports_to_verify: list
+from advanced_analysis import perform_advanced_analysis
+from visualization import generate_visualizations
 
 
 class DataAnalysisFlow(Workflow):
+    """
+    Main workflow class for the data analysis pipeline.
+    Orchestrates the steps from data loading to report generation.
+    """
     
     @step
-    async def setup(self, ctx: Context, ev: StartEvent) -> InitialAssessmentEvent: 
+    async def setup(self, ctx: Context, ev: StartEvent) -> InitialAssessmentEvent:
         """Initialize the agents and setup the workflow"""
 
-        # --- Load data and create Pandas Query Engine ---
         try:
-            print(f"Loading dataset from {ev.dataset_path}")
-            df = pd.read_csv(ev.dataset_path)
-            query_engine = PandasQueryEngine(df=df, llm=llm, verbose=True)
-
-            # Store the DataFrame and query engine in the context
-            await ctx.set("dataframe", df)
-            await ctx.set("query_engine", query_engine)
-            await ctx.set("original_path", ev.dataset_path)
-
-            print(f"Successfully loaded {ev.dataset_path} and created PandasQueryEngine.")
-
-            # --- NEW: Dataset Analysis for Dataset-Agnostic Operation ---
-            print("[SETUP] Analyzing dataset to make processing dataset-agnostic")
-            from dataset_analyzer import analyze_dataset
+            # Load data and perform initial analysis
+            df, analysis_results = await WorkflowSetup.load_and_analyze_data(ctx, ev.dataset_path)
             
-            # Analyze the dataset structure and content
-            analysis_results = analyze_dataset(
-                df=df,
-                save_report=True,
-                report_path='reports/dataset_analysis.json',
-                generate_plots=True,
-                plots_dir='plots/dataset_analysis'
-            )
+            # Setup configuration based on dataset properties
+            await WorkflowSetup.setup_configuration(ctx, analysis_results)
             
-            # Store analysis results in context
-            await ctx.set("dataset_analysis", analysis_results)
-            
-            # Get the domain and detected properties
-            detected_domain = analysis_results.get("dataset_domain", {}).get("detected_domain", "generic")
-            print(f"[SETUP] Detected dataset domain: {detected_domain}")
-            
-            # Report target and predictor variables
-            recommended_target = None
-            if "potential_targets" in analysis_results and "recommended_target" in analysis_results["potential_targets"]:
-                recommended_target = analysis_results["potential_targets"]["recommended_target"]
-                print(f"[SETUP] Recommended target variable: {recommended_target}")
-            
-            # --- Load appropriate configuration based on detected dataset type ---
-            from config import get_config
-            config = get_config()
-            
-            # Update configuration with dataset properties
-            config.set("dataset_properties.detected_domain", detected_domain)
-            config.set("dataset_properties.recommended_target", recommended_target)
-            config.set("dataset_properties.analysis", analysis_results)
-            
-            # Store configuration in context
-            await ctx.set("config", config)
-
+            # Initialize agents
             self.data_prep_agent, self.data_analysis_agent = create_agents()
-
-            # --- Perform Enhanced Data Quality Assessment ---
-            print("Performing comprehensive data quality assessment...")
-            assessment_report = assess_data_quality(df, save_report=True, 
-                                      report_path='reports/data_quality_report.json')
             
-            await ctx.set("assessment_report", assessment_report)
-            print(f"Data quality assessment completed and stored in context with quality score: {assessment_report['dataset_info']['quality_score']}")
-
-            # --- Format Quality Assessment Summary for Agent ---
-            issue_summary = assessment_report['issue_summary']
-            recommendations = assessment_report['recommendations']
+            # Perform data quality assessment
+            assessment_report = await WorkflowSetup.perform_quality_assessment(ctx, df)
             
-            quality_summary = (
-                f"Data Quality Assessment Summary:\n"
-                f"- Total rows: {issue_summary['total_rows']}, Total columns: {issue_summary['total_columns']}\n"
-                f"- Missing values: {issue_summary['missing_value_count']}\n"
-                f"- Duplicate rows: {issue_summary['duplicate_row_count']}\n"
-                f"- Outliers detected: {issue_summary['outlier_count']}\n"
-                f"- Impossible values: {issue_summary['impossible_value_count']}\n"
-                f"- Quality score: {assessment_report['dataset_info']['quality_score']}/100\n\n"
-                f"Recommendations:\n"
-            )
+            # Format quality assessment summary
+            quality_summary = WorkflowSetup.format_quality_summary(assessment_report)
             
-            for category, recs in recommendations.items():
-                if recs:
-                    quality_summary += f"- {category.replace('_', ' ').title()}:\n"
-                    for rec in recs:
-                        quality_summary += f"  * {rec}\n"
-
-            # --- Get initial stats for the next step ---
-            initial_info_str = "Could not retrieve initial stats."
-            column_info_dict = {}
-            try:
-                if hasattr(query_engine, 'aquery'):
-                     response = await query_engine.aquery("Show the shape of the dataframe (number of rows and columns) and the output of df.describe(include='all')")
-                else:
-                     response = query_engine.query("Show the shape of the dataframe (number of rows and columns) and the output of df.describe(include='all')")
-                initial_info_str = str(response)
-
-                missing_counts = df.isna().sum().to_dict()
-                dtypes = df.dtypes.astype(str).to_dict()
-                column_info_dict = {"dtypes": dtypes, "missing_counts": missing_counts}
-                print(f"--- Initial Info Gathered ---\n{initial_info_str}\nColumn Details:\n{column_info_dict}\n-----------------------------")
-                # Store these in context for the consultation step later
-                await ctx.set("stats_summary", initial_info_str)
-                await ctx.set("column_info", column_info_dict)
-            except Exception as e:
-                print(f"Warning: Could not query initial info from engine during setup: {e}")
-                initial_info_str = f"Columns: {df.columns.tolist()}" 
-                column_info_dict = {"columns": df.columns.tolist()} 
-                await ctx.set("stats_summary", initial_info_str) 
-                await ctx.set("column_info", column_info_dict) 
+            # Get initial statistics
+            query_engine = await ctx.get("query_engine")
+            initial_info_str, column_info_dict = await WorkflowSetup.gather_initial_stats(ctx, df, query_engine)
             
             # Combine quality assessment with basic stats
             combined_summary = f"{quality_summary}\n\nAdditional Statistics:\n{initial_info_str}"
@@ -176,17 +70,10 @@ class DataAnalysisFlow(Workflow):
                     analysis_summary += f"- {point}\n"
                 combined_summary += analysis_summary
             
-            # Add tracking for required reports
-            await ctx.set("required_reports", [
-                "reports/dataset_analysis.json",
-                "reports/data_quality_report.json",
-                "reports/cleaning_report.json", 
-                "reports/statistical_analysis_report.json",
-                "reports/regression_models.json",
-                "reports/advanced_models.json"
-            ])
+            # Initialize list of required reports
+            await WorkflowSetup.initialize_required_reports(ctx)
             
-            return InitialAssessmentEvent( 
+            return InitialAssessmentEvent(
                 stats_summary=combined_summary,
                 column_info=column_info_dict,
                 original_path=ev.dataset_path,
@@ -194,15 +81,14 @@ class DataAnalysisFlow(Workflow):
         except Exception as e:
             print(f"Error during setup: Failed to load {ev.dataset_path} or create engine. Error: {e}")
             import traceback
-            traceback.print_exc() 
+            traceback.print_exc()
             raise ValueError(f"Setup failed: {e}")
         
     @step
-    async def data_preparation(self, ctx: Context, ev: InitialAssessmentEvent) -> DataAnalysisEvent: 
+    async def data_preparation(self, ctx: Context, ev: InitialAssessmentEvent) -> DataAnalysisEvent:
         """Use the data prep agent to suggest cleaning/preparation based on schema and quality assessment."""
 
-        initial_info = ev.stats_summary # Get enhanced stats and quality assessment from the event
-        column_info = ev.column_info
+        initial_info = ev.stats_summary
         assessment_report = await ctx.get("assessment_report", None)
 
         # Enhanced prompt with quality assessment insights
@@ -215,34 +101,32 @@ class DataAnalysisFlow(Workflow):
         )
         result = self.data_prep_agent.chat(prep_prompt)
 
+        # Extract prepared data description from agent response
         prepared_data_description = None
         if hasattr(result, 'response'):
             prepared_data_description = result.response
             if not prepared_data_description:
                 prepared_data_description = "Agent returned an empty description despite the prompt."
                 print("Warning: Agent response attribute was empty.")
-
         else:
             prepared_data_description = "Could not extract data preparation description from agent response."
             print(f"Warning: Agent response does not have expected 'response' attribute. Full result: {result}")
 
+        print(f"--- Prep Agent Description Output ---\n{prepared_data_description[:100]}...\n------------------------------------")
 
-        print(f"--- Prep Agent Description Output ---\n{prepared_data_description}\n------------------------------------")
-
-        # Store the *agent's suggested* description (before human input)
+        # Store the agent's suggested description
         await ctx.set("agent_prepared_data_description", prepared_data_description)
 
-
         return DataAnalysisEvent(
-            prepared_data_description=prepared_data_description, 
+            prepared_data_description=prepared_data_description,
             original_path=ev.original_path
         )
 
     @step
-    async def human_consultation(self, ctx: Context, ev: DataAnalysisEvent) -> ModificationRequestEvent: 
-        """Analyzes initial assessment, asks user for cleaning decisions using numbered options.""" 
+    async def human_consultation(self, ctx: Context, ev: DataAnalysisEvent) -> ModificationRequestEvent:
+        """Analyzes initial assessment, asks user for cleaning decisions using numbered options."""
         print("--- Running Human Consultation Step ---")
-        agent_suggestion = ev.prepared_data_description 
+        agent_suggestion = ev.prepared_data_description
         original_path = ev.original_path
         stats_summary = await ctx.get("stats_summary", "Stats not available.")
         column_info = await ctx.get("column_info", {})
@@ -257,31 +141,27 @@ class DataAnalysisFlow(Workflow):
             original_path
         )
         
-        return ModificationRequestEvent( 
+        return ModificationRequestEvent(
             user_approved_description=consultation_result["user_approved_description"],
             original_path=original_path
         )
 
     @step
     async def data_modification(self, ctx: Context, ev: ModificationRequestEvent) -> ModificationCompleteEvent:
-        """Applies the data modifications using the DataCleaner class based on user input.""" 
+        """Applies the data modifications using the DataCleaner class based on user input."""
         print("--- Running Enhanced Data Modification Step ---")
-        df: pd.DataFrame = await ctx.get("dataframe")
+        df = await ctx.get("dataframe")
         assessment_report = await ctx.get("assessment_report")
-        original_path = ev.original_path # Get path from the event
-
-        # Create a temporary backup of original data for before/after comparisons
-        original_df = df.copy()
+        original_path = ev.original_path
         
+        # Apply data cleaning
         print("Applying data cleaning using DataCleaner with quality assessment report...")
-        
-        # Use our enhanced DataCleaner class
         cleaned_df, cleaning_report = clean_data(
-            df=df, 
-            assessment_report=assessment_report, 
-            save_report=True, 
+            df=df,
+            assessment_report=assessment_report,
+            save_report=True,
             report_path='reports/cleaning_report.json',
-            generate_plots=True, 
+            generate_plots=True,
             plots_dir='plots/cleaning_comparisons'
         )
         
@@ -323,7 +203,7 @@ class DataAnalysisFlow(Workflow):
                     cleaning_summary += f"- {col} mean: {stats['mean']['before']:.2f} → {stats['mean']['after']:.2f}\n"
         
         await ctx.set("modification_summary", cleaning_summary)
-        print(f"--- Cleaning Summary ---\n{cleaning_summary}\n-------------------------")
+        print(f"--- Cleaning Summary ---\n{cleaning_summary[:100]}...\n-------------------------")
 
         return ModificationCompleteEvent(
             original_path=original_path,
@@ -332,13 +212,13 @@ class DataAnalysisFlow(Workflow):
 
     @step
     async def advanced_statistical_analysis(self, ctx: Context, ev: ModificationCompleteEvent) -> RegressionModelingEvent:
-        """Performs advanced statistical analysis on the cleaned data including advanced measures and significance testing.""" 
+        """Performs advanced statistical analysis on the cleaned data."""
         print("--- Running Advanced Statistical Analysis Step ---")
-        df: pd.DataFrame = await ctx.get("dataframe")
-        original_path: str = ev.original_path
-        modification_summary: str = ev.modification_summary
+        df = await ctx.get("dataframe")
+        original_path = ev.original_path
+        modification_summary = ev.modification_summary
         
-        # Use the refactored advanced analysis module
+        # Perform advanced analysis
         analysis_results = await perform_advanced_analysis(
             df=df,
             llm=llm,
@@ -361,25 +241,14 @@ class DataAnalysisFlow(Workflow):
     async def regression_modeling(self, ctx: Context, ev: RegressionModelingEvent) -> RegressionCompleteEvent:
         """Performs regression analysis including linear regression and advanced models."""
         print("--- Running Regression Modeling Step (Phase 3) ---")
-        df: pd.DataFrame = await ctx.get("dataframe")
+        df = await ctx.get("dataframe")
         
-        # Check if dataset has only one column
-        if len(df.columns) == 1:
-            print("[REGRESSION] Dataset has only one column. Skipping regression analysis.")
-            
-            # Create a simple summary report for single-column dataset
-            regression_summary = "## Regression Analysis Summary\n\n"
-            regression_summary += "The dataset contains only one column, making regression analysis impossible.\n"
-            regression_summary += "Regression requires at least two columns: one for the predictor and one for the target.\n\n"
-            regression_summary += "### Recommendations\n"
-            regression_summary += "- Consider enriching the dataset with additional features\n"
-            regression_summary += "- Verify that the data was loaded correctly\n"
-            
-            # Create a minimal result to continue the workflow
-            model_quality = "N/A"
-            
-            # Store placeholder results in context
-            await ctx.set("regression_results", {"status": "skipped", "reason": "single_column_dataset"})
+        # Check if regression is viable for this dataset
+        is_viable, regression_summary, model_quality = await RegressionUtils.check_regression_viability(df)
+        
+        if not is_viable:
+            # Skip regression and return with summary
+            await ctx.set("regression_results", {"status": "skipped", "reason": "not_viable"})
             await ctx.set("model_quality", model_quality)
             
             return RegressionCompleteEvent(
@@ -388,189 +257,36 @@ class DataAnalysisFlow(Workflow):
                 model_quality=model_quality
             )
         
-        # Continue with regular regression analysis for multi-column datasets
-        # Get the dataset analysis to determine appropriate target and predictor columns
-        dataset_analysis = await ctx.get("dataset_analysis", {})
-        potential_targets = dataset_analysis.get("potential_targets", {})
+        # Identify target and predictor columns
+        target_column, predictor_column = await RegressionUtils.identify_target_predictor(ctx, df)
         
-        # Get recommended target column from dataset analysis or use 'Sale_Price' as fallback
-        target_column = potential_targets.get("recommended_target")
+        # Perform complete regression analysis
+        regression_analysis = await RegressionUtils.perform_complete_regression_analysis(
+            ctx, df, target_column, predictor_column
+        )
         
-        # Try to find suitable predictor/target columns from available columns
-        if df.select_dtypes(include=[np.number]).columns.size >= 2:
-            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-            
-            # Use last numeric column as target if not specified
-            if not target_column:
-                target_column = numeric_cols[-1]
-            
-            # Find a predictor that's not the target
-            predictor_column = None
-            for col in numeric_cols:
-                if col != target_column:
-                    predictor_column = col
-                    break
-                    
-            print(f"[REGRESSION] Selected columns: target={target_column}, predictor={predictor_column}")
-        else:
-            print("[REGRESSION] Insufficient numeric columns for regression. Skipping analysis.")
-            regression_summary = "## Regression Analysis Summary\n\n"
-            regression_summary += "The dataset doesn't contain enough numeric columns for regression analysis.\n"
-            regression_summary += "Regression requires at least two numeric columns.\n"
-            
-            model_quality = "N/A"
-            await ctx.set("regression_results", {"status": "skipped", "reason": "insufficient_numeric_columns"})
-            await ctx.set("model_quality", model_quality)
-            
-            return RegressionCompleteEvent(
-                modified_data_path=ev.modified_data_path,
-                regression_summary=regression_summary,
-                model_quality=model_quality
-            )
-        
-        # Continue with regression only if we have valid target and predictor columns
-        if target_column and predictor_column:
-            regression_results = perform_regression_analysis(
-                df=df,
-                target_column=target_column, 
-                predictor_column=predictor_column,
-                save_report=True,
-                report_path="reports/regression_models.json",
-                generate_plots=True,
-                plots_dir="plots/regression"
-            )
-            
-            # Store regression model in context for later use
-            regression_model = RegressionModel(df, target_column, predictor_column)
-            regression_model.fit_full_dataset_model()
-            await ctx.set("regression_model", regression_model)
-            
-            # Store regression results in context
-            await ctx.set("regression_results", regression_results)
-            
-            # 2. Perform Model Validation
-            print("[REGRESSION] Validating regression models")
-            full_model = regression_model.models.get('full_dataset')
-            if full_model:
-                X = df[[predictor_column]]
-                y = df[target_column]
-                
-                validation_results = validate_regression_model(
-                    model=full_model,
-                    X=X,
-                    y=y,
-                    model_name=f"{target_column}-{predictor_column} Regression",
-                    feature_names=[predictor_column],
-                    save_report=True,
-                    report_path="reports/model_validation.json",
-                    generate_plots=True,
-                    plots_dir="plots/validation"
-                )
-                
-                # Store validation results
-                await ctx.set("validation_results", validation_results)
-                
-                # Check if model meets assumptions
-                assumptions_met = validation_results.get('assumptions_met', {})
-                model_quality = "High" if all(assumptions_met.values()) else "Medium" if any(assumptions_met.values()) else "Low"
-                await ctx.set("model_quality", model_quality)
-            else:
-                validation_results = {"status": "error", "error_message": "Full dataset model not available"}
-                model_quality = "Unknown"
-                await ctx.set("model_quality", model_quality)
-            
-            # 3. Perform Advanced Modeling
-            print("[REGRESSION] Running advanced modeling analysis")
-            advanced_modeling_results = perform_advanced_modeling(
-                df=df,
-                target_column=target_column,
-                predictor_column=predictor_column,
-                save_report=True,
-                report_path="reports/advanced_models.json",
-                generate_plots=True,
-                plots_dir="plots/models"
-            )
-            
-            # Store advanced modeling results
-            await ctx.set("advanced_modeling_results", advanced_modeling_results)
-            
-            # 4. Generate Prediction Examples
-            print("[REGRESSION] Generating prediction examples")
-            prediction_results = generate_prediction_examples(
-                regression_model=regression_model,
-                save_report=True,
-                report_path="reports/prediction_results.json",
-                generate_plots=True,
-                plots_dir="plots/predictions"
-            )
-            
-            # Store prediction results
-            await ctx.set("prediction_results", prediction_results)
-            
-            # Prepare regression summary
-            regression_summary = "## Regression Analysis Summary\n\n"
-            
-            # Add linear model summary
-            if regression_results.get('status') == 'success':
-                full_model_info = regression_results.get('full_model', {})
-                regression_summary += "### Linear Model\n"
-                regression_summary += f"- Formula: {full_model_info.get('formula', 'N/A')}\n"
-                metrics = full_model_info.get('metrics', {})
-                regression_summary += f"- R-squared: {metrics.get('r_squared', 'N/A'):.4f}\n"
-                regression_summary += f"- RMSE: {metrics.get('rmse', 'N/A'):.4f}\n"
-                
-                # Add model validation summary
-                if validation_results.get('status') == 'success':
-                    regression_summary += "\n### Model Validation\n"
-                    assumptions = validation_results.get('assumptions_met', {})
-                    regression_summary += f"- Normality of residuals: {'✅ Met' if assumptions.get('normality', False) else '❌ Not met'}\n"
-                    regression_summary += f"- Homoscedasticity: {'✅ Met' if assumptions.get('homoscedasticity', False) else '❌ Not met'}\n"
-                    regression_summary += f"- Zero mean residuals: {'✅ Met' if assumptions.get('zero_mean_residuals', False) else '❌ Not met'}\n"
-                    
-                    cv_metrics = validation_results.get('cross_validation', {}).get('metrics', {})
-                    regression_summary += f"- Cross-validation R²: {cv_metrics.get('r2_mean', 'N/A'):.4f} (±{cv_metrics.get('r2_std', 'N/A'):.4f})\n"
-                
-                # Add advanced modeling summary
-                if advanced_modeling_results.get('status') == 'success':
-                    comparison = advanced_modeling_results.get('model_comparison', {})
-                    best_model_key = comparison.get('overall_best_model')
-                    
-                    regression_summary += "\n### Alternative Models\n"
-                    
-                    if best_model_key and best_model_key in comparison:
-                        best_model = comparison.get(best_model_key, {})
-                        regression_summary += f"- Best model: {best_model.get('name', 'Unknown')}\n"
-                        
-                        best_metrics = best_model.get('metrics', {})
-                        if best_metrics:
-                            regression_summary += f"- AIC: {best_metrics.get('aic', 'N/A'):.2f}\n"
-                            regression_summary += f"- BIC: {best_metrics.get('bic', 'N/A'):.2f}\n"
-                            regression_summary += f"- R-squared: {best_metrics.get('r2', 'N/A'):.4f}\n"
-                
-                # Add prediction example summary
-                if prediction_results.get('status') == 'success':
-                    regression_summary += "\n### Predictions\n"
-                    regression_summary += f"- Prediction examples generated for {target_column}-{predictor_column} model\n"
-                    regression_summary += "- See prediction plots in plots/predictions/ directory\n"
-            else:
-                regression_summary += "Regression analysis could not be completed successfully.\n"
-        else:
-            regression_summary = "## Regression Analysis Summary\n\n"
-            regression_summary += "Could not find appropriate target and predictor columns for regression analysis.\n"
-            model_quality = "N/A"
+        # Generate regression summary
+        regression_summary = RegressionUtils.generate_regression_summary(
+            regression_analysis["regression_results"],
+            regression_analysis["validation_results"],
+            regression_analysis["advanced_modeling_results"],
+            regression_analysis["prediction_results"],
+            target_column,
+            predictor_column
+        )
         
         return RegressionCompleteEvent(
             modified_data_path=ev.modified_data_path,
             regression_summary=regression_summary,
-            model_quality=model_quality
+            model_quality=regression_analysis["model_quality"]
         )
 
     @step
     async def analysis_reporting(self, ctx: Context, ev: RegressionCompleteEvent) -> VisualizationRequestEvent:
-        """Performs analysis on the modified data, generates a report, and saves.""" 
+        """Generates a report based on the analysis results."""
         print("--- Running Analysis & Reporting Step ---")
-        df: pd.DataFrame = await ctx.get("dataframe") 
-        original_path: str = ev.modified_data_path
+        df = await ctx.get("dataframe")
+        original_path = ev.modified_data_path
         
         # Get the modification summary from context
         modification_summary = await ctx.get("modification_summary", "Modification summary not available.")
@@ -609,12 +325,12 @@ class DataAnalysisFlow(Workflow):
 
     @step
     async def create_visualizations(self, ctx: Context, ev: VisualizationRequestEvent) -> FinalizeReportsEvent:
-        """Generates standard and advanced visualizations for the cleaned data using a dedicated agent.""" 
+        """Generates standard and advanced visualizations for the cleaned data."""
         print("--- Running Enhanced Visualization Step ---")
-        df: pd.DataFrame = await ctx.get("dataframe")
+        df = await ctx.get("dataframe")
         modified_data_path = ev.modified_data_path
-        final_report = ev.report # Enhanced report from previous step with advanced analysis
-
+        final_report = ev.report
+        
         if df is None:
             print("Error: DataFrame not found in context for visualization.")
             # Return with error but continue to report finalization
@@ -624,14 +340,14 @@ class DataAnalysisFlow(Workflow):
                 plot_paths=[],
                 reports_to_verify=await ctx.get("required_reports", [])
             )
-
-        # Use the refactored visualization module
+            
+        # Generate visualizations
         visualization_results = await generate_visualizations(df, llm, modified_data_path)
         
         # Get the list of required reports that need to be verified
         required_reports = await ctx.get("required_reports", [
             "reports/data_quality_report.json",
-            "reports/cleaning_report.json", 
+            "reports/cleaning_report.json",
             "reports/statistical_analysis_report.json",
             "reports/regression_models.json",
             "reports/advanced_models.json"
@@ -647,69 +363,23 @@ class DataAnalysisFlow(Workflow):
 
     @step
     async def finalize_reports(self, ctx: Context, ev: FinalizeReportsEvent) -> StopEvent:
-        """Verifies and finalizes all reports as the last step in the workflow.""" 
+        """Verifies and finalizes all reports as the last step in the workflow."""
         print("--- Running Report Finalization Step ---")
         final_report = ev.final_report
         visualization_info = ev.visualization_info
         plot_paths = ev.plot_paths
         reports_to_verify = ev.reports_to_verify
         
-        # Verify reports and regenerate any missing or incomplete ones
-        reports_status = {}
+        # Verify reports and generate status
+        reports_status = await ReportUtils.verify_reports(reports_to_verify)
         
-        for report_path in reports_to_verify:
-            print(f"Verifying report: {report_path}")
-            status = {"exists": False, "complete": False, "error": None}
-            
-            try:
-                # Check if report exists
-                if os.path.exists(report_path):
-                    status["exists"] = True
-                    
-                    # Read report and check if it's a valid JSON
-                    with open(report_path, 'r') as f:
-                        try:
-                            report_data = json.load(f)
-                            
-                            # Check if the report has content
-                            if report_data and isinstance(report_data, dict):
-                                status["complete"] = True
-                            else:
-                                status["error"] = "Report exists but contains no valid data"
-                                print(f"Error: {report_path} exists but contains no valid data")
-                                
-                        except json.JSONDecodeError:
-                            status["error"] = "Invalid JSON format"
-                            print(f"Error: {report_path} is not a valid JSON file")
-                else:
-                    status["error"] = "Report file does not exist"
-                    print(f"Error: {report_path} does not exist")
-                    
-                # Store status for this report
-                reports_status[report_path] = status
-                
-                # If report is incomplete or missing, attempt to regenerate it
-                if not status["complete"]:
-                    await self._regenerate_report(ctx, report_path)
-            
-            except Exception as e:
-                status["error"] = str(e)
-                reports_status[report_path] = status
-                print(f"Error verifying report {report_path}: {e}")
-                
-                # Attempt to regenerate on error
-                await self._regenerate_report(ctx, report_path)
+        # Attempt to regenerate any missing or incomplete reports
+        for report_path, status in reports_status.items():
+            if not status["complete"]:
+                await ReportUtils.regenerate_report(ctx, report_path)
         
         # Update the final report with the status of all reports
-        report_status_summary = "\n\n## Reports Status\n\n"
-        for report_path, status in reports_status.items():
-            report_name = os.path.basename(report_path)
-            if status["complete"]:
-                report_status_summary += f"- ✅ {report_name}: Successfully generated\n"
-            else:
-                error = status["error"] or "Unknown error"
-                report_status_summary += f"- ⚠️ {report_name}: Issue detected - {error}\n"
-        
+        report_status_summary = ReportUtils.generate_report_status_summary(reports_status)
         final_report_with_status = final_report + report_status_summary
         
         # Create a condensed final result
@@ -722,129 +392,3 @@ class DataAnalysisFlow(Workflow):
         
         print("Report finalization complete. Workflow finished.")
         return StopEvent(result=final_result)
-    
-    async def _regenerate_report(self, ctx: Context, report_path: str) -> None:
-        """Helper method to attempt regenerating a missing or incomplete report.""" 
-        print(f"Attempting to regenerate report: {report_path}")
-        
-        try:
-            df = await ctx.get("dataframe")
-            report_name = os.path.basename(report_path)
-            
-            if "data_quality_report" in report_path:
-                # Regenerate data quality report
-                print("Regenerating data quality report...")
-                assess_data_quality(df, save_report=True, report_path=report_path)
-                
-            elif "cleaning_report" in report_path:
-                # Regenerate cleaning report
-                print("Regenerating cleaning report...")
-                assessment_report = await ctx.get("assessment_report", None)
-                if assessment_report:
-                    clean_data(
-                        df=df,
-                        assessment_report=assessment_report,
-                        save_report=True,
-                        report_path=report_path,
-                        generate_plots=False  # Skip plots during regeneration
-                    )
-                
-            elif "regression_models" in report_path:
-                # Regenerate regression models report
-                print("Regenerating regression models report...")
-                regression_model = await ctx.get("regression_model")
-                if regression_model:
-                    regression_model.save_model_results(file_path=report_path)
-                else:
-                    # Try to rebuild the model if not in context
-                    # Get the dataset analysis to determine target and predictor
-                    dataset_analysis = await ctx.get("dataset_analysis", {})
-                    potential_targets = dataset_analysis.get("potential_targets", {})
-                    
-                    # Get recommended target column 
-                    target_column = potential_targets.get("recommended_target")
-                    if not target_column and 'Sale_Price' in df.columns:
-                        target_column = 'Sale_Price'
-                    elif not target_column:
-                        target_column = df.columns[-1]
-                    
-                    # Get recommended predictor
-                    predictor_column = None
-                    recommended_predictors = potential_targets.get("recommended_predictors", [])
-                    if recommended_predictors:
-                        predictor_column = recommended_predictors[0]
-                    else:
-                        # Find any numeric column that's not the target
-                        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                        for col in numeric_cols:
-                            if col != target_column:
-                                predictor_column = col
-                                break
-                    
-                    print(f"[REGENERATION] Using target={target_column}, predictor={predictor_column}")
-                    perform_regression_analysis(
-                        df=df,
-                        target_column=target_column,
-                        predictor_column=predictor_column,
-                        save_report=True,
-                        report_path=report_path,
-                        generate_plots=False  # Skip plots during regeneration
-                    )
-                    
-            elif "statistical_analysis_report" in report_path:
-                # Regenerate statistical analysis report
-                print("Regenerating statistical analysis report...")
-                generate_statistical_report(
-                    df=df,
-                    save_report=True,
-                    report_path=report_path
-                )
-                
-            elif "advanced_models" in report_path:
-                # Regenerate advanced models report
-                print("Regenerating advanced models report...")
-                # Get target and predictor columns from regression model or dataset analysis
-                target_column = None
-                predictor_column = None
-                
-                regression_model = await ctx.get("regression_model")
-                if regression_model:
-                    target_column = regression_model.target_column
-                    predictor_column = regression_model.predictor_column
-                else:
-                    # Get from dataset analysis
-                    dataset_analysis = await ctx.get("dataset_analysis", {})
-                    potential_targets = dataset_analysis.get("potential_targets", {})
-                    target_column = potential_targets.get("recommended_target")
-                    recommended_predictors = potential_targets.get("recommended_predictors", [])
-                    if recommended_predictors:
-                        predictor_column = recommended_predictors[0]
-                
-                # Use default columns if neither is available
-                if not target_column and 'Sale_Price' in df.columns:
-                    target_column = 'Sale_Price'
-                elif not target_column:
-                    target_column = df.columns[-1]
-                
-                if not predictor_column:
-                    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                    for col in numeric_cols:
-                        if col != target_column:
-                            predictor_column = col
-                            break
-                
-                print(f"[REGENERATION] Using target={target_column}, predictor={predictor_column}")
-                perform_advanced_modeling(
-                    df=df,
-                    target_column=target_column,
-                    predictor_column=predictor_column,
-                    save_report=True,
-                    report_path=report_path,
-                    generate_plots=False  # Skip plots during regeneration
-                )
-                
-            print(f"Successfully regenerated report: {report_path}")
-            
-        except Exception as e:
-            print(f"Failed to regenerate report {report_path}: {str(e)}")
-            traceback.print_exc()

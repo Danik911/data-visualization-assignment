@@ -3,7 +3,7 @@
     "rows": 2414,
     "columns": 1,
     "memory_usage": 0.9391441345214844,
-    "analyzed_at": "2025-05-06 17:53:13"
+    "analyzed_at": "2025-05-06 18:55:12"
   },
   "column_types": {
     "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data.csv": {
@@ -25,9 +25,9 @@
     "error": "No numeric columns found for target detection"
   },
   "dataset_domain": {
-    "detected_domain": "housing",
+    "detected_domain": "generic",
     "domain_scores": {
-      "housing": 1,
+      "housing": 0,
       "healthcare": 0,
       "finance": 0,
       "transportation": 0,
@@ -37,8 +37,7 @@
   },
   "summary": [
     "Dataset contains 2,414 rows and 1 columns, using 0.94 MB of memory.",
-    "Column types: 1 text.",
-    "Dataset appears to be from the housing domain."
+    "Column types: 1 text."
   ],
   "plot_paths": []
 }

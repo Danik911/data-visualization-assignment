@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 import re
 import functools
 import json
@@ -362,6 +363,32 @@ class DataAnalysisFlow(Workflow):
         print("--- Running Regression Modeling Step (Phase 3) ---")
         df: pd.DataFrame = await ctx.get("dataframe")
         
+        # Check if dataset has only one column
+        if len(df.columns) == 1:
+            print("[REGRESSION] Dataset has only one column. Skipping regression analysis.")
+            
+            # Create a simple summary report for single-column dataset
+            regression_summary = "## Regression Analysis Summary\n\n"
+            regression_summary += "The dataset contains only one column, making regression analysis impossible.\n"
+            regression_summary += "Regression requires at least two columns: one for the predictor and one for the target.\n\n"
+            regression_summary += "### Recommendations\n"
+            regression_summary += "- Consider enriching the dataset with additional features\n"
+            regression_summary += "- Verify that the data was loaded correctly\n"
+            
+            # Create a minimal result to continue the workflow
+            model_quality = "N/A"
+            
+            # Store placeholder results in context
+            await ctx.set("regression_results", {"status": "skipped", "reason": "single_column_dataset"})
+            await ctx.set("model_quality", model_quality)
+            
+            return RegressionCompleteEvent(
+                modified_data_path=ev.modified_data_path,
+                regression_summary=regression_summary,
+                model_quality=model_quality
+            )
+        
+        # Continue with regular regression analysis for multi-column datasets
         # Get the dataset analysis to determine appropriate target and predictor columns
         dataset_analysis = await ctx.get("dataset_analysis", {})
         potential_targets = dataset_analysis.get("potential_targets", {})
@@ -369,203 +396,168 @@ class DataAnalysisFlow(Workflow):
         # Get recommended target column from dataset analysis or use 'Sale_Price' as fallback
         target_column = potential_targets.get("recommended_target")
         
-        # Get recommended predictors from dataset analysis
-        recommended_predictors = potential_targets.get("recommended_predictors", [])
-        
-        # Use first recommended predictor or fallback to a suitable numeric column
-        predictor_column = None
-        if recommended_predictors:
-            predictor_column = recommended_predictors[0]
-        
-        # If no target or predictor found from analysis, try to detect appropriate columns
-        if not target_column or not predictor_column:
-            print("[REGRESSION] Auto-detecting appropriate columns for regression")
-            # For housing data, Sale_Price is likely the target
-            if 'Sale_Price' in df.columns:
-                target_column = 'Sale_Price'
-                # Find a suitable numeric predictor
-                numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                
-                # Prefer common housing predictors like lot area, house size, etc.
-                preferred_predictors = ['Lot_Area', 'Total_Bsmt_SF', 'First_Flr_SF', 'Year_Built']
-                for col in preferred_predictors:
-                    if col in numeric_cols:
-                        predictor_column = col
-                        break
-                
-                # If no preferred predictor found, use any numeric column that's not the target
-                if not predictor_column:
-                    for col in numeric_cols:
-                        if col != target_column:
-                            predictor_column = col
-                            break
-            else:
-                # For other datasets, look for common target naming patterns
-                for col in df.columns:
-                    col_lower = col.lower()
-                    if any(name in col_lower for name in ['price', 'target', 'outcome', 'result']):
-                        target_column = col
-                        break
-                
-                # Use first numeric column that's not the target as predictor
-                if target_column:
-                    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                    for col in numeric_cols:
-                        if col != target_column:
-                            predictor_column = col
-                            break
-        
-        # Final fallback - use last column as target and second-to-last as predictor
-        if not target_column:
-            print("[REGRESSION] No suitable target column found, using last column as target")
-            target_column = df.columns[-1]
-        
-        if not predictor_column:
-            print("[REGRESSION] No suitable predictor column found, using a valid numeric column")
-            # Find any numeric column that's not the target
+        # Try to find suitable predictor/target columns from available columns
+        if df.select_dtypes(include=[np.number]).columns.size >= 2:
             numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+            
+            # Use last numeric column as target if not specified
+            if not target_column:
+                target_column = numeric_cols[-1]
+            
+            # Find a predictor that's not the target
+            predictor_column = None
             for col in numeric_cols:
                 if col != target_column:
                     predictor_column = col
                     break
-        
-        print(f"[REGRESSION] Starting regression analysis (auto-detection: target={target_column}, predictor={predictor_column})")
-        regression_results = perform_regression_analysis(
-            df=df,
-            target_column=target_column, 
-            predictor_column=predictor_column,
-            save_report=True,
-            report_path="reports/regression_models.json",
-            generate_plots=True,
-            plots_dir="plots/regression"
-        )
-        
-        # Store regression model in context for later use
-        regression_model = RegressionModel(df, target_column, predictor_column)
-        regression_model.fit_full_dataset_model()
-        if 'Mode' in df.columns:
-            regression_model.fit_mode_specific_models(mode_column='Mode')
-        await ctx.set("regression_model", regression_model)
-        
-        # Store regression results in context
-        await ctx.set("regression_results", regression_results)
-        
-        # 2. Perform Model Validation
-        print("[REGRESSION] Validating regression models")
-        full_model = regression_model.models.get('full_dataset')
-        if full_model:
-            X = df[[predictor_column]]
-            y = df[target_column]
+                    
+            print(f"[REGRESSION] Selected columns: target={target_column}, predictor={predictor_column}")
+        else:
+            print("[REGRESSION] Insufficient numeric columns for regression. Skipping analysis.")
+            regression_summary = "## Regression Analysis Summary\n\n"
+            regression_summary += "The dataset doesn't contain enough numeric columns for regression analysis.\n"
+            regression_summary += "Regression requires at least two numeric columns.\n"
             
-            validation_results = validate_regression_model(
-                model=full_model,
-                X=X,
-                y=y,
-                model_name=f"{target_column}-{predictor_column} Regression",
-                feature_names=[predictor_column],
+            model_quality = "N/A"
+            await ctx.set("regression_results", {"status": "skipped", "reason": "insufficient_numeric_columns"})
+            await ctx.set("model_quality", model_quality)
+            
+            return RegressionCompleteEvent(
+                modified_data_path=ev.modified_data_path,
+                regression_summary=regression_summary,
+                model_quality=model_quality
+            )
+        
+        # Continue with regression only if we have valid target and predictor columns
+        if target_column and predictor_column:
+            regression_results = perform_regression_analysis(
+                df=df,
+                target_column=target_column, 
+                predictor_column=predictor_column,
                 save_report=True,
-                report_path="reports/model_validation.json",
+                report_path="reports/regression_models.json",
                 generate_plots=True,
-                plots_dir="plots/validation"
+                plots_dir="plots/regression"
             )
             
-            # Store validation results
-            await ctx.set("validation_results", validation_results)
+            # Store regression model in context for later use
+            regression_model = RegressionModel(df, target_column, predictor_column)
+            regression_model.fit_full_dataset_model()
+            await ctx.set("regression_model", regression_model)
             
-            # Check if model meets assumptions
-            assumptions_met = validation_results.get('assumptions_met', {})
-            model_quality = "High" if all(assumptions_met.values()) else "Medium" if any(assumptions_met.values()) else "Low"
-            await ctx.set("model_quality", model_quality)
-        else:
-            validation_results = {"status": "error", "error_message": "Full dataset model not available"}
-            model_quality = "Unknown"
-            await ctx.set("model_quality", model_quality)
-        
-        # 3. Perform Advanced Modeling
-        print("[REGRESSION] Running advanced modeling analysis")
-        advanced_modeling_results = perform_advanced_modeling(
-            df=df,
-            target_column=target_column,
-            predictor_column=predictor_column,
-            save_report=True,
-            report_path="reports/advanced_models.json",
-            generate_plots=True,
-            plots_dir="plots/models"
-        )
-        
-        # Store advanced modeling results
-        await ctx.set("advanced_modeling_results", advanced_modeling_results)
-        
-        # 4. Generate Prediction Examples
-        print("[REGRESSION] Generating prediction examples")
-        prediction_results = generate_prediction_examples(
-            regression_model=regression_model,
-            save_report=True,
-            report_path="reports/prediction_results.json",
-            generate_plots=True,
-            plots_dir="plots/predictions"
-        )
-        
-        # Store prediction results
-        await ctx.set("prediction_results", prediction_results)
-        
-        # Prepare regression summary
-        regression_summary = "## Regression Analysis Summary\n\n"
-        
-        # Add linear model summary
-        if regression_results.get('status') == 'success':
-            full_model_info = regression_results.get('full_model', {})
-            regression_summary += "### Linear Model\n"
-            regression_summary += f"- Formula: {full_model_info.get('formula', 'N/A')}\n"
-            metrics = full_model_info.get('metrics', {})
-            regression_summary += f"- R-squared: {metrics.get('r_squared', 'N/A'):.4f}\n"
-            regression_summary += f"- RMSE: {metrics.get('rmse', 'N/A'):.4f}\n"
+            # Store regression results in context
+            await ctx.set("regression_results", regression_results)
             
-            # Add mode-specific models summary if available
-            mode_models = regression_results.get('mode_models', {})
-            if mode_models:
-                regression_summary += "\n### Mode-Specific Models\n"
-                for mode, model_info in mode_models.items():
-                    regression_summary += f"- **{mode}**: {model_info.get('formula', 'N/A')}\n"
-                    mode_metrics = model_info.get('metrics', {})
-                    regression_summary += f"  - R-squared: {mode_metrics.get('r_squared', 'N/A'):.4f}\n"
-            
-        # Add model validation summary
-        if validation_results.get('status') == 'success':
-            regression_summary += "\n### Model Validation\n"
-            assumptions = validation_results.get('assumptions_met', {})
-            regression_summary += f"- Normality of residuals: {'✅ Met' if assumptions.get('normality', False) else '❌ Not met'}\n"
-            regression_summary += f"- Homoscedasticity: {'✅ Met' if assumptions.get('homoscedasticity', False) else '❌ Not met'}\n"
-            regression_summary += f"- Zero mean residuals: {'✅ Met' if assumptions.get('zero_mean_residuals', False) else '❌ Not met'}\n"
-            
-            cv_metrics = validation_results.get('cross_validation', {}).get('metrics', {})
-            regression_summary += f"- Cross-validation R²: {cv_metrics.get('r2_mean', 'N/A'):.4f} (±{cv_metrics.get('r2_std', 'N/A'):.4f})\n"
-        
-        # Add advanced modeling summary
-        if advanced_modeling_results.get('status') == 'success':
-            comparison = advanced_modeling_results.get('model_comparison', {})
-            best_model_key = comparison.get('overall_best_model')
-            
-            regression_summary += "\n### Alternative Models\n"
-            
-            if best_model_key and best_model_key in comparison:
-                best_model = comparison.get(best_model_key, {})
-                regression_summary += f"- Best model: {best_model.get('name', 'Unknown')}\n"
+            # 2. Perform Model Validation
+            print("[REGRESSION] Validating regression models")
+            full_model = regression_model.models.get('full_dataset')
+            if full_model:
+                X = df[[predictor_column]]
+                y = df[target_column]
                 
-                best_metrics = best_model.get('metrics', {})
-                if best_metrics:
-                    regression_summary += f"- AIC: {best_metrics.get('aic', 'N/A'):.2f}\n"
-                    regression_summary += f"- BIC: {best_metrics.get('bic', 'N/A'):.2f}\n"
-                    regression_summary += f"- R-squared: {best_metrics.get('r2', 'N/A'):.4f}\n"
-        
-        # Add prediction example summary
-        if prediction_results.get('status') == 'success':
-            regression_summary += "\n### Predictions\n"
-            regression_summary += f"- Prediction examples generated for {target_column}-{predictor_column} model"
-            if 'Mode' in df.columns:
-                regression_summary += " and mode-specific models"
-            regression_summary += "\n"
-            regression_summary += "- See prediction plots in plots/predictions/ directory\n"
+                validation_results = validate_regression_model(
+                    model=full_model,
+                    X=X,
+                    y=y,
+                    model_name=f"{target_column}-{predictor_column} Regression",
+                    feature_names=[predictor_column],
+                    save_report=True,
+                    report_path="reports/model_validation.json",
+                    generate_plots=True,
+                    plots_dir="plots/validation"
+                )
+                
+                # Store validation results
+                await ctx.set("validation_results", validation_results)
+                
+                # Check if model meets assumptions
+                assumptions_met = validation_results.get('assumptions_met', {})
+                model_quality = "High" if all(assumptions_met.values()) else "Medium" if any(assumptions_met.values()) else "Low"
+                await ctx.set("model_quality", model_quality)
+            else:
+                validation_results = {"status": "error", "error_message": "Full dataset model not available"}
+                model_quality = "Unknown"
+                await ctx.set("model_quality", model_quality)
+            
+            # 3. Perform Advanced Modeling
+            print("[REGRESSION] Running advanced modeling analysis")
+            advanced_modeling_results = perform_advanced_modeling(
+                df=df,
+                target_column=target_column,
+                predictor_column=predictor_column,
+                save_report=True,
+                report_path="reports/advanced_models.json",
+                generate_plots=True,
+                plots_dir="plots/models"
+            )
+            
+            # Store advanced modeling results
+            await ctx.set("advanced_modeling_results", advanced_modeling_results)
+            
+            # 4. Generate Prediction Examples
+            print("[REGRESSION] Generating prediction examples")
+            prediction_results = generate_prediction_examples(
+                regression_model=regression_model,
+                save_report=True,
+                report_path="reports/prediction_results.json",
+                generate_plots=True,
+                plots_dir="plots/predictions"
+            )
+            
+            # Store prediction results
+            await ctx.set("prediction_results", prediction_results)
+            
+            # Prepare regression summary
+            regression_summary = "## Regression Analysis Summary\n\n"
+            
+            # Add linear model summary
+            if regression_results.get('status') == 'success':
+                full_model_info = regression_results.get('full_model', {})
+                regression_summary += "### Linear Model\n"
+                regression_summary += f"- Formula: {full_model_info.get('formula', 'N/A')}\n"
+                metrics = full_model_info.get('metrics', {})
+                regression_summary += f"- R-squared: {metrics.get('r_squared', 'N/A'):.4f}\n"
+                regression_summary += f"- RMSE: {metrics.get('rmse', 'N/A'):.4f}\n"
+                
+                # Add model validation summary
+                if validation_results.get('status') == 'success':
+                    regression_summary += "\n### Model Validation\n"
+                    assumptions = validation_results.get('assumptions_met', {})
+                    regression_summary += f"- Normality of residuals: {'✅ Met' if assumptions.get('normality', False) else '❌ Not met'}\n"
+                    regression_summary += f"- Homoscedasticity: {'✅ Met' if assumptions.get('homoscedasticity', False) else '❌ Not met'}\n"
+                    regression_summary += f"- Zero mean residuals: {'✅ Met' if assumptions.get('zero_mean_residuals', False) else '❌ Not met'}\n"
+                    
+                    cv_metrics = validation_results.get('cross_validation', {}).get('metrics', {})
+                    regression_summary += f"- Cross-validation R²: {cv_metrics.get('r2_mean', 'N/A'):.4f} (±{cv_metrics.get('r2_std', 'N/A'):.4f})\n"
+                
+                # Add advanced modeling summary
+                if advanced_modeling_results.get('status') == 'success':
+                    comparison = advanced_modeling_results.get('model_comparison', {})
+                    best_model_key = comparison.get('overall_best_model')
+                    
+                    regression_summary += "\n### Alternative Models\n"
+                    
+                    if best_model_key and best_model_key in comparison:
+                        best_model = comparison.get(best_model_key, {})
+                        regression_summary += f"- Best model: {best_model.get('name', 'Unknown')}\n"
+                        
+                        best_metrics = best_model.get('metrics', {})
+                        if best_metrics:
+                            regression_summary += f"- AIC: {best_metrics.get('aic', 'N/A'):.2f}\n"
+                            regression_summary += f"- BIC: {best_metrics.get('bic', 'N/A'):.2f}\n"
+                            regression_summary += f"- R-squared: {best_metrics.get('r2', 'N/A'):.4f}\n"
+                
+                # Add prediction example summary
+                if prediction_results.get('status') == 'success':
+                    regression_summary += "\n### Predictions\n"
+                    regression_summary += f"- Prediction examples generated for {target_column}-{predictor_column} model\n"
+                    regression_summary += "- See prediction plots in plots/predictions/ directory\n"
+            else:
+                regression_summary += "Regression analysis could not be completed successfully.\n"
+        else:
+            regression_summary = "## Regression Analysis Summary\n\n"
+            regression_summary += "Could not find appropriate target and predictor columns for regression analysis.\n"
+            model_quality = "N/A"
         
         return RegressionCompleteEvent(
             modified_data_path=ev.modified_data_path,
@@ -655,7 +647,7 @@ class DataAnalysisFlow(Workflow):
 
     @step
     async def finalize_reports(self, ctx: Context, ev: FinalizeReportsEvent) -> StopEvent:
-        """Verifies and finalizes all reports as the last step in the workflow."""
+        """Verifies and finalizes all reports as the last step in the workflow.""" 
         print("--- Running Report Finalization Step ---")
         final_report = ev.final_report
         visualization_info = ev.visualization_info
@@ -732,7 +724,7 @@ class DataAnalysisFlow(Workflow):
         return StopEvent(result=final_result)
     
     async def _regenerate_report(self, ctx: Context, report_path: str) -> None:
-        """Helper method to attempt regenerating a missing or incomplete report."""
+        """Helper method to attempt regenerating a missing or incomplete report.""" 
         print(f"Attempting to regenerate report: {report_path}")
         
         try:

@@ -256,175 +256,254 @@ def perform_tukey_hsd(df: pd.DataFrame, group_column: str, numeric_column: str) 
             "anova_result": anova_result
         }
 
-def generate_advanced_plots(df: pd.DataFrame, output_dir: str = "plots/advanced", 
-                       focus_columns: Optional[Dict[str, List[str]]] = None) -> List[str]:
+def generate_advanced_plots(df: pd.DataFrame, output_dir: str = "plots/advanced") -> List[str]:
     """
-    Generate advanced statistical plots including density plots, Q-Q plots, violin plots,
-    correlation heatmaps, and pair plots. Works with any dataset by automatically
-    detecting appropriate columns.
+    Generate advanced statistical plots for the given DataFrame.
     
     Args:
-        df: The DataFrame to visualize
-        output_dir: Directory to save plots in
-        focus_columns: Optional dictionary with keys 'numeric' and 'categorical'
-                      containing lists of column names to focus on
+        df (pd.DataFrame): The DataFrame to generate plots for
+        output_dir (str): Directory to save plots in
         
     Returns:
-        List of saved plot file paths
+        List[str]: List of plot file paths
     """
+    print("[ADVANCED ANALYSIS] Generating advanced visualizations...")
     plot_paths = []
     
-    # Ensure the output directory exists
+    # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
     
-    # Set seaborn style
-    sns.set_theme(style="whitegrid")
+    # Keep track of plots to generate
+    plot_generators = []
+    
+    # Use a plot cache to avoid duplicate generation
+    plot_cache = {}
     
     try:
-        # Detect numeric and categorical columns automatically
-        numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+        # Select numeric columns for plotting
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        
+        # Select categorical columns for grouping
         categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
         
-        # Use focus columns if provided
-        if focus_columns:
-            if 'numeric' in focus_columns and focus_columns['numeric']:
-                numeric_cols = [col for col in focus_columns['numeric'] if col in df.columns]
-            if 'categorical' in focus_columns and focus_columns['categorical']:
-                categorical_cols = [col for col in focus_columns['categorical'] if col in df.columns]
-        
-        # Limit to columns with reasonable number of unique values for categorical columns
-        categorical_cols = [col for col in categorical_cols 
-                           if col in df.columns and df[col].nunique() <= 10]
-        
-        # Select top numeric columns (by non-null count) if we have more than 3
+        # Filter to important columns to avoid generating too many plots
+        # For numeric columns, prefer those with variation and fewer missing values
         if len(numeric_cols) > 3:
-            numeric_cols = sorted(
-                numeric_cols, 
-                key=lambda col: df[col].count(), 
-                reverse=True
-            )[:3]
+            # Calculate coefficient of variation and missing percentage for each column
+            col_metrics = {}
+            for col in numeric_cols:
+                if df[col].std() == 0 or df[col].mean() == 0:
+                    cv = 0
+                else:
+                    cv = df[col].std() / abs(df[col].mean())
+                missing_pct = df[col].isna().mean()
+                col_metrics[col] = (cv, missing_pct)
+            
+            # Sort columns by coefficient of variation (higher is better) and missing percentage (lower is better)
+            sorted_cols = sorted(col_metrics.items(), key=lambda x: (x[1][0], -x[1][1]), reverse=True)
+            numeric_cols = [col for col, _ in sorted_cols[:3]]
         
-        # Select primary categorical column (if available)
-        primary_cat_col = None
-        if categorical_cols:
-            # Prefer column with 3-7 categories as primary grouping variable
-            good_range_cols = [col for col in categorical_cols 
-                              if 3 <= df[col].nunique() <= 7]
-            primary_cat_col = good_range_cols[0] if good_range_cols else categorical_cols[0]
+        # For categorical columns, prefer those with reasonable number of categories
+        if len(categorical_cols) > 2:
+            # Filter to columns with reasonable number of categories (2-10)
+            filtered_cat_cols = []
+            for col in categorical_cols:
+                n_unique = df[col].nunique()
+                if 2 <= n_unique <= 10:
+                    filtered_cat_cols.append((col, n_unique))
+            
+            # Sort by number of categories (closer to 5 is better)
+            sorted_cat_cols = sorted(filtered_cat_cols, key=lambda x: abs(x[1] - 5))
+            categorical_cols = [col for col, _ in sorted_cat_cols[:2]]
+        
+        # --- OPTIMIZATION: Prepare all plot generation tasks ---
         
         # 1. Density plots for numeric columns
         for col in numeric_cols:
-            plt.figure(figsize=(10, 6))
-            # Plot the density for the whole dataset
-            sns.kdeplot(data=df, x=col, fill=True, color='gray', alpha=0.5, label='Overall')
-            
-            # Plot density by primary categorical column if available
-            if primary_cat_col:
-                for category in df[primary_cat_col].dropna().unique():
-                    subset = df[df[primary_cat_col] == category]
-                    if len(subset) > 1:  # Need at least 2 points for density
-                        sns.kdeplot(data=subset, x=col, fill=True, alpha=0.3, label=str(category))
-            
-            plt.title(f'Density Plot of {col}' + 
-                     (f' by {primary_cat_col}' if primary_cat_col else ''))
-            plt.xlabel(col)
-            plt.ylabel('Density')
-            plt.legend()
-            
-            density_path = os.path.join(output_dir, f"{col.lower()}_density_plot.png")
-            plt.savefig(density_path)
-            plt.close()
-            plot_paths.append(density_path)
-            print(f"Saved plot: {density_path}")
+            # Skip if already in cache
+            density_path = os.path.join(output_dir, f"{col.lower().replace(' ', '_')}_density_plot.png")
+            if density_path in plot_cache:
+                plot_paths.append(density_path)
+                continue
+                
+            plot_generators.append({
+                'type': 'density',
+                'data': df[col].dropna(),
+                'col': col,
+                'path': density_path
+            })
         
         # 2. Q-Q plots for numeric columns
         for col in numeric_cols:
-            plt.figure(figsize=(8, 8))
-            stats.probplot(df[col].dropna(), dist="norm", plot=plt)
-            plt.title(f'Q-Q Plot of {col}')
-            
-            qq_path = os.path.join(output_dir, f"{col.lower()}_qq_plot.png")
-            plt.savefig(qq_path)
-            plt.close()
-            plot_paths.append(qq_path)
-            print(f"Saved plot: {qq_path}")
-        
-        # 3. Violin plots (if we have both numeric and categorical columns)
-        if numeric_cols and primary_cat_col:
-            for num_col in numeric_cols:
-                plt.figure(figsize=(12, 7))
-                sns.violinplot(data=df, x=primary_cat_col, y=num_col, inner='quart', hue=primary_cat_col, legend=False)
-                plt.title(f'Violin Plot of {num_col} by {primary_cat_col}')
-                plt.xlabel(primary_cat_col)
-                plt.ylabel(num_col)
+            # Skip if already in cache
+            qq_path = os.path.join(output_dir, f"{col.lower().replace(' ', '_')}_qq_plot.png")
+            if qq_path in plot_cache:
+                plot_paths.append(qq_path)
+                continue
                 
-                violin_path = os.path.join(output_dir, f"{num_col.lower()}_{primary_cat_col.lower()}_violin_plot.png")
-                plt.savefig(violin_path)
-                plt.close()
-                plot_paths.append(violin_path)
-                print(f"Saved plot: {violin_path}")
+            plot_generators.append({
+                'type': 'qq',
+                'data': df[col].dropna(),
+                'col': col,
+                'path': qq_path
+            })
         
-        # 4. Correlation heatmap
-        numeric_df = df[numeric_cols] if numeric_cols else df.select_dtypes(include=['number'])
-        if not numeric_df.empty and numeric_df.shape[1] > 1:
-            plt.figure(figsize=(10, 8))
-            correlation_matrix = numeric_df.corr()
-            mask = np.triu(np.ones_like(correlation_matrix, dtype=bool))
-            sns.heatmap(
-                correlation_matrix, 
-                mask=mask,
-                annot=True, 
-                cmap='coolwarm', 
-                linewidths=0.5, 
-                fmt='.2f',
-                center=0
-            )
-            plt.title('Correlation Heatmap')
-            
+        # 3. Violin plots for numeric columns by categorical columns
+        if len(categorical_cols) > 0 and len(numeric_cols) > 0:
+            for num_col in numeric_cols:
+                for cat_col in categorical_cols:
+                    # Skip if categorical column has too many unique values
+                    if df[cat_col].nunique() > 10:
+                        continue
+                        
+                    # Skip if already in cache
+                    violin_path = os.path.join(output_dir, f"{num_col.lower().replace(' ', '_')}_{cat_col.lower().replace(' ', '_')}_violin_plot.png")
+                    if violin_path in plot_cache:
+                        plot_paths.append(violin_path)
+                        continue
+                        
+                    plot_generators.append({
+                        'type': 'violin',
+                        'data': df,
+                        'x': cat_col,
+                        'y': num_col,
+                        'path': violin_path
+                    })
+        
+        # 4. Correlation heatmap for numeric columns
+        if len(numeric_cols) > 1:
+            # Skip if already in cache
             heatmap_path = os.path.join(output_dir, "correlation_heatmap.png")
-            plt.savefig(heatmap_path)
-            plt.close()
-            plot_paths.append(heatmap_path)
-            print(f"Saved plot: {heatmap_path}")
-        
-        # 5. Pair plot with regression lines
-        if len(numeric_cols) >= 2:
-            plt.figure(figsize=(10, 8))
-            plot_vars = numeric_cols[:min(len(numeric_cols), 3)]  # Limit to maximum 3 numeric columns
-            
-            if primary_cat_col:
-                pair_plot = sns.pairplot(
-                    data=df, 
-                    vars=plot_vars, 
-                    hue=primary_cat_col, 
-                    kind='scatter',
-                    diag_kind='kde',
-                    plot_kws={'alpha': 0.6},
-                    height=2.5
-                )
+            if heatmap_path not in plot_cache:
+                plot_generators.append({
+                    'type': 'heatmap',
+                    'data': df[numeric_cols],
+                    'path': heatmap_path
+                })
             else:
-                pair_plot = sns.pairplot(
-                    data=df, 
-                    vars=plot_vars, 
-                    kind='scatter',
-                    diag_kind='kde',
-                    plot_kws={'alpha': 0.6},
-                    height=3
-                )
-            
-            pair_plot.fig.suptitle('Pair Plot with Relationships', y=1.02)
-            
-            pairplot_path = os.path.join(output_dir, "pair_plot.png")
-            pair_plot.savefig(pairplot_path)
-            plt.close()
-            plot_paths.append(pairplot_path)
-            print(f"Saved plot: {pairplot_path}")
+                plot_paths.append(heatmap_path)
+        
+        # 5. Pair plot for numeric columns and one categorical column
+        if len(numeric_cols) > 1:
+            # Skip if already in cache
+            pair_path = os.path.join(output_dir, "pair_plot.png")
+            if pair_path not in plot_cache:
+                # Use first categorical column for hue if available
+                hue_col = categorical_cols[0] if categorical_cols else None
+                plot_generators.append({
+                    'type': 'pair',
+                    'data': df,
+                    'cols': numeric_cols,
+                    'hue': hue_col,
+                    'path': pair_path
+                })
+            else:
+                plot_paths.append(pair_path)
+        
+        # --- OPTIMIZATION: Execute all plot generators with error handling for each ---
+        for generator in plot_generators:
+            try:
+                # Create a new figure for each plot to ensure clean state
+                plt.figure(figsize=(10, 6))
+                
+                try:
+                    # Generate appropriate plot type
+                    if generator['type'] == 'density':
+                        sns.kdeplot(generator['data'], fill=True)
+                        plt.title(f'Density Plot of {generator["col"]}')
+                        plt.xlabel(generator['col'])
+                        plt.ylabel('Density')
+                        plt.tight_layout()
+                        
+                    elif generator['type'] == 'qq':
+                        from scipy import stats
+                        # Ensure data is sorted and not empty
+                        data = generator['data'].dropna()
+                        if len(data) < 2:
+                            print(f"[ADVANCED ANALYSIS] Skipping Q-Q plot for {generator['col']} - insufficient data points")
+                            continue
+                            
+                        # Generate Q-Q plot
+                        stats.probplot(data, plot=plt)
+                        plt.title(f'Q-Q Plot of {generator["col"]}')
+                        plt.tight_layout()
+                        
+                    elif generator['type'] == 'violin':
+                        sns.violinplot(data=generator['data'], x=generator['x'], y=generator['y'])
+                        plt.title(f'Violin Plot of {generator["y"]} by {generator["x"]}')
+                        plt.xticks(rotation=45, ha='right')
+                        plt.tight_layout()
+                        
+                    elif generator['type'] == 'heatmap':
+                        # Calculate correlation matrix
+                        corr = generator['data'].corr()
+                        # Generate heatmap
+                        sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
+                        plt.title('Correlation Heatmap')
+                        plt.tight_layout()
+                        
+                    elif generator['type'] == 'pair':
+                        # Close current figure as pairplot creates its own figure
+                        plt.close()
+                        
+                        # For large datasets with many numeric columns, limit the data points and columns
+                        # to avoid overwhelming memory
+                        data = generator['data']
+                        if len(data) > 1000 or len(generator['cols']) > 5:
+                            # Sample data if too large
+                            if len(data) > 1000:
+                                data = data.sample(1000, random_state=42)
+                            
+                            # Limit columns if too many
+                            cols = generator['cols'][:5] if len(generator['cols']) > 5 else generator['cols']
+                        else:
+                            cols = generator['cols']
+                            
+                        # Generate pairplot with optional hue
+                        if generator['hue'] is not None:
+                            # Ensure hue column doesn't have too many unique values
+                            unique_hues = data[generator['hue']].nunique()
+                            if unique_hues <= 10:
+                                g = sns.pairplot(data, vars=cols, hue=generator['hue'])
+                            else:
+                                g = sns.pairplot(data, vars=cols)
+                        else:
+                            g = sns.pairplot(data, vars=cols)
+                            
+                        g.fig.suptitle('Pair Plot of Numeric Variables', y=1.02)
+                        
+                        # Save the pairplot figure directly
+                        g.savefig(generator['path'])
+                        plot_paths.append(generator['path'])
+                        plot_cache[generator['path']] = True
+                        print(f"Saved plot: {generator['path']}")
+                        continue  # Skip the regular saving code for pairplot
+                    
+                    # Save the plot
+                    plt.savefig(generator['path'])
+                    plot_paths.append(generator['path'])
+                    plot_cache[generator['path']] = True
+                    print(f"Saved plot: {generator['path']}")
+                    
+                except Exception as e:
+                    print(f"[ADVANCED ANALYSIS] Error generating {generator['type']} plot: {str(e)}")
+                    traceback.print_exc()
+                    
+            finally:
+                plt.close()  # Always close the figure to free resources
+        
+        print(f"[ADVANCED ANALYSIS] Generated {len(plot_paths)} advanced plots")
         
         return plot_paths
         
     except Exception as e:
-        print(f"Error generating advanced plots: {str(e)}")
-        return plot_paths
+        error_msg = f"[ADVANCED ANALYSIS] Error in advanced plot generation: {str(e)}"
+        print(error_msg)
+        traceback.print_exc()
+        return plot_paths  # Return any plots that were successfully generated
+    finally:
+        # Reset matplotlib to default state
+        plt.style.use('default')
 
 def generate_statistical_report(df: pd.DataFrame) -> Dict[str, Any]:
     """

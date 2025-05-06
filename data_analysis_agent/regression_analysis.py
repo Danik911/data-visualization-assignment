@@ -154,7 +154,7 @@ class RegressionModel:
             The name of the detected predictor column
         """
         # First check if config has recommended predictors
-        predictors = self.config.get_predictor_columns()
+        predictors = self.config.get('predictor_columns', [])
         if predictors and any(pred in self.df.columns for pred in predictors):
             for pred in predictors:
                 if pred in self.df.columns and pred != self.target_column:
@@ -273,9 +273,17 @@ class RegressionModel:
         correlation = clean_df[[self.target_column, self.predictor_column]].corr().iloc[0, 1]
         
         # Extract model coefficients and p-values
-        coef = model.params[1]
-        intercept = model.params[0]
-        p_value = model.pvalues[1]
+        try:
+            # Use .iloc for pandas Series access to avoid FutureWarning
+            intercept = model.params.iloc[0] if hasattr(model.params, 'iloc') else model.params[0]
+            coef = model.params.iloc[1] if hasattr(model.params, 'iloc') else model.params[1]
+            p_value = model.pvalues.iloc[1] if hasattr(model.pvalues, 'iloc') else model.pvalues[1]
+        except Exception as e:
+            print(f"[REGRESSION] Warning: Error accessing model parameters: {str(e)}")
+            # Fallback to parameter access by index
+            intercept = model.params[0]
+            coef = model.params[1]
+            p_value = model.pvalues[1]
         
         # Get confidence intervals for coefficients
         conf_int = model.conf_int(alpha=0.05)
@@ -386,9 +394,17 @@ class RegressionModel:
                 correlation = clean_category_df[[self.target_column, self.predictor_column]].corr().iloc[0, 1]
                 
                 # Extract model coefficients and p-values
-                coef = model.params[1]
-                intercept = model.params[0]
-                p_value = model.pvalues[1]
+                try:
+                    # Use .iloc for pandas Series access to avoid FutureWarning
+                    intercept = model.params.iloc[0] if hasattr(model.params, 'iloc') else model.params[0]
+                    coef = model.params.iloc[1] if hasattr(model.params, 'iloc') else model.params[1]
+                    p_value = model.pvalues.iloc[1] if hasattr(model.pvalues, 'iloc') else model.pvalues[1]
+                except Exception as e:
+                    print(f"[REGRESSION] Warning: Error accessing model parameters: {str(e)}")
+                    # Fallback to parameter access by index
+                    intercept = model.params[0]
+                    coef = model.params[1]
+                    p_value = model.pvalues[1]
                 
                 # Get confidence intervals for coefficients
                 conf_int = model.conf_int(alpha=0.05)
@@ -505,8 +521,15 @@ class RegressionModel:
             
             # Add regression line
             model = self.models['full_dataset']
-            intercept = model.params[0]
-            coef = model.params[1]
+            try:
+                # Use .iloc for pandas Series access to avoid FutureWarning
+                intercept = model.params.iloc[0] if hasattr(model.params, 'iloc') else model.params[0]
+                coef = model.params.iloc[1] if hasattr(model.params, 'iloc') else model.params[1]
+            except Exception as e:
+                print(f"[REGRESSION] Warning: Error accessing model parameters: {str(e)}")
+                # Fallback to parameter access by index
+                intercept = model.params[0]
+                coef = model.params[1]
             
             # Create range of x values for prediction line
             x_range = np.linspace(self.df[self.predictor_column].min(), self.df[self.predictor_column].max(), 100)
@@ -552,8 +575,15 @@ class RegressionModel:
                 for key, model in self.models.items():
                     if key.startswith('category_'):
                         category = key.replace('category_', '')
-                        intercept = model.params[0]
-                        coef = model.params[1]
+                        try:
+                            # Use .iloc for pandas Series access to avoid FutureWarning
+                            intercept = model.params.iloc[0] if hasattr(model.params, 'iloc') else model.params[0]
+                            coef = model.params.iloc[1] if hasattr(model.params, 'iloc') else model.params[1]
+                        except Exception as e:
+                            print(f"[REGRESSION] Warning: Error accessing model parameters: {str(e)}")
+                            # Fallback to parameter access by index
+                            intercept = model.params[0]
+                            coef = model.params[1]
                         
                         # Create range of x values for prediction line
                         category_df = self.df[self.df[category_column] == category]
@@ -589,8 +619,15 @@ class RegressionModel:
                         sns.scatterplot(data=category_df, x=self.predictor_column, y=self.target_column, alpha=0.6, label=f'{category} data points')
                         
                         # Add regression line
-                        intercept = model.params[0]
-                        coef = model.params[1]
+                        try:
+                            # Use .iloc for pandas Series access to avoid FutureWarning
+                            intercept = model.params.iloc[0] if hasattr(model.params, 'iloc') else model.params[0]
+                            coef = model.params.iloc[1] if hasattr(model.params, 'iloc') else model.params[1]
+                        except Exception as e:
+                            print(f"[REGRESSION] Warning: Error accessing model parameters: {str(e)}")
+                            # Fallback to parameter access by index
+                            intercept = model.params[0]
+                            coef = model.params[1]
                         
                         # Create range of x values for prediction line
                         x_min = category_df[self.predictor_column].min()

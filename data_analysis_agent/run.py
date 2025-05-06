@@ -4,6 +4,7 @@ import traceback
 import logging
 import datetime
 import argparse
+import pandas as pd
 from pathlib import Path
 from events import CleaningInputRequiredEvent, CleaningResponseEvent
 from workflow import DataAnalysisFlow
@@ -45,17 +46,69 @@ def setup_logging(log_level=logging.INFO):
     logging.info(f"Logging initialized. Log file: {log_file}")
     return log_file
 
+def validate_dataset(dataset_path):
+    """
+    Validate the dataset file and identify its type to prevent context contamination
+    
+    Returns:
+        tuple: (is_valid, dataset_type, error_message)
+    """
+    # Check if file exists
+    if not os.path.isfile(dataset_path):
+        return False, None, f"Dataset file not found: {dataset_path}"
+    
+    # Check if it's a CSV file
+    if not dataset_path.lower().endswith('.csv'):
+        return False, None, f"File is not a CSV: {dataset_path}"
+    
+    try:
+        # Read the first few rows to identify the dataset type
+        df_preview = pd.read_csv(dataset_path, nrows=5)
+        
+        # Get column names
+        columns = set(df_preview.columns.str.lower())
+        
+        # Identify dataset type based on column patterns
+        if {'sale_price', 'lot_area', 'year_built'}.intersection(columns):
+            return True, "housing", None
+        elif {'case', 'mode', 'distance', 'time'}.intersection(columns) == {'case', 'mode', 'distance', 'time'}:
+            return True, "commute", None
+        else:
+            # Unknown dataset type, but still valid
+            column_list = ", ".join(df_preview.columns)
+            logging.warning(f"Unknown dataset type with columns: {column_list}")
+            return True, "unknown", None
+    
+    except Exception as e:
+        return False, None, f"Error reading dataset: {str(e)}"
+
 async def run_workflow(dataset_path):
     """Run the data analysis workflow on the given dataset"""
+    # Validate dataset before running workflow
+    is_valid, dataset_type, error_msg = validate_dataset(dataset_path)
+    
+    if not is_valid:
+        logging.error(f"Dataset validation failed: {error_msg}")
+        return None
+    
+    logging.info(f"Dataset validated successfully. Type: {dataset_type}")
 
+    # Create workflow with appropriate configuration
     workflow = DataAnalysisFlow(timeout=300, verbose=True)
 
     try:
+        # Set dataset metadata in the event context
+        dataset_metadata = {
+            "path": dataset_path,
+            "type": dataset_type,
+            "filename": os.path.basename(dataset_path)
+        }
+        
         handler = workflow.run(
             dataset_path=dataset_path,
+            dataset_metadata=dataset_metadata
         )
 
-       
         async for event in handler.stream_events():
             logging.info(f"Run Workflow Loop: Received event: {type(event).__name__}")
 

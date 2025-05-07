@@ -1,0 +1,84 @@
+/* Dashboard styles */
+
+/* Page layout */
+body {
+    font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+/* Dashboard title */
+.dashboard-title {
+    color: #0066cc;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Summary cards */
+.summary-card {
+    border-radius: 8px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.2s;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.summary-card .card-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #0066cc;
+}
+
+/* Filter sidebar */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+/* Graph containers */
+.dash-graph {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+/* Tab styling */
+.nav-tabs .nav-link.active {
+    font-weight: 600;
+    border-top: 3px solid #0066cc;
+}
+
+.nav-tabs .nav-link:hover:not(.active) {
+    border-color: #e9ecef #e9ecef #dee2e6;
+    background-color: #f8f9fa;
+}
+
+/* Data table styling */
+.dash-spreadsheet td, .dash-spreadsheet th {
+    padding: 8px 10px !important;
+}
+
+.dash-spreadsheet th {
+    font-weight: 600;
+}
+
+/* Loading spinner */
+.dash-loading {
+    opacity: 0.5;
+}
+
+/* Footer */
+.footer {
+    margin-top: 2rem;
+    padding: 1rem 0;
+    border-top: 1px solid #dee2e6;
+}

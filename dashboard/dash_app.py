@@ -15,6 +15,7 @@ import logging.config
 from dashboard.data_provider import DashboardDataProvider
 from dashboard.layout import create_layout
 from dashboard.callbacks import register_callbacks
+from dashboard.google_maps_component import register_google_map_callbacks
 from dashboard.config import (
     SERVER_HOST, 
     SERVER_PORT, 
@@ -62,6 +63,12 @@ def create_dash_app(data_path=None, debug=None):
         title="Housing Data Dashboard",
         assets_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
     )
+    
+    # Get Google Maps API key from environment or use a default for testing
+    google_maps_api_key = os.environ.get("GOOGLE_MAPS_API_KEY", "AIzaSyDC0PSGje7Bi0kwtaTIrIwksyjgGc1cRgU")
+    
+    # Register Google Maps callbacks
+    register_google_map_callbacks(app, google_maps_api_key)
     
     # Set up cache if needed
     if CACHE_CONFIG:

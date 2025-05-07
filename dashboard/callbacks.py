@@ -3,7 +3,7 @@ Callbacks module for the dashboard.
 This module handles all interactive elements and user interactions.
 """
 
-from dash import Input, Output, State, callback, dash_table, html, ctx
+from dash import Input, Output, State, callback, dash_table, html, ctx, dcc
 import pandas as pd
 import json
 from typing import Dict, List, Any, Optional
@@ -20,7 +20,8 @@ from dashboard.visualizations import (
     generate_parallel_coordinates,
     generate_summary_cards,
     generate_property_comparisons,  # New function for property comparisons
-    generate_year_trend_analysis    # New function for year trend analysis
+    generate_year_trend_analysis,   # New function for year trend analysis
+    generate_google_price_map       # New function for Google Maps integration
 )
 
 
@@ -134,25 +135,33 @@ def register_callbacks(app, data_provider):
     
     # Update Overview tab visualizations
     @callback(
-        Output("price-map", "figure"),
+        Output("google-price-map-data", "children", allow_duplicate=True),
         Output("price-distribution", "figure"),
         Output("feature-importance", "figure"),
         Output("building-type-distribution", "figure"),
         Input("filtered-data-store", "data"),
-        Input("dashboard-tabs", "active_tab")
+        Input("dashboard-tabs", "active_tab"),
+        prevent_initial_call=True
     )
     def update_overview_visualizations(filtered_data_json, active_tab):
         # Only update when Overview tab is active
         if active_tab != "tab-overview":
             # Return empty figures when tab is not active
             empty_fig = {"data": [], "layout": {}}
-            return empty_fig, empty_fig, empty_fig, empty_fig
+            return None, empty_fig, empty_fig, empty_fig
         
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(filtered_data_json, orient='split')
         
         # Generate visualizations
-        price_map = generate_price_map(filtered_df)
+        try:
+            price_map_data = generate_google_price_map(filtered_df)
+            price_map_json = json.dumps(price_map_data)
+            print(f"Generated map data with {len(price_map_data['data'])} properties")
+        except Exception as e:
+            print(f"Error generating map data: {str(e)}")
+            price_map_json = None
+        
         price_distribution = generate_price_distribution(filtered_df)
         
         # Get regression report data for feature importance
@@ -165,7 +174,31 @@ def register_callbacks(app, data_provider):
         else:
             building_type_dist = {"data": [], "layout": {"title": "Building Type data not available"}}
         
-        return price_map, price_distribution, feature_importance, building_type_dist
+        return price_map_json, price_distribution, feature_importance, building_type_dist
+    
+    # Add fallback for Google Maps if it doesn't load
+    @callback(
+        Output("google-price-map-fallback", "children"),
+        Input("google-price-map-data", "children"),
+        Input("filtered-data-store", "data")
+    )
+    def update_map_fallback(google_map_data, filtered_data_json):
+        # Create a static fallback map using Plotly if needed
+        if not google_map_data:
+            # Convert JSON to DataFrame
+            filtered_df = pd.read_json(filtered_data_json, orient='split')
+            
+            # Generate regular price map as fallback
+            price_map_fig = generate_price_map(filtered_df)
+            
+            return dcc.Graph(
+                id="price-map-fallback-graph",
+                figure=price_map_fig,
+                config={"displayModeBar": True}
+            )
+        
+        # Return empty div if Google Maps loaded successfully
+        return html.Div()
     
     # Update Property Analysis tab visualizations
     @callback(

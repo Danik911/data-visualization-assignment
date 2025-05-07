@@ -135,6 +135,23 @@ def generate_price_map(df: pd.DataFrame, use_clustering: bool = None) -> go.Figu
     return price_map.generate()
 
 
+def generate_google_price_map(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Generate a Google Maps visualization of housing prices by location.
+    
+    Args:
+        df: DataFrame containing housing data with Latitude and Longitude columns
+        
+    Returns:
+        Dictionary with Google Maps configuration and data
+    """
+    from dashboard.visualizations_helpers import GooglePriceMap
+    
+    # Use the GooglePriceMap class to generate the visualization data
+    price_map = GooglePriceMap(df)
+    return price_map.generate()
+
+
 def generate_price_distribution(df: pd.DataFrame, bin_size: int = 50000) -> go.Figure:
     """
     Generate a histogram showing the distribution of housing prices.

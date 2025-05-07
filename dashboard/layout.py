@@ -270,19 +270,21 @@ def create_tab_content():
     Returns:
         Dictionary containing the content for each tab
     """
+    # Import Google Maps component
+    from dashboard.google_maps_component import create_google_map
+    
     # Overview Tab
     overview_tab = dbc.Container(
         [
             dbc.Row(
                 [
-                    # Price Map - Full Width
+                    # Google Maps Price Map - Full Width
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody([
                                 html.H4("Housing Prices by Location"),
-                                dcc.Loading(
-                                    dcc.Graph(id="price-map")
-                                )
+                                create_google_map(id="google-price-map"),
+                                html.Div(id="google-price-map-fallback")  # Fallback element for static map
                             ]),
                             className="mb-4"
                         ),

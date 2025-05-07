@@ -293,6 +293,64 @@ class PriceMap(GeographicVisualization):
         return fig
 
 
+class GooglePriceMap(GeographicVisualization):
+    """Google Maps housing price map visualization"""
+    
+    def __init__(self, df: pd.DataFrame):
+        """
+        Initialize Google Maps price map visualization
+        
+        Args:
+            df: DataFrame with housing data
+        """
+        super().__init__(df)
+        
+    def generate(self) -> Dict[str, Any]:
+        """
+        Generate Google Maps visualization data
+        
+        Returns:
+            Dictionary with map configuration data
+        """
+        # Validate required columns
+        is_valid, error_msg = self.validate_columns(['Latitude', 'Longitude', 'Sale_Price'])
+        if not is_valid:
+            return {"error": error_msg, "data": [], "center": {"lat": 0, "lng": 0}, "zoom": 10}
+        
+        # Prepare data for Google Maps
+        map_data = self.df[['Latitude', 'Longitude', 'Sale_Price']].copy()
+        
+        # Convert data types to ensure proper JSON serialization
+        map_data['Latitude'] = map_data['Latitude'].astype(float)
+        map_data['Longitude'] = map_data['Longitude'].astype(float)
+        map_data['Sale_Price'] = map_data['Sale_Price'].astype(float)
+        
+        # Add ID for each point
+        map_data['id'] = range(len(map_data))
+        
+        # Add additional properties for display if available
+        for col in ['Bldg_Type', 'Year_Built', 'Lot_Area']:
+            if col in self.df.columns:
+                map_data[col] = self.df[col]
+        
+        # Get map configuration settings
+        map_defaults = self.get_map_defaults()
+        zoom_level = map_defaults["zoom_level"]
+        
+        # Calculate map center
+        lat_mean = float(map_data['Latitude'].mean())
+        lng_mean = float(map_data['Longitude'].mean())
+        
+        return {
+            "data": map_data.to_dict('records'),
+            "center": {
+                "lat": lat_mean,
+                "lng": lng_mean
+            },
+            "zoom": zoom_level
+        }
+
+
 class PriceDistribution(StatisticalVisualization):
     """Housing price distribution visualization"""
     

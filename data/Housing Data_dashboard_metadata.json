@@ -1,0 +1,50 @@
+{
+  "original_file": "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data.csv",
+  "cleaned_file": "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment\\data\\Housing Data_cleaned_for_dashboard.csv",
+  "cleaning_summary": "Data cleaning was performed with the following steps:\n1. handle_outliers: Handled outliers in Lot_Frontage, Lot_Area, Year_Built, Total_Bsmt_SF, First_Flr_SF, Second_Flr_SF, Full_Bath, Bedroom_AbvGr, Kitchen_AbvGr, Fireplaces, Sale_Price using cap method\n2. handle_missing_values: Addressed missing values in \n\nBefore/After Metrics:\n- Rows: 2413 \u2192 2413 (0 change)\n- Missing values: 0 \u2192 0 (0 change)\n- Lot_Frontage mean: 55.46 \u2192 55.28\n- Lot_Area mean: 10060.21 \u2192 9457.19\n- Year_Built mean: 1969.44 \u2192 1969.46\n- Total_Bsmt_SF mean: 1022.83 \u2192 1019.43\n- First_Flr_SF mean: 1133.86 \u2192 1129.04\n- Second_Flr_SF mean: 339.24 \u2192 339.11\n- Full_Bath mean: 1.54 \u2192 1.54\n- Half_Bath mean: 0.38 \u2192 0.38\n- Bedroom_AbvGr mean: 2.85 \u2192 2.84\n- Kitchen_AbvGr mean: 1.04 \u2192 1.00\n- Fireplaces mean: 0.60 \u2192 0.60\n- Longitude mean: -93.64 \u2192 -93.64\n- Latitude mean: 42.03 \u2192 42.03\n- Sale_Price mean: 175567.64 \u2192 172771.65\n",
+  "columns": [
+    "Lot_Frontage",
+    "Lot_Area",
+    "Bldg_Type",
+    "House_Style",
+    "Overall_Cond",
+    "Year_Built",
+    "Exter_Cond",
+    "Total_Bsmt_SF",
+    "First_Flr_SF",
+    "Second_Flr_SF",
+    "Full_Bath",
+    "Half_Bath",
+    "Bedroom_AbvGr",
+    "Kitchen_AbvGr",
+    "Fireplaces",
+    "Longitude",
+    "Latitude",
+    "Sale_Price"
+  ],
+  "shape": [
+    2413,
+    18
+  ],
+  "dtypes": {
+    "Lot_Frontage": "int64",
+    "Lot_Area": "int64",
+    "Bldg_Type": "object",
+    "House_Style": "object",
+    "Overall_Cond": "object",
+    "Year_Built": "float64",
+    "Exter_Cond": "object",
+    "Total_Bsmt_SF": "int64",
+    "First_Flr_SF": "int64",
+    "Second_Flr_SF": "int64",
+    "Full_Bath": "float64",
+    "Half_Bath": "int64",
+    "Bedroom_AbvGr": "float64",
+    "Kitchen_AbvGr": "int64",
+    "Fireplaces": "float64",
+    "Longitude": "float64",
+    "Latitude": "float64",
+    "Sale_Price": "int64"
+  },
+  "exported_at": "2025-05-07 09:34:08"
+}

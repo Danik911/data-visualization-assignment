@@ -1,12 +1,14 @@
 import os
 import pandas as pd
 import numpy as np
+import datetime
+import json
 from llama_index.experimental.query_engine import PandasQueryEngine
 from llama_index.core.workflow import Workflow, Context, StopEvent, step
 from llama_index.core.workflow import StartEvent
 from llama_index.core.agent import FunctionCallingAgent
 
-# Import events from events.py and new workflow_events.py
+
 from events import *
 from workflow_events import (
     InitialAssessmentEvent, DataAnalysisEvent, ModificationRequestEvent, 
@@ -211,184 +213,211 @@ class DataAnalysisFlow(Workflow):
         )
 
     @step
-    async def advanced_statistical_analysis(self, ctx: Context, ev: ModificationCompleteEvent) -> RegressionModelingEvent:
-        """Performs advanced statistical analysis on the cleaned data."""
-        print("--- Running Advanced Statistical Analysis Step ---")
+    async def export_dashboard_data(self, ctx: Context, ev: ModificationCompleteEvent) -> StopEvent:
+        """Exports cleaned data for dashboard visualization and ends the workflow."""
+        print("--- Running Dashboard Data Export Step ---")
         df = await ctx.get("dataframe")
         original_path = ev.original_path
         modification_summary = ev.modification_summary
         
-        # Perform advanced analysis
-        analysis_results = await perform_advanced_analysis(
-            df=df,
-            llm=llm,
-            original_path=original_path,
-            modification_summary=modification_summary
-        )
+        # Create path for cleaned data export
+        path_parts = os.path.splitext(original_path)
+        cleaned_data_path = f"{path_parts[0]}_cleaned_for_dashboard{path_parts[1]}"
         
-        # Store results in context
-        await ctx.set("statistical_report", analysis_results["statistical_report"])
-        await ctx.set("statistical_summary", analysis_results["summary"])
-        await ctx.set("advanced_plot_info", analysis_results["plot_info"])
-        
-        # Continue to regression modeling step
-        return RegressionModelingEvent(
-            modified_data_path=analysis_results["modified_data_path"],
-            statistical_report_path=analysis_results["statistical_report_path"]
-        )
-
-    @step
-    async def regression_modeling(self, ctx: Context, ev: RegressionModelingEvent) -> RegressionCompleteEvent:
-        """Performs regression analysis including linear regression and advanced models."""
-        print("--- Running Regression Modeling Step (Phase 3) ---")
-        df = await ctx.get("dataframe")
-        
-        # Check if regression is viable for this dataset
-        is_viable, regression_summary, model_quality = await RegressionUtils.check_regression_viability(df)
-        
-        if not is_viable:
-            # Skip regression and return with summary
-            await ctx.set("regression_results", {"status": "skipped", "reason": "not_viable"})
-            await ctx.set("model_quality", model_quality)
+        # Export the cleaned DataFrame to CSV
+        try:
+            # Create directories if needed
+            os.makedirs(os.path.dirname(cleaned_data_path), exist_ok=True)
             
-            return RegressionCompleteEvent(
-                modified_data_path=ev.modified_data_path,
-                regression_summary=regression_summary,
-                model_quality=model_quality
-            )
-        
-        # Identify target and predictor columns
-        target_column, predictor_column = await RegressionUtils.identify_target_predictor(ctx, df)
-        
-        # Perform complete regression analysis
-        regression_analysis = await RegressionUtils.perform_complete_regression_analysis(
-            ctx, df, target_column, predictor_column
-        )
-        
-        # Generate regression summary
-        regression_summary = RegressionUtils.generate_regression_summary(
-            regression_analysis["regression_results"],
-            regression_analysis["validation_results"],
-            regression_analysis["advanced_modeling_results"],
-            regression_analysis["prediction_results"],
-            target_column,
-            predictor_column
-        )
-        
-        return RegressionCompleteEvent(
-            modified_data_path=ev.modified_data_path,
-            regression_summary=regression_summary,
-            model_quality=regression_analysis["model_quality"]
-        )
-
-    @step
-    async def analysis_reporting(self, ctx: Context, ev: RegressionCompleteEvent) -> VisualizationRequestEvent:
-        """Generates a report based on the analysis results."""
-        print("--- Running Analysis & Reporting Step ---")
-        df = await ctx.get("dataframe")
-        original_path = ev.modified_data_path
-        
-        # Get the modification summary from context
-        modification_summary = await ctx.get("modification_summary", "Modification summary not available.")
-        
-        # Get the statistical summary from context
-        statistical_summary = await ctx.get("statistical_summary", "Statistical summary not available.")
-        
-        # Add regression summary to the report
-        combined_summary = statistical_summary + "\n\n" + ev.regression_summary
-        
-        # Use the refactored reporting module
-        reporting_results = await generate_report(
-            df=df,
-            llm=llm,
-            original_path=original_path,
-            modification_summary=modification_summary,
-            statistical_summary=combined_summary
-        )
-        
-        # Update context with final dataframe
-        await ctx.set("dataframe", reporting_results["final_df"])
-        await ctx.set("final_report", reporting_results["final_report"])
-        
-        # Combine the report with information about the advanced plots and regression quality
-        advanced_plot_info = await ctx.get("advanced_plot_info", "Advanced plot information not available.")
-        
-        # Add model quality information
-        model_quality_info = f"\n\n## Model Quality Assessment\n\nRegression Model Quality: {ev.model_quality}\n"
-        
-        enhanced_report = reporting_results["final_report"] + "\n\n## Advanced Visualizations\n\n" + advanced_plot_info + model_quality_info
-        
-        return VisualizationRequestEvent(
-            modified_data_path=reporting_results["modified_file_path"],
-            report=enhanced_report
-        )
-
-    @step
-    async def create_visualizations(self, ctx: Context, ev: VisualizationRequestEvent) -> FinalizeReportsEvent:
-        """Generates standard and advanced visualizations for the cleaned data."""
-        print("--- Running Enhanced Visualization Step ---")
-        df = await ctx.get("dataframe")
-        modified_data_path = ev.modified_data_path
-        final_report = ev.report
-        
-        if df is None:
-            print("Error: DataFrame not found in context for visualization.")
-            # Return with error but continue to report finalization
-            return FinalizeReportsEvent(
-                final_report=final_report,
-                visualization_info="Error: DataFrame missing for visualization.",
-                plot_paths=[],
-                reports_to_verify=await ctx.get("required_reports", [])
-            )
+            # Save DataFrame to CSV
+            df.to_csv(cleaned_data_path, index=False)
             
-        # Generate visualizations
-        visualization_results = await generate_visualizations(df, llm, modified_data_path)
+            print(f"Successfully exported cleaned data to {cleaned_data_path}")
+            
+            # Store export info in context
+            await ctx.set("dashboard_data_path", cleaned_data_path)
+            await ctx.set("dashboard_ready", True)
+            
+            # Generate a simple metadata file with cleaning info
+            metadata_path = f"{path_parts[0]}_dashboard_metadata.json"
+            metadata = {
+                "original_file": original_path,
+                "cleaned_file": cleaned_data_path,
+                "cleaning_summary": modification_summary,
+                "columns": df.columns.tolist(),
+                "shape": df.shape,
+                "dtypes": {col: str(dtype) for col, dtype in df.dtypes.items()},
+                "exported_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            
+            with open(metadata_path, 'w') as f:
+                json.dump(metadata, f, indent=2)
+                
+            print(f"Generated metadata file at {metadata_path}")
+            
+        except Exception as e:
+            print(f"Error exporting dashboard data: {e}")
+            import traceback
+            traceback.print_exc()
         
-        # Get the list of required reports that need to be verified
-        required_reports = await ctx.get("required_reports", [
-            "reports/data_quality_report.json",
-            "reports/cleaning_report.json",
-            "reports/statistical_analysis_report.json",
-            "reports/regression_models.json",
-            "reports/advanced_models.json"
-        ])
-        
-        # Continue to report finalization step
-        return FinalizeReportsEvent(
-            final_report=final_report,
-            visualization_info=visualization_results["visualization_info"],
-            plot_paths=visualization_results["plot_paths"],
-            reports_to_verify=required_reports
+        # Return StopEvent to end the workflow
+        return StopEvent(
+            reason="Dashboard data export complete",
+            dashboard_data_path=cleaned_data_path
         )
 
-    @step
-    async def finalize_reports(self, ctx: Context, ev: FinalizeReportsEvent) -> StopEvent:
-        """Verifies and finalizes all reports as the last step in the workflow."""
-        print("--- Running Report Finalization Step ---")
-        final_report = ev.final_report
-        visualization_info = ev.visualization_info
-        plot_paths = ev.plot_paths
-        reports_to_verify = ev.reports_to_verify
-        
-        # Verify reports and generate status
-        reports_status = await ReportUtils.verify_reports(reports_to_verify)
-        
-        # Attempt to regenerate any missing or incomplete reports
-        for report_path, status in reports_status.items():
-            if not status["complete"]:
-                await ReportUtils.regenerate_report(ctx, report_path)
-        
-        # Update the final report with the status of all reports
-        report_status_summary = ReportUtils.generate_report_status_summary(reports_status)
-        final_report_with_status = final_report + report_status_summary
-        
-        # Create a condensed final result
-        final_result = {
-            "final_report": final_report_with_status,
-            "visualization_info": visualization_info,
-            "plot_paths": plot_paths,
-            "reports_status": reports_status
-        }
-        
-        print("Report finalization complete. Workflow finished.")
-        return StopEvent(result=final_result)
+    # @step
+    # async def regression_modeling(self, ctx: Context, ev: RegressionModelingEvent) -> RegressionCompleteEvent:
+    #     """Performs regression analysis including linear regression and advanced models."""
+    #     print("--- Running Regression Modeling Step (Phase 3) ---")
+    #     df = await ctx.get("dataframe")
+    #     
+    #     # Check if regression is viable for this dataset
+    #     is_viable, regression_summary, model_quality = await RegressionUtils.check_regression_viability(df)
+    #     
+    #     if not is_viable:
+    #         # Skip regression and return with summary
+    #         await ctx.set("regression_results", {"status": "skipped", "reason": "not_viable"})
+    #         await ctx.set("model_quality", model_quality)
+    #         
+    #         return RegressionCompleteEvent(
+    #             modified_data_path=ev.modified_data_path,
+    #             regression_summary=regression_summary,
+    #             model_quality=model_quality
+    #         )
+    #     
+    #     # Identify target and predictor columns
+    #     target_column, predictor_column = await RegressionUtils.identify_target_predictor(ctx, df)
+    #     
+    #     # Perform complete regression analysis
+    #     regression_analysis = await RegressionUtils.perform_complete_regression_analysis(
+    #         ctx, df, target_column, predictor_column
+    #     )
+    #     
+    #     # Generate regression summary
+    #     regression_summary = RegressionUtils.generate_regression_summary(
+    #         regression_analysis["regression_results"],
+    #         regression_analysis["validation_results"],
+    #         regression_analysis["advanced_modeling_results"],
+    #         regression_analysis["prediction_results"],
+    #         target_column,
+    #         predictor_column
+    #     )
+    #     
+    #     return RegressionCompleteEvent(
+    #         modified_data_path=ev.modified_data_path,
+    #         regression_summary=regression_summary,
+    #         model_quality=regression_analysis["model_quality"]
+    #     )
+
+    # @step
+    # async def analysis_reporting(self, ctx: Context, ev: RegressionCompleteEvent) -> VisualizationRequestEvent:
+    #     """Generates a report based on the analysis results."""
+    #     print("--- Running Analysis & Reporting Step ---")
+    #     df = await ctx.get("dataframe")
+    #     original_path = ev.modified_data_path
+    #     
+    #     # Get the modification summary from context
+    #     modification_summary = await ctx.get("modification_summary", "Modification summary not available.")
+    #     
+    #     # Get the statistical summary from context
+    #     statistical_summary = await ctx.get("statistical_summary", "Statistical summary not available.")
+    #     
+    #     # Add regression summary to the report
+    #     combined_summary = statistical_summary + "\n\n" + ev.regression_summary
+    #     
+    #     # Use the refactored reporting module
+    #     reporting_results = await generate_report(
+    #         df=df,
+    #         llm=llm,
+    #         original_path=original_path,
+    #         modification_summary=modification_summary,
+    #         statistical_summary=combined_summary
+    #     )
+    #     
+    #     # Update context with final dataframe
+    #     await ctx.set("dataframe", reporting_results["final_df"])
+    #     await ctx.set("final_report", reporting_results["final_report"])
+    #     
+    #     # Combine the report with information about the advanced plots and regression quality
+    #     advanced_plot_info = await ctx.get("advanced_plot_info", "Advanced plot information not available.")
+    #     
+    #     # Add model quality information
+    #     model_quality_info = f"\n\n## Model Quality Assessment\n\nRegression Model Quality: {ev.model_quality}\n"
+    #     
+    #     enhanced_report = reporting_results["final_report"] + "\n\n## Advanced Visualizations\n\n" + advanced_plot_info + model_quality_info
+    #     
+    #     return VisualizationRequestEvent(
+    #         modified_data_path=reporting_results["modified_file_path"],
+    #         report=enhanced_report
+    #     )
+
+    # @step
+    # async def create_visualizations(self, ctx: Context, ev: VisualizationRequestEvent) -> FinalizeReportsEvent:
+    #     """Generates standard and advanced visualizations for the cleaned data."""
+    #     print("--- Running Enhanced Visualization Step ---")
+    #     df = await ctx.get("dataframe")
+    #     modified_data_path = ev.modified_data_path
+    #     final_report = ev.report
+    #     
+    #     if df is None:
+    #         print("Error: DataFrame not found in context for visualization.")
+    #         # Return with error but continue to report finalization
+    #         return FinalizeReportsEvent(
+    #             final_report=final_report,
+    #             visualization_info="Error: DataFrame missing for visualization.",
+    #             plot_paths=[],
+    #             reports_to_verify=await ctx.get("required_reports", [])
+    #         )
+    #         
+    #     # Generate visualizations
+    #     visualization_results = await generate_visualizations(df, llm, modified_data_path)
+    #     
+    #     # Get the list of required reports that need to be verified
+    #     required_reports = await ctx.get("required_reports", [
+    #         "reports/data_quality_report.json",
+    #         "reports/cleaning_report.json",
+    #         "reports/statistical_analysis_report.json",
+    #         "reports/regression_models.json",
+    #         "reports/advanced_models.json"
+    #     ])
+    #     
+    #     # Continue to report finalization step
+    #     return FinalizeReportsEvent(
+    #         final_report=final_report,
+    #         visualization_info=visualization_results["visualization_info"],
+    #         plot_paths=visualization_results["plot_paths"],
+    #         reports_to_verify=required_reports
+    #     )
+
+    # @step
+    # async def finalize_reports(self, ctx: Context, ev: FinalizeReportsEvent) -> StopEvent:
+    #     """Verifies and finalizes all reports as the last step in the workflow."""
+    #     print("--- Running Report Finalization Step ---")
+    #     final_report = ev.final_report
+    #     visualization_info = ev.visualization_info
+    #     plot_paths = ev.plot_paths
+    #     reports_to_verify = ev.reports_to_verify
+    #     
+    #     # Verify reports and generate status
+    #     reports_status = await ReportUtils.verify_reports(reports_to_verify)
+    #     
+    #     # Attempt to regenerate any missing or incomplete reports
+    #     for report_path, status in reports_status.items():
+    #         if not status["complete"]:
+    #             await ReportUtils.regenerate_report(ctx, report_path)
+    #     
+    #     # Update the final report with the status of all reports
+    #     report_status_summary = ReportUtils.generate_report_status_summary(reports_status)
+    #     final_report_with_status = final_report + report_status_summary
+    #     
+    #     # Create a condensed final result
+    #     final_result = {
+    #         "final_report": final_report_with_status,
+    #         "visualization_info": visualization_info,
+    #         "plot_paths": plot_paths,
+    #         "reports_status": reports_status
+    #     }
+    #     
+    #     print("Report finalization complete. Workflow finished.")
+    #     return StopEvent(result=final_result)

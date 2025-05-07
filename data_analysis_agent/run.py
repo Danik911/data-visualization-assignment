@@ -127,26 +127,39 @@ async def run_workflow(dataset_path):
         final_result_dict = await handler
 
         logging.info("\n==== Final Report ====")
-        final_report = final_result_dict.get('final_report', 'N/A')
-        logging.info(final_report)
+        
+        # Handle the case where StopEvent contains different output format
+        if final_result_dict is None:
+            logging.info("No final result produced.")
+        elif isinstance(final_result_dict, dict):
+            # Handle original format with final_report
+            final_report = final_result_dict.get('final_report', 'N/A')
+            logging.info(final_report)
 
-        # Add visualization info
-        viz_info = final_result_dict.get('visualization_info', 'No visualization info generated.')
-        logging.info("\n==== Visualization Info ====")
-        logging.info(viz_info)
+            # Add visualization info
+            viz_info = final_result_dict.get('visualization_info', 'No visualization info generated.')
+            logging.info("\n==== Visualization Info ====")
+            logging.info(viz_info)
 
-        # Print plot paths if available
-        plot_paths = final_result_dict.get('plot_paths', [])
-        if plot_paths and isinstance(plot_paths, list):
-            logging.info("\nGenerated Plots:")
-            for path in plot_paths:
-                # Check if it's an error message from the tool
-                if "Error:" not in path:
-                    logging.info(f"- {os.path.abspath(path)}") # Show absolute path
-                else:
-                    logging.info(f"- {path}") # Print error message
-        elif isinstance(plot_paths, str): # Handle case where string message is returned
-             logging.info(f"\nPlot Generation Note: {plot_paths}")
+            # Print plot paths if available
+            plot_paths = final_result_dict.get('plot_paths', [])
+            if plot_paths and isinstance(plot_paths, list):
+                logging.info("\nGenerated Plots:")
+                for path in plot_paths:
+                    # Check if it's an error message from the tool
+                    if "Error:" not in path:
+                        logging.info(f"- {os.path.abspath(path)}") # Show absolute path
+                    else:
+                        logging.info(f"- {path}") # Print error message
+            elif isinstance(plot_paths, str): # Handle case where string message is returned
+                logging.info(f"\nPlot Generation Note: {plot_paths}")
+        else:
+            # Handle simplified refactored output format from StopEvent
+            logging.info(f"Dashboard Data Export Complete")
+            if hasattr(final_result_dict, 'dashboard_data_path'):
+                logging.info(f"Cleaned data exported to: {final_result_dict.dashboard_data_path}")
+            if hasattr(final_result_dict, 'reason'):
+                logging.info(f"Reason: {final_result_dict.reason}")
 
         return final_result_dict
     except Exception as e:

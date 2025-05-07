@@ -8,7 +8,7 @@ import seaborn as sns
 import json
 from typing import Dict, List, Optional, Any
 from llama_index.experimental.query_engine import PandasQueryEngine
-from data_analysis_agent.statistical_analysis import (
+from statistical_analysis import (
     calculate_advanced_statistics,
     calculate_mode_statistics,
     perform_anova,

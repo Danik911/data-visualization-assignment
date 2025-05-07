@@ -1,0 +1,23 @@
+2025-05-07 09:19:42,673 - root - INFO - Logging initialized. Log file: logs\data_analysis_2025-05-07_09-19-42.log
+2025-05-07 09:19:42,674 - root - INFO - Starting data analysis workflow. Log file: logs\data_analysis_2025-05-07_09-19-42.log
+2025-05-07 09:19:53,307 - root - INFO - Using dataset: C:\Users\anteb\Desktop\Courses\Projects\data_visualisation_assignment\data\Housing Data.csv
+2025-05-07 09:19:53,309 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-05-07 09:19:53,318 - root - INFO - Dataset validated successfully. Type: housing
+2025-05-07 09:19:53,319 - root - ERROR - Workflow failed: The following events are consumed but never produced: RegressionModelingEvent
+2025-05-07 09:19:53,322 - root - ERROR - Traceback (most recent call last):
+  File "C:\Users\anteb\Desktop\Courses\Projects\data_visualisation_assignment\data_analysis_agent\run.py", line 107, in run_workflow
+    handler = workflow.run(
+        dataset_path=dataset_path,
+        dataset_metadata=dataset_metadata
+    )
+  File "C:\Users\anteb\Desktop\Courses\Projects\data_visualisation_assignment\.venv\Lib\site-packages\llama_index\core\instrumentation\dispatcher.py", line 322, in wrapper
+    result = func(*args, **kwargs)
+  File "C:\Users\anteb\Desktop\Courses\Projects\data_visualisation_assignment\.venv\Lib\site-packages\llama_index\core\workflow\workflow.py", line 330, in run
+    uses_hitl = self._validate()
+  File "C:\Users\anteb\Desktop\Courses\Projects\data_visualisation_assignment\.venv\Lib\site-packages\llama_index\core\workflow\workflow.py", line 513, in _validate
+    raise WorkflowValidationError(
+        f"The following events are consumed but never produced: {names}"
+    )
+llama_index.core.workflow.errors.WorkflowValidationError: The following events are consumed but never produced: RegressionModelingEvent
+
+2025-05-07 09:19:53,324 - root - INFO - Workflow execution completed

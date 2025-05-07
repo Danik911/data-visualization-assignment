@@ -10,6 +10,113 @@ from typing import Dict, List, Any, Optional, Tuple
 from dashboard.config import get_colorscale, get_chart_defaults, get_color_palette
 
 
+# ---- Helper functions ----
+
+def _validate_columns(df: pd.DataFrame, required_cols: List[str]) -> Tuple[bool, str]:
+    """
+    Validate if the DataFrame contains all required columns.
+    
+    Args:
+        df: DataFrame to validate
+        required_cols: List of column names that must be present
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        error_msg = f"Missing required columns: {', '.join(missing_cols)}"
+        return False, error_msg
+    return True, ""
+
+
+def _create_empty_figure(message: str) -> go.Figure:
+    """
+    Create an empty figure with an error message.
+    
+    Args:
+        message: Error message to display
+        
+    Returns:
+        Empty Plotly figure with error message
+    """
+    fig = go.Figure()
+    fig.update_layout(
+        title=message,
+        annotations=[
+            {
+                "text": message,
+                "showarrow": False,
+                "font": {"size": 14}
+            }
+        ]
+    )
+    return fig
+
+
+def _format_hover_data(df: pd.DataFrame, 
+                      base_cols: List[str], 
+                      optional_cols: Optional[List[str]] = None) -> Dict[str, bool]:
+    """
+    Format hover data for Plotly figures.
+    
+    Args:
+        df: DataFrame containing data
+        base_cols: List of column names to always include
+        optional_cols: List of column names to include if they exist in the DataFrame
+        
+    Returns:
+        Dictionary suitable for hover_data parameter in Plotly Express
+    """
+    hover_data = {col: True for col in base_cols if col in df.columns}
+    
+    if optional_cols:
+        for col in optional_cols:
+            hover_data[col] = True if col in df.columns else False
+            
+    return hover_data
+
+
+def _apply_standard_layout(fig: go.Figure, 
+                          title: str, 
+                          chart_type: Optional[str] = None) -> go.Figure:
+    """
+    Apply standard layout settings to a figure.
+    
+    Args:
+        fig: Plotly figure to modify
+        title: Title for the figure
+        chart_type: Type of chart for specific settings
+        
+    Returns:
+        Modified Plotly figure
+    """
+    # Get layout defaults from config
+    layout_defaults = get_chart_defaults("layout")
+    
+    # Get chart-specific defaults if available
+    if chart_type and chart_type in get_chart_defaults():
+        chart_defaults = get_chart_defaults(chart_type)
+    else:
+        chart_defaults = {}
+    
+    # Apply layout settings
+    fig.update_layout(
+        title=title,
+        margin=layout_defaults.get("margin", {"r": 10, "t": 40, "l": 10, "b": 10})
+    )
+    
+    # Add more layout options based on chart type if needed
+    if chart_type == "maps":
+        fig.update_layout(
+            coloraxis_colorbar=dict(title="Sale Price ($)")
+        )
+    
+    return fig
+
+
+# ---- Visualization functions ----
+
 def generate_price_map(df: pd.DataFrame, use_clustering: bool = None) -> go.Figure:
     """
     Generate a map visualization of housing prices by location.
@@ -21,86 +128,11 @@ def generate_price_map(df: pd.DataFrame, use_clustering: bool = None) -> go.Figu
     Returns:
         Plotly figure object with the map visualization
     """
-    if 'Latitude' not in df.columns or 'Longitude' not in df.columns or 'Sale_Price' not in df.columns:
-        # Return empty figure if required columns are not present
-        return go.Figure().update_layout(
-            title="Map visualization requires Latitude, Longitude, and Sale_Price columns"
-        )
+    from dashboard.visualizations_helpers import PriceMap
     
-    # Get map configuration settings
-    map_defaults = get_chart_defaults("maps")
-    map_style = map_defaults.get("mapbox_style", "open-street-map")
-    zoom_level = map_defaults.get("zoom", 11)
-    
-    # Use configuration default if not specified
-    if use_clustering is None:
-        use_clustering = map_defaults.get("use_clustering", True)
-    
-    # Get colorscale from config
-    colorscale = get_colorscale("price_map")
-    
-    if use_clustering and len(df) > 50:
-        # Use a density heatmap approach for many points to avoid overcrowding
-        fig = px.density_mapbox(
-            df,
-            lat="Latitude",
-            lon="Longitude",
-            z="Sale_Price",
-            radius=10,
-            color_continuous_scale=colorscale,
-            zoom=zoom_level,
-            mapbox_style=map_style,
-            hover_data={
-                'Sale_Price': True,
-                'Bldg_Type': True if 'Bldg_Type' in df.columns else False,
-                'Year_Built': True if 'Year_Built' in df.columns else False
-            },
-            title="Housing Price Density by Location"
-        )
-        
-        # Add a scatter layer with reduced opacity for individual points
-        scatter_layer = px.scatter_mapbox(
-            df,
-            lat="Latitude",
-            lon="Longitude",
-            color="Sale_Price",
-            size_max=6,
-            opacity=0.4,
-            zoom=zoom_level,
-            mapbox_style=map_style
-        ).data[0]
-        
-        fig.add_trace(scatter_layer)
-        
-    else:
-        # Use regular scatter plot for fewer points
-        fig = px.scatter_mapbox(
-            df,
-            lat="Latitude",
-            lon="Longitude",
-            color="Sale_Price",
-            size="Sale_Price",
-            color_continuous_scale=colorscale,
-            size_max=15,
-            zoom=zoom_level,
-            mapbox_style=map_style,
-            hover_data={
-                'Sale_Price': True,
-                'Lot_Area': True if 'Lot_Area' in df.columns else False,
-                'Bldg_Type': True if 'Bldg_Type' in df.columns else False,
-                'Year_Built': True if 'Year_Built' in df.columns else False
-            },
-            title="Housing Prices by Location"
-        )
-    
-    # Apply common layout settings
-    layout_defaults = get_chart_defaults("layout")
-    fig.update_layout(
-        margin=layout_defaults.get("margin", {"r": 0, "t": 40, "l": 0, "b": 0}),
-        coloraxis_colorbar=dict(title="Sale Price ($)")
-    )
-    
-    return fig
+    # Use the PriceMap class to generate the visualization
+    price_map = PriceMap(df, use_clustering)
+    return price_map.generate()
 
 
 def generate_price_distribution(df: pd.DataFrame, bin_size: int = 50000) -> go.Figure:
@@ -114,39 +146,11 @@ def generate_price_distribution(df: pd.DataFrame, bin_size: int = 50000) -> go.F
     Returns:
         Plotly figure object with the price distribution
     """
-    if 'Sale_Price' not in df.columns:
-        # Return empty figure if required column is not present
-        return go.Figure().update_layout(
-            title="Price distribution requires Sale_Price column"
-        )
+    from dashboard.visualizations_helpers import PriceDistribution
     
-    fig = px.histogram(
-        df,
-        x="Sale_Price",
-        nbins=int((df["Sale_Price"].max() - df["Sale_Price"].min()) / bin_size),
-        title="Distribution of Housing Prices",
-        labels={"Sale_Price": "Sale Price ($)"},
-        opacity=0.8,
-        color_discrete_sequence=['#19A7CE']
-    )
-    
-    fig.update_layout(
-        xaxis_title="Sale Price ($)",
-        yaxis_title="Number of Properties",
-        bargap=0.1
-    )
-    
-    # Add a vertical line for the mean price
-    mean_price = df["Sale_Price"].mean()
-    fig.add_vline(
-        x=mean_price,
-        line_dash="dash",
-        line_color="red",
-        annotation_text=f"Mean: ${mean_price:.0f}",
-        annotation_position="top right"
-    )
-    
-    return fig
+    # Use the PriceDistribution class to generate the visualization
+    price_dist = PriceDistribution(df, bin_size)
+    return price_dist.generate()
 
 
 def generate_correlation_heatmap(df: pd.DataFrame, columns: List[str] = None) -> go.Figure:
@@ -160,32 +164,11 @@ def generate_correlation_heatmap(df: pd.DataFrame, columns: List[str] = None) ->
     Returns:
         Plotly figure object with the correlation heatmap
     """
-    # Use only numeric columns
-    numeric_df = df.select_dtypes(include=['number'])
+    from dashboard.visualizations_helpers import CorrelationHeatmap
     
-    if columns:
-        # Filter to only specified columns that are also numeric
-        numeric_df = numeric_df[[col for col in columns if col in numeric_df.columns]]
-    
-    # Compute correlation matrix
-    corr_matrix = numeric_df.corr()
-    
-    # Create heatmap
-    fig = px.imshow(
-        corr_matrix,
-        text_auto=True,
-        aspect="auto",
-        color_continuous_scale='RdBu_r',
-        title="Correlation Heatmap",
-        labels=dict(color="Correlation")
-    )
-    
-    fig.update_layout(
-        height=800,  # Larger size to ensure readability
-        width=800
-    )
-    
-    return fig
+    # Use the CorrelationHeatmap class to generate the visualization
+    corr_heatmap = CorrelationHeatmap(df, columns)
+    return corr_heatmap.generate()
 
 
 def generate_scatter_plot(
@@ -208,35 +191,11 @@ def generate_scatter_plot(
     Returns:
         Plotly figure object with the scatter plot
     """
-    if x_col not in df.columns or y_col not in df.columns:
-        # Return empty figure if required columns are not present
-        return go.Figure().update_layout(
-            title=f"Scatter plot requires both {x_col} and {y_col} columns"
-        )
+    from dashboard.visualizations_helpers import ScatterComparison
     
-    # Create scatter plot
-    fig = px.scatter(
-        df,
-        x=x_col,
-        y=y_col,
-        color=color_col if color_col in df.columns else None,
-        opacity=0.7,
-        title=f"{y_col} vs {x_col}",
-        labels={x_col: x_col.replace('_', ' '), y_col: y_col.replace('_', ' ')},
-        hover_data=df.columns[:5],  # Include first 5 columns in hover data
-        trendline='ols' if trendline else None,
-        trendline_color_override="red" if trendline else None
-    )
-    
-    fig.update_traces(marker=dict(size=7, line=dict(width=1, color='DarkSlateGrey')))
-    
-    fig.update_layout(
-        xaxis_title=x_col.replace('_', ' '),
-        yaxis_title=y_col.replace('_', ' '),
-        legend_title=color_col.replace('_', ' ') if color_col else None
-    )
-    
-    return fig
+    # Use the ScatterComparison class to generate the visualization
+    scatter_comp = ScatterComparison(df, x_col, y_col, color_col, trendline)
+    return scatter_comp.generate()
 
 
 def generate_box_plot(
@@ -255,42 +214,11 @@ def generate_box_plot(
     Returns:
         Plotly figure object with the box plot
     """
-    if numeric_col not in df.columns or category_col not in df.columns:
-        # Return empty figure if required columns are not present
-        return go.Figure().update_layout(
-            title=f"Box plot requires both {numeric_col} and {category_col} columns"
-        )
+    from dashboard.visualizations_helpers import BoxPlotVisualization
     
-    # For better visualization, limit to top categories if there are too many
-    value_counts = df[category_col].value_counts()
-    if len(value_counts) > 10:
-        top_categories = value_counts.nlargest(10).index.tolist()
-        filtered_df = df[df[category_col].isin(top_categories)].copy()
-        filtered_df[category_col] = filtered_df[category_col].astype(str) + " "  # Add space to preserve category order
-    else:
-        filtered_df = df.copy()
-        
-    fig = px.box(
-        filtered_df,
-        x=category_col,
-        y=numeric_col,
-        color=category_col,
-        title=f"Distribution of {numeric_col} by {category_col}",
-        labels={
-            numeric_col: numeric_col.replace('_', ' '),
-            category_col: category_col.replace('_', ' ')
-        },
-        points="outliers"  # Only show outlier points
-    )
-    
-    fig.update_layout(
-        xaxis_title=category_col.replace('_', ' '),
-        yaxis_title=numeric_col.replace('_', ' '),
-        showlegend=False,  # Hide legend as it's redundant with x-axis
-        xaxis={'categoryorder': 'total descending'}  # Order categories by total value
-    )
-    
-    return fig
+    # Use the BoxPlotVisualization class to generate the visualization
+    box_plot = BoxPlotVisualization(df, numeric_col, category_col)
+    return box_plot.generate()
 
 
 def generate_time_series(
@@ -311,70 +239,11 @@ def generate_time_series(
     Returns:
         Plotly figure object with the time series plot
     """
-    if date_col not in df.columns or value_col not in df.columns:
-        # Return empty figure if required columns are not present
-        return go.Figure().update_layout(
-            title=f"Time series requires both {date_col} and {value_col} columns"
-        )
+    from dashboard.visualizations_helpers import TimeSeries
     
-    # Ensure date column is datetime
-    try:
-        df = df.copy()
-        df[date_col] = pd.to_datetime(df[date_col])
-    except:
-        return go.Figure().update_layout(
-            title=f"Could not convert {date_col} to datetime format"
-        )
-    
-    # Create time series plot
-    if group_col and group_col in df.columns:
-        fig = px.line(
-            df,
-            x=date_col,
-            y=value_col,
-            color=group_col,
-            title=f"{value_col} Over Time by {group_col}",
-            labels={
-                date_col: date_col.replace('_', ' '),
-                value_col: value_col.replace('_', ' '),
-                group_col: group_col.replace('_', ' ')
-            }
-        )
-    else:
-        fig = px.line(
-            df,
-            x=date_col,
-            y=value_col,
-            title=f"{value_col} Over Time",
-            labels={
-                date_col: date_col.replace('_', ' '),
-                value_col: value_col.replace('_', ' ')
-            }
-        )
-        
-        # Add moving average trendline
-        df_sorted = df.sort_values(by=date_col)
-        window_size = max(7, len(df) // 20)  # Use either 7 or 5% of data points
-        
-        if len(df) > window_size:
-            moving_avg = df_sorted[value_col].rolling(window=window_size).mean()
-            
-            fig.add_trace(
-                go.Scatter(
-                    x=df_sorted[date_col],
-                    y=moving_avg,
-                    mode='lines',
-                    line=dict(color='red', width=2),
-                    name=f'{window_size}-point Moving Average'
-                )
-            )
-    
-    fig.update_layout(
-        xaxis_title=date_col.replace('_', ' '),
-        yaxis_title=value_col.replace('_', ' ')
-    )
-    
-    return fig
+    # Use the TimeSeries class to generate the visualization
+    time_series = TimeSeries(df, date_col, value_col, group_col)
+    return time_series.generate()
 
 
 def generate_feature_importance(df: pd.DataFrame, target_col: str, report_data: Dict[str, Any] = None) -> go.Figure:
@@ -410,9 +279,7 @@ def generate_feature_importance(df: pd.DataFrame, target_col: str, report_data: 
         numeric_cols = df.select_dtypes(include=['number']).columns
         
         if target_col not in numeric_cols:
-            return go.Figure().update_layout(
-                title=f"Feature importance requires numeric target column: {target_col}"
-            )
+            return _create_empty_figure(f"Feature importance requires numeric target column: {target_col}")
         
         # Calculate correlation with target
         correlations = df[numeric_cols].corr()[target_col].abs().drop(target_col)
@@ -461,9 +328,7 @@ def generate_parallel_coordinates(
     # Check if all columns exist
     missing_columns = [col for col in columns if col not in df.columns]
     if missing_columns:
-        return go.Figure().update_layout(
-            title=f"Missing columns for parallel coordinates: {', '.join(missing_columns)}"
-        )
+        return _create_empty_figure(f"Missing columns for parallel coordinates: {', '.join(missing_columns)}")
     
     # Create a copy of the dataframe with only the needed columns
     plot_df = df[columns].copy()
@@ -605,7 +470,7 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
         Dictionary of plotly figures with property comparisons
     """
     if compare_col not in df.columns:
-        return {"error": go.Figure().update_layout(title=f"Comparison column {compare_col} not found")}
+        return {"error": _create_empty_figure(f"Comparison column {compare_col} not found")}
     
     results = {}
     
@@ -767,9 +632,7 @@ def generate_year_trend_analysis(df: pd.DataFrame) -> Dict[str, go.Figure]:
     
     # Check if Year_Built column exists
     if 'Year_Built' not in df.columns:
-        results["error"] = go.Figure().update_layout(
-            title="Year trend analysis requires Year_Built column"
-        )
+        results["error"] = _create_empty_figure("Year trend analysis requires Year_Built column")
         return results
         
     # Convert Year_Built to numeric if not already
@@ -783,9 +646,7 @@ def generate_year_trend_analysis(df: pd.DataFrame) -> Dict[str, go.Figure]:
     df = df[df['Year_Built'] > 1800].copy()
     
     if df.empty:
-        results["error"] = go.Figure().update_layout(
-            title="No valid year data available"
-        )
+        results["error"] = _create_empty_figure("No valid year data available")
         return results
     
     # 1. Average price by year built

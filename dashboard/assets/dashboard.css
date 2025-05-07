@@ -1,84 +1,365 @@
-/* Dashboard styles */
+/* Dashboard styles - Enhanced Real Estate Theme */
+
+/* Variables for consistent colors */
+:root {
+    --primary-color: #2c6e91;        /* Primary blue - darker and more professional than original */
+    --secondary-color: #6c7a89;      /* Secondary gray-blue */
+    --accent-color: #e67e22;         /* Accent orange for highlights and calls to action */
+    --light-accent: #f4d03f;         /* Light accent for subtle highlights */
+    --success-color: #27ae60;        /* Green for positive indicators */
+    --text-primary: #2c3e50;         /* Main text color */
+    --text-secondary: #7f8c8d;       /* Secondary text color */
+    --bg-light: #f9fafb;             /* Light background */
+    --bg-card: #ffffff;              /* Card background */
+    --border-color: #e8eaed;         /* Border color */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+}
 
 /* Page layout */
 body {
-    font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f8f9fa;
-    color: #212529;
+    font-family: "Nunito Sans", "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-primary);
+    line-height: 1.6;
 }
 
-/* Dashboard title */
+/* Dashboard title & header */
 .dashboard-title {
-    color: #0066cc;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.5px;
+    font-size: 2.5rem;
+}
+
+.lead {
+    color: var(--text-secondary);
+    font-weight: 300;
+    font-size: 1.15rem;
+}
+
+/* Enhanced container styling */
+.container-fluid {
+    padding: 1.5rem 2rem;
 }
 
 /* Summary cards */
 .summary-card {
-    border-radius: 8px;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    transition: transform 0.2s;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    background-color: var(--bg-card);
+    overflow: hidden;
 }
 
 .summary-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
 }
 
 .summary-card .card-title {
     font-size: 1.75rem;
-    font-weight: 600;
-    color: #0066cc;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.summary-card .card-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-card .card-body {
+    padding: 1.25rem;
 }
 
 /* Filter sidebar */
-.form-group {
+.card {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    background-color: var(--bg-card);
+    overflow: visible !important; /* Changed from hidden to visible */
     margin-bottom: 1.5rem;
+}
+
+.card-title {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+    overflow: visible !important; /* Ensure overflow is visible for dropdowns */
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Dropdown styling and fixes */
+.dash-dropdown, .Select {
+    position: relative;
+    z-index: 10;
+    margin-bottom: 30px !important; /* Add more space below dropdowns */
+}
+
+.Select-control {
+    border-radius: var(--radius-sm);
+    border-color: #cfd9e0;
+    z-index: 10;
+}
+
+.Select-control:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 1px var(--primary-color);
+}
+
+/* Fix for dropdown menu visibility - updated with better z-index and positioning */
+.Select-menu-outer {
+    z-index: 1050 !important; /* Higher z-index to ensure visibility */
+    position: absolute !important;
+    width: 100% !important;
+    border: 1px solid #cfd9e0;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    background-color: white;
+    max-height: 300px !important; /* Allow more space for dropdown items */
+    overflow-y: auto !important;
+}
+
+.Select.is-open .Select-menu-outer {
+    display: block !important;
+}
+
+.Select-menu {
+    max-height: 298px !important; /* Slightly less than the outer container */
+}
+
+.Select-option {
+    padding: 8px 12px !important;
+    background-color: white;
+    color: var(--text-primary);
+}
+
+.Select-option:hover,
+.Select-option.is-focused {
+    background-color: #f5f8fa;
+    color: var(--primary-color);
+    cursor: pointer;
+}
+
+/* Specific fix for the Building Type filter */
+#building-type-filter {
+    margin-bottom: 35px;
+}
+
+/* Extra clear fixes for dropdown containers */
+.d-flex.align-items-center {
+    overflow: visible !important;
+    position: relative;
+    margin-bottom: 35px; /* Added extra margin at container level */
+}
+
+/* Fix for space between form groups */
+.form-label + div {
+    margin-bottom: 15px;
+}
+
+/* Ensure proper spacing between filter sections */
+html body div#react-entry-point div div.container-fluid div.row div.col-md-3 div.card div.card-body div {
+    margin-bottom: 30px;
+}
+
+/* Ensure elements after dropdown don't overlap */
+#price-range-filter,
+#area-range-filter {
+    margin-top: 20px; /* Add more space above the sliders */
+}
+
+/* Button styling */
+.btn-secondary {
+    background-color: var(--primary-color);
+    border: none;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover {
+    background-color: #1e5a77;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    border: none;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    background-color: #d35400;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 /* Graph containers */
 .dash-graph {
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #f0f0f0;
 }
 
-/* Responsive layout */
-@media (max-width: 768px) {
-    .container-fluid {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
+/* Enhanced tabs */
+.nav-tabs {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
 }
 
-/* Tab styling */
+.nav-tabs .nav-link {
+    color: var(--text-secondary);
+    font-weight: 500;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
 .nav-tabs .nav-link.active {
-    font-weight: 600;
-    border-top: 3px solid #0066cc;
+    font-weight: 700;
+    color: var(--primary-color);
+    border-top: 3px solid var(--primary-color);
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid white;
+    background-color: white;
 }
 
 .nav-tabs .nav-link:hover:not(.active) {
     border-color: #e9ecef #e9ecef #dee2e6;
     background-color: #f8f9fa;
+    color: var(--primary-color);
+}
+
+/* RangeSlider styling */
+.rc-slider-track {
+    background-color: var(--primary-color);
+}
+
+.rc-slider-handle {
+    border-color: var(--primary-color);
+    background-color: white;
+}
+
+.rc-slider-handle:hover {
+    border-color: var(--primary-color);
+}
+
+.rc-slider-handle:active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px var(--primary-color);
 }
 
 /* Data table styling */
 .dash-spreadsheet td, .dash-spreadsheet th {
-    padding: 8px 10px !important;
+    padding: 12px 14px !important;
+    border-color: #e9ecef !important;
+    font-size: 0.9rem;
 }
 
 .dash-spreadsheet th {
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--text-primary);
+    background-color: #f8f9fa !important;
+}
+
+.dash-spreadsheet tr:hover td {
+    background-color: #f9f9f9 !important;
 }
 
 /* Loading spinner */
 .dash-loading {
-    opacity: 0.5;
+    opacity: 0.6;
+}
+
+.dash-spinner {
+    border-color: var(--primary-color);
 }
 
 /* Footer */
 .footer {
     margin-top: 2rem;
-    padding: 1rem 0;
-    border-top: 1px solid #dee2e6;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* Responsive layout */
+@media (max-width: 992px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .dashboard-title {
+        font-size: 2rem;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    .dashboard-title {
+        font-size: 1.75rem;
+    }
+    
+    .summary-card .card-title {
+        font-size: 1.5rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Animation for elements */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }

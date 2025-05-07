@@ -20,11 +20,11 @@ THEMES = {
     "default": {
         "external_stylesheets": ["https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"],
         "template": "plotly_white",
-        "primary_color": "#19A7CE",  # Blue
-        "secondary_color": "#146C94",  # Dark blue
-        "accent_color": "#FFC95F",  # Yellow
-        "text_color": "#333333",
-        "background_color": "#F9F9F9"
+        "primary_color": "#2c6e91",  # Dark blue - matches our new CSS theme
+        "secondary_color": "#6c7a89",  # Secondary gray-blue
+        "accent_color": "#e67e22",     # Accent orange
+        "text_color": "#2c3e50",       # Dark text
+        "background_color": "#f9fafb"  # Light background
     },
     "dark": {
         "external_stylesheets": ["https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"],
@@ -43,44 +43,47 @@ ACTIVE_THEME = "default"
 # Color settings for visualizations
 VISUALIZATION_COLORS = {
     "sequential": [
-        "#146C94",  # dark blue
-        "#19A7CE",  # blue
-        "#62CDFF",  # light blue
-        "#97DEFF"   # sky blue
+        "#2c6e91",  # dark blue - primary
+        "#3498db",  # medium blue
+        "#6c7a89",  # gray blue - secondary
+        "#a3c9e3"   # light blue
     ],
     "categorical": [
-        "#19A7CE",  # blue
-        "#FFC95F",  # yellow
-        "#FF6B6B",  # red
-        "#63CD9C",  # green
-        "#9376E0",  # purple
-        "#F8A145",  # orange
-        "#49BEB7",  # teal
-        "#F7C8E0",  # pink
-        "#82A0D8",  # light blue
-        "#F3CCFF"   # lavender
+        "#2c6e91",  # dark blue - primary
+        "#e67e22",  # orange - accent
+        "#27ae60",  # green - success
+        "#8e44ad",  # purple
+        "#f39c12",  # yellow
+        "#16a085",  # teal
+        "#c0392b",  # red
+        "#7f8c8d",  # gray
+        "#3498db",  # medium blue
+        "#d35400"   # dark orange
     ],
     "diverging": [
-        "#FF6B6B",  # red
-        "#FFB1B1",  # light red
-        "#F9F9F9",  # white
-        "#97DEFF",  # light blue
-        "#146C94"   # dark blue
+        "#c0392b",  # red
+        "#e74c3c",  # light red
+        "#f9fafb",  # white - bg light
+        "#3498db",  # medium blue
+        "#2c6e91"   # dark blue - primary
     ],
     "colorscales": {
-        "price_map": "Viridis",
+        "price_map": "Blues",        # Changed from Viridis to Blues for real estate theme
         "correlation": "RdBu_r",
-        "feature_importance": "Viridis"
+        "feature_importance": "Blues" # Changed from Viridis to Blues for consistency
     }
 }
 
 # Default chart settings
 CHART_DEFAULTS = {
     "layout": {
-        "margin": {"r": 10, "t": 30, "l": 10, "b": 10},
-        "font": {"family": "Open Sans, sans-serif", "size": 12},
+        "margin": {"r": 20, "t": 40, "l": 20, "b": 20},  # Improved margins for readability
+        "font": {"family": "Nunito Sans, Open Sans, sans-serif", "size": 12},  # Matching our new font
         "legend": {"orientation": "h", "y": -0.2},
-        "colorway": VISUALIZATION_COLORS["categorical"]
+        "colorway": VISUALIZATION_COLORS["categorical"],
+        "paper_bgcolor": "rgba(0,0,0,0)",  # Transparent background
+        "plot_bgcolor": "rgba(0,0,0,0)",   # Transparent background
+        "title_font": {"family": "Nunito Sans, sans-serif", "size": 16, "color": "#2c6e91"} # Matching header style
     },
     "maps": {
         "mapbox_style": "open-street-map",
@@ -89,20 +92,30 @@ CHART_DEFAULTS = {
     },
     "histograms": {
         "bin_size": 50000,
-        "opacity": 0.8
+        "opacity": 0.85,  # Increased opacity for better visibility
+        "marker": {
+            "line": {"width": 1, "color": "#ffffff"}  # White border for better separation
+        }
     },
     "scatter": {
-        "marker_size": 7,
-        "opacity": 0.7,
-        "trendline": True
+        "marker_size": 8,  # Slightly larger markers
+        "opacity": 0.75,
+        "trendline": True,
+        "marker": {
+            "line": {"width": 1, "color": "#ffffff"}  # White border for better visibility
+        }
     },
     "box_plots": {
         "points": "outliers",
-        "notched": False
+        "notched": False,
+        "line_width": 2  # Thicker lines for better visibility
     },
     "bar_charts": {
-        "opacity": 0.8,
-        "text_auto": True
+        "opacity": 0.85,
+        "text_auto": True,
+        "marker": {
+            "line": {"width": 1, "color": "#ffffff"}  # White border for better separation
+        }
     }
 }
 

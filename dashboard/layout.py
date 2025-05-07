@@ -16,15 +16,44 @@ def create_header() -> dbc.Container:
     """
     header = dbc.Container(
         [
-            html.H1("Housing Data Dashboard", className="dashboard-title"),
-            html.P(
-                "Interactive visualization of housing data with filters and analysis.",
-                className="lead"
-            ),
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        html.H1("Housing Data Dashboard", className="dashboard-title"),
+                        html.P(
+                            "Interactive visualization of housing data with filters and analysis.",
+                            className="lead"
+                        ),
+                        html.Div([
+                            html.Span("Last Updated: May 7, 2025", className="text-muted me-3"),
+                            html.Span(html.I(className="fas fa-info-circle me-1"), id="info-icon"),
+                            dbc.Tooltip(
+                                [
+                                    html.P("This dashboard visualizes housing market data for property analysis."),
+                                    html.P("Use the filters on the left to refine the data view."),
+                                    html.P("Data source: Housing Data CSV")
+                                ],
+                                target="info-icon",
+                                placement="bottom"
+                            )
+                        ], className="d-flex align-items-center small")
+                    ], className="header-content fade-in")
+                ], width=9),
+                dbc.Col([
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button(html.I(className="fas fa-download me-1"), id="download-button", color="outline-secondary", size="sm", className="me-2"),
+                            dbc.Button(html.I(className="fas fa-chart-line me-1"), id="view-trends-button", color="outline-primary", size="sm")
+                        ]),
+                        dbc.Tooltip("Download Data", target="download-button"),
+                        dbc.Tooltip("View Market Trends", target="view-trends-button")
+                    ], className="d-flex justify-content-end")
+                ], width=3)
+            ]),
             html.Hr()
         ],
         fluid=True,
-        className="py-3"
+        className="py-4"
     )
     
     return header
@@ -48,15 +77,20 @@ def create_filters(options: dict = None) -> dbc.Card:
     if "Bldg_Type" in options:
         building_type_filter = html.Div(
             [
-                dbc.Label("Building Type"),
-                dcc.Dropdown(
-                    id="building-type-filter",
-                    options=[{"label": bt, "value": bt} for bt in options["Bldg_Type"]],
-                    multi=True,
-                    placeholder="Select building types..."
-                ),
-                html.Div(style={"height": "20px"})  # Add some spacing
-            ]
+                dbc.Label("Building Type", className="form-label"),
+                html.Div([
+                    html.I(className="fas fa-building text-secondary me-2"),
+                    dcc.Dropdown(
+                        id="building-type-filter",
+                        options=[{"label": bt, "value": bt} for bt in options["Bldg_Type"]],
+                        multi=True,
+                        placeholder="Select building types...",
+                        style={"width": "100%"},
+                    )
+                ], className="d-flex align-items-center", style={"overflow": "visible", "position": "relative", "zIndex": 1000}),
+                html.Div(style={"height": "45px"})  # Increased from 20px to 45px
+            ],
+            style={"marginBottom": "40px", "position": "relative", "zIndex": 999}
         )
     
     # Price Range filter if available
@@ -67,19 +101,31 @@ def create_filters(options: dict = None) -> dbc.Card:
         
         price_filter = html.Div(
             [
-                dbc.Label("Price Range"),
-                dcc.RangeSlider(
-                    id="price-range-filter",
-                    min=min_price,
-                    max=max_price,
-                    step=(max_price - min_price) / 100,
-                    marks={
-                        min_price: f"${min_price:,.0f}",
-                        max_price: f"${max_price:,.0f}"
-                    },
-                    value=[min_price, max_price],
-                    tooltip={"placement": "bottom", "always_visible": True}
-                ),
+                dbc.Label("Price Range", className="form-label"),
+                html.Div([
+                    html.I(className="fas fa-dollar-sign text-secondary me-2"),
+                    html.Div([
+                        dcc.RangeSlider(
+                            id="price-range-filter",
+                            min=min_price,
+                            max=max_price,
+                            step=(max_price - min_price) / 100,
+                            marks={
+                                min_price: f"${min_price:,.0f}",
+                                max_price: f"${max_price:,.0f}"
+                            },
+                            value=[min_price, max_price],
+                            tooltip={"placement": "bottom", "always_visible": True}
+                        )
+                    ], style={"width": "100%"})
+                ], className="d-flex align-items-center"),
+                html.Div([
+                    html.Span(f"${min_price:,.0f}", id="price-range-min", className="small text-muted"),
+                    html.Span(className="ms-auto", children=[
+                        f"${max_price:,.0f}", 
+                        html.Span(id="price-range-max", className="small text-muted")
+                    ])
+                ], className="d-flex justify-content-between px-2 mt-1"),
                 html.Div(style={"height": "20px"})  # Add some spacing
             ]
         )
@@ -92,36 +138,60 @@ def create_filters(options: dict = None) -> dbc.Card:
         
         area_filter = html.Div(
             [
-                dbc.Label("Lot Area"),
-                dcc.RangeSlider(
-                    id="area-range-filter",
-                    min=min_area,
-                    max=max_area,
-                    step=(max_area - min_area) / 100,
-                    marks={
-                        min_area: f"{min_area:,.0f}",
-                        max_area: f"{max_area:,.0f}"
-                    },
-                    value=[min_area, max_area],
-                    tooltip={"placement": "bottom", "always_visible": True}
-                ),
+                dbc.Label("Lot Area", className="form-label"),
+                html.Div([
+                    html.I(className="fas fa-ruler-combined text-secondary me-2"),
+                    html.Div([
+                        dcc.RangeSlider(
+                            id="area-range-filter",
+                            min=min_area,
+                            max=max_area,
+                            step=(max_area - min_area) / 100,
+                            marks={
+                                min_area: f"{min_area:,.0f}",
+                                max_area: f"{max_area:,.0f}"
+                            },
+                            value=[min_area, max_area],
+                            tooltip={"placement": "bottom", "always_visible": True}
+                        )
+                    ], style={"width": "100%"})
+                ], className="d-flex align-items-center"),
+                html.Div([
+                    html.Span(f"{min_area:,.0f} sq.ft", id="area-range-min", className="small text-muted"),
+                    html.Span(className="ms-auto", children=[
+                        f"{max_area:,.0f} sq.ft", 
+                        html.Span(id="area-range-max", className="small text-muted")
+                    ])
+                ], className="d-flex justify-content-between px-2 mt-1"),
                 html.Div(style={"height": "20px"})  # Add some spacing
             ]
         )
     
-    # Reset button
+    # Reset button with icon
     reset_button = dbc.Button(
-        "Reset Filters",
+        [
+            html.I(className="fas fa-undo me-2"),
+            "Reset Filters"
+        ],
         id="reset-filters-button",
         color="secondary",
         className="mt-3 w-100"
     )
     
+    # Filter count badge
+    filter_badge = html.Div([
+        dbc.Badge("0 active filters", id="filter-count-badge", color="light", className="text-secondary mb-3")
+    ], className="d-flex justify-content-end")
+    
     # Create filters card
     filters_card = dbc.Card(
         dbc.CardBody(
             [
-                html.H4("Filters", className="card-title"),
+                html.Div([
+                    html.H4("Filters", className="card-title d-inline me-2"),
+                    html.I(className="fas fa-filter text-secondary")
+                ], className="d-flex align-items-center mb-2"),
+                filter_badge,
                 html.Hr(),
                 building_type_filter,
                 price_filter,
@@ -129,7 +199,7 @@ def create_filters(options: dict = None) -> dbc.Card:
                 reset_button
             ]
         ),
-        className="mb-4"
+        className="mb-4 shadow-sm"
     )
     
     return filters_card
@@ -153,16 +223,35 @@ def create_summary_cards(summary_data: dict = None) -> dbc.Row:
             "common_type": {"value": "Loading...", "description": "Most Common Type"}
         }
     
+    # Define icons for each card type
+    card_icons = {
+        "total_properties": "fas fa-home",
+        "avg_price": "fas fa-dollar-sign",
+        "median_price": "fas fa-chart-line",
+        "common_type": "fas fa-building",
+        "avg_area": "fas fa-ruler-combined",
+        "price_range": "fas fa-exchange-alt"
+    }
+    
     summary_cards = []
     
     # Create a card for each summary statistic
     for key, data in summary_data.items():
+        icon = card_icons.get(key, "fas fa-chart-bar")  # Default icon if not found
+        
         card = dbc.Col(
             dbc.Card(
                 dbc.CardBody(
                     [
-                        html.H2(data["value"], className="card-title text-center"),
-                        html.P(data["description"], className="card-text text-center")
+                        html.Div([
+                            html.Div([
+                                html.I(className=f"{icon} fa-2x text-primary opacity-75")
+                            ], className="summary-icon me-3"),
+                            html.Div([
+                                html.H2(data["value"], className="card-title mb-0"),
+                                html.P(data["description"], className="card-text text-muted mb-0 small")
+                            ])
+                        ], className="d-flex align-items-center fade-in")
                     ]
                 ),
                 className="mb-4 summary-card"

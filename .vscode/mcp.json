@@ -1,7 +1,8 @@
 {
   "filesystem": {
     "allowedDirectories": [
-      "${workspaceFolder}"
+      "${workspaceFolder}",
+      "C:\\Users\\anteb\\Desktop\\Courses\\Projects\\data_visualisation_assignment"
     ]
   },
   "servers": {

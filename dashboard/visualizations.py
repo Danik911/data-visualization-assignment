@@ -7,9 +7,10 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from typing import Dict, List, Any, Optional, Tuple
+from dashboard.config import get_colorscale, get_chart_defaults, get_color_palette
 
 
-def generate_price_map(df: pd.DataFrame, use_clustering: bool = True) -> go.Figure:
+def generate_price_map(df: pd.DataFrame, use_clustering: bool = None) -> go.Figure:
     """
     Generate a map visualization of housing prices by location.
     
@@ -26,6 +27,18 @@ def generate_price_map(df: pd.DataFrame, use_clustering: bool = True) -> go.Figu
             title="Map visualization requires Latitude, Longitude, and Sale_Price columns"
         )
     
+    # Get map configuration settings
+    map_defaults = get_chart_defaults("maps")
+    map_style = map_defaults.get("mapbox_style", "open-street-map")
+    zoom_level = map_defaults.get("zoom", 11)
+    
+    # Use configuration default if not specified
+    if use_clustering is None:
+        use_clustering = map_defaults.get("use_clustering", True)
+    
+    # Get colorscale from config
+    colorscale = get_colorscale("price_map")
+    
     if use_clustering and len(df) > 50:
         # Use a density heatmap approach for many points to avoid overcrowding
         fig = px.density_mapbox(
@@ -34,9 +47,9 @@ def generate_price_map(df: pd.DataFrame, use_clustering: bool = True) -> go.Figu
             lon="Longitude",
             z="Sale_Price",
             radius=10,
-            color_continuous_scale=px.colors.sequential.Viridis,
-            zoom=11,
-            mapbox_style="open-street-map",
+            color_continuous_scale=colorscale,
+            zoom=zoom_level,
+            mapbox_style=map_style,
             hover_data={
                 'Sale_Price': True,
                 'Bldg_Type': True if 'Bldg_Type' in df.columns else False,
@@ -53,8 +66,8 @@ def generate_price_map(df: pd.DataFrame, use_clustering: bool = True) -> go.Figu
             color="Sale_Price",
             size_max=6,
             opacity=0.4,
-            zoom=11,
-            mapbox_style="open-street-map"
+            zoom=zoom_level,
+            mapbox_style=map_style
         ).data[0]
         
         fig.add_trace(scatter_layer)
@@ -67,10 +80,10 @@ def generate_price_map(df: pd.DataFrame, use_clustering: bool = True) -> go.Figu
             lon="Longitude",
             color="Sale_Price",
             size="Sale_Price",
-            color_continuous_scale=px.colors.sequential.Viridis,
+            color_continuous_scale=colorscale,
             size_max=15,
-            zoom=11,
-            mapbox_style="open-street-map",
+            zoom=zoom_level,
+            mapbox_style=map_style,
             hover_data={
                 'Sale_Price': True,
                 'Lot_Area': True if 'Lot_Area' in df.columns else False,
@@ -80,8 +93,10 @@ def generate_price_map(df: pd.DataFrame, use_clustering: bool = True) -> go.Figu
             title="Housing Prices by Location"
         )
     
+    # Apply common layout settings
+    layout_defaults = get_chart_defaults("layout")
     fig.update_layout(
-        margin={"r": 0, "t": 40, "l": 0, "b": 0},
+        margin=layout_defaults.get("margin", {"r": 0, "t": 40, "l": 0, "b": 0}),
         coloraxis_colorbar=dict(title="Sale Price ($)")
     )
     

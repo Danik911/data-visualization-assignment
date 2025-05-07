@@ -418,16 +418,60 @@ def generate_parallel_coordinates(
     
     # If color column is specified and exists, add it
     if color_col and color_col in df.columns:
-        plot_df[color_col] = df[color_col]
-        
-        fig = px.parallel_coordinates(
-            plot_df,
-            color=color_col,
-            labels={col: col.replace('_', ' ') for col in plot_df.columns},
-            title="Parallel Coordinates Plot",
-            color_continuous_scale=px.colors.sequential.Viridis
-        )
+        # Check if the color column is categorical
+        if df[color_col].dtype == 'object' or df[color_col].dtype.name == 'category':
+            # Create a numerical mapping for categorical values
+            unique_categories = df[color_col].unique()
+            category_map = {cat: i for i, cat in enumerate(unique_categories)}
+            
+            # Create a numerical color array
+            color_array = df[color_col].map(category_map).values
+            
+            # Create dimensions for parallel coordinates
+            dimensions = []
+            for col in columns:
+                dimensions.append(
+                    dict(
+                        range=[plot_df[col].min(), plot_df[col].max()],
+                        label=col.replace('_', ' '),
+                        values=plot_df[col].values
+                    )
+                )
+            
+            # Create the parallel coordinates plot with go.Parcoords
+            fig = go.Figure(data=
+                go.Parcoords(
+                    line=dict(
+                        color=color_array,
+                        colorscale='Viridis',
+                        showscale=True,
+                        colorbar=dict(
+                            title=color_col.replace('_', ' '),
+                            tickvals=list(range(len(unique_categories))),
+                            ticktext=list(unique_categories),
+                        )
+                    ),
+                    dimensions=dimensions
+                )
+            )
+            
+            # Add a legend with category colors
+            fig.update_layout(
+                title="Parallel Coordinates Plot",
+                font=dict(size=10),
+            )
+            
+        else:
+            # For numeric color columns, use px.parallel_coordinates as before
+            fig = px.parallel_coordinates(
+                plot_df,
+                color=color_col,
+                labels={col: col.replace('_', ' ') for col in plot_df.columns},
+                title="Parallel Coordinates Plot",
+                color_continuous_scale=px.colors.sequential.Viridis
+            )
     else:
+        # Without color column, use px.parallel_coordinates as before
         fig = px.parallel_coordinates(
             plot_df,
             labels={col: col.replace('_', ' ') for col in plot_df.columns},

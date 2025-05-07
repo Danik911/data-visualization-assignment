@@ -18,7 +18,9 @@ from dashboard.visualizations import (
     generate_time_series,
     generate_feature_importance,
     generate_parallel_coordinates,
-    generate_summary_cards
+    generate_summary_cards,
+    generate_property_comparisons,  # New function for property comparisons
+    generate_year_trend_analysis    # New function for year trend analysis
 )
 
 
@@ -296,6 +298,71 @@ def register_callbacks(app, data_provider):
             building_type_fig = {"data": [], "layout": {"title": "Building Type data not available"}}
         
         return price_per_sqft_fig, building_type_fig
+    
+    # Update Market Trends tab with temporal analysis
+    @callback(
+        Output("price-by-year", "figure"),
+        Output("age-price-correlation", "figure"),
+        Output("decade-bldg-heatmap", "figure"),
+        Input("filtered-data-store", "data"),
+        Input("dashboard-tabs", "active_tab")
+    )
+    def update_year_trend_visualizations(filtered_data_json, active_tab):
+        # Only update when Market Trends tab is active
+        if active_tab != "tab-market":
+            # Return empty figures when tab is not active
+            empty_fig = {"data": [], "layout": {}}
+            return empty_fig, empty_fig, empty_fig
+        
+        # Convert JSON to DataFrame
+        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        
+        # Generate year trend visualizations
+        year_trends = generate_year_trend_analysis(filtered_df)
+        
+        # Return the generated figures, or empty figures if not available
+        price_by_year = year_trends.get('price_by_year', {"data": [], "layout": {"title": "Year data not available"}})
+        age_price = year_trends.get('age_price_correlation', {"data": [], "layout": {"title": "Age data not available"}})
+        decade_heatmap = year_trends.get('decade_bldg_heatmap', {"data": [], "layout": {"title": "Decade data not available"}})
+        
+        return price_by_year, age_price, decade_heatmap
+    
+    # Handle property comparisons tab
+    @callback(
+        Output("comparison-price-box", "figure"),
+        Output("comparison-price-bar", "figure"),
+        Output("comparison-scatter", "figure"),
+        Output("comparison-radar", "figure"),
+        Input("generate-comparison-button", "n_clicks"),
+        Input("comparison-column", "value"),
+        Input("filtered-data-store", "data"),
+        Input("dashboard-tabs", "active_tab")
+    )
+    def update_property_comparisons(n_clicks, compare_col, filtered_data_json, active_tab):
+        # Only update when Property Comparison tab is active
+        if active_tab != "tab-comparison":
+            # Return empty figures when tab is not active
+            empty_fig = {"data": [], "layout": {}}
+            return empty_fig, empty_fig, empty_fig, empty_fig
+        
+        # Convert JSON to DataFrame
+        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        
+        # Check if comparison column exists
+        if compare_col not in filtered_df.columns:
+            empty_fig = {"data": [], "layout": {"title": f"Column '{compare_col}' not found in data"}}
+            return empty_fig, empty_fig, empty_fig, empty_fig
+        
+        # Generate property comparisons
+        comparison_figs = generate_property_comparisons(filtered_df, compare_col)
+        
+        # Extract the figures we need
+        price_box = comparison_figs.get('Sale_Price_box', {"data": [], "layout": {"title": "Price data not available"}})
+        price_bar = comparison_figs.get('Sale_Price_bar', {"data": [], "layout": {"title": "Price data not available"}})
+        scatter = comparison_figs.get('price_vs_area', {"data": [], "layout": {"title": "Area data not available"}})
+        radar = comparison_figs.get('radar_comparison', {"data": [], "layout": {"title": "Comparison data not available"}})
+        
+        return price_box, price_bar, scatter, radar
     
     # Update Data Table tab
     @callback(

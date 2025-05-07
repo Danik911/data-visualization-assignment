@@ -7,7 +7,7 @@ from dashboard.dash_app import run_dashboard
 
 if __name__ == "__main__":
     # Path to the housing data CSV file
-    data_path = "data/Housing Data.csv"
+    data_path = "data/Housing Data_cleaned_for_dashboard.csv"
     
     # Run the dashboard
     print("Starting Housing Data Dashboard...")

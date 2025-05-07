@@ -9,12 +9,13 @@ import plotly.graph_objects as go
 from typing import Dict, List, Any, Optional, Tuple
 
 
-def generate_price_map(df: pd.DataFrame) -> go.Figure:
+def generate_price_map(df: pd.DataFrame, use_clustering: bool = True) -> go.Figure:
     """
     Generate a map visualization of housing prices by location.
     
     Args:
         df: DataFrame containing housing data with Latitude and Longitude columns
+        use_clustering: Whether to use clustering for better visualization of many points
         
     Returns:
         Plotly figure object with the map visualization
@@ -25,23 +26,59 @@ def generate_price_map(df: pd.DataFrame) -> go.Figure:
             title="Map visualization requires Latitude, Longitude, and Sale_Price columns"
         )
     
-    fig = px.scatter_mapbox(
-        df,
-        lat="Latitude",
-        lon="Longitude",
-        color="Sale_Price",
-        size="Sale_Price",
-        color_continuous_scale=px.colors.sequential.Viridis,
-        size_max=15,
-        zoom=10,
-        mapbox_style="open-street-map",
-        hover_data={
-            'Sale_Price': True,
-            'Lot_Area': True,
-            'Bldg_Type': True
-        },
-        title="Housing Prices by Location"
-    )
+    if use_clustering and len(df) > 50:
+        # Use a density heatmap approach for many points to avoid overcrowding
+        fig = px.density_mapbox(
+            df,
+            lat="Latitude",
+            lon="Longitude",
+            z="Sale_Price",
+            radius=10,
+            color_continuous_scale=px.colors.sequential.Viridis,
+            zoom=11,
+            mapbox_style="open-street-map",
+            hover_data={
+                'Sale_Price': True,
+                'Bldg_Type': True if 'Bldg_Type' in df.columns else False,
+                'Year_Built': True if 'Year_Built' in df.columns else False
+            },
+            title="Housing Price Density by Location"
+        )
+        
+        # Add a scatter layer with reduced opacity for individual points
+        scatter_layer = px.scatter_mapbox(
+            df,
+            lat="Latitude",
+            lon="Longitude",
+            color="Sale_Price",
+            size_max=6,
+            opacity=0.4,
+            zoom=11,
+            mapbox_style="open-street-map"
+        ).data[0]
+        
+        fig.add_trace(scatter_layer)
+        
+    else:
+        # Use regular scatter plot for fewer points
+        fig = px.scatter_mapbox(
+            df,
+            lat="Latitude",
+            lon="Longitude",
+            color="Sale_Price",
+            size="Sale_Price",
+            color_continuous_scale=px.colors.sequential.Viridis,
+            size_max=15,
+            zoom=11,
+            mapbox_style="open-street-map",
+            hover_data={
+                'Sale_Price': True,
+                'Lot_Area': True if 'Lot_Area' in df.columns else False,
+                'Bldg_Type': True if 'Bldg_Type' in df.columns else False,
+                'Year_Built': True if 'Year_Built' in df.columns else False
+            },
+            title="Housing Prices by Location"
+        )
     
     fig.update_layout(
         margin={"r": 0, "t": 40, "l": 0, "b": 0},
@@ -538,3 +575,330 @@ def generate_summary_cards(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
         }
     
     return summary
+
+
+def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Type", metrics: List[str] = None) -> Dict[str, go.Figure]:
+    """
+    Generate side-by-side comparisons of different property types across key metrics.
+    
+    Args:
+        df: DataFrame containing housing data
+        compare_col: Column to use for grouping/comparison (e.g., Building Type)
+        metrics: List of metrics to compare (optional, defaults to key metrics if available)
+        
+    Returns:
+        Dictionary of plotly figures with property comparisons
+    """
+    if compare_col not in df.columns:
+        return {"error": go.Figure().update_layout(title=f"Comparison column {compare_col} not found")}
+    
+    results = {}
+    
+    # Default metrics if not specified
+    if not metrics:
+        available_cols = df.columns.tolist()
+        possible_metrics = [
+            "Sale_Price", "Lot_Area", "Lot_Frontage", "Year_Built", 
+            "Total_Bsmt_SF", "First_Flr_SF", "Full_Bath", "Half_Bath", 
+            "Bedroom_AbvGr", "Fireplaces"
+        ]
+        metrics = [col for col in possible_metrics if col in available_cols][:5]  # Use first 5 available
+    
+    # Group comparison (boxplot for distribution comparison)
+    for metric in metrics:
+        if metric in df.columns and df[metric].dtype in ['int64', 'float64']:
+            # Create grouped box plot
+            fig = px.box(
+                df,
+                x=compare_col,
+                y=metric,
+                color=compare_col,
+                title=f"{metric} by {compare_col}",
+                labels={
+                    metric: metric.replace('_', ' '),
+                    compare_col: compare_col.replace('_', ' ')
+                },
+                points="outliers"
+            )
+            
+            fig.update_layout(
+                xaxis_title=compare_col.replace('_', ' '),
+                yaxis_title=metric.replace('_', ' '),
+                showlegend=False
+            )
+            
+            results[f"{metric}_box"] = fig
+            
+            # Create grouped bar chart for averages
+            avg_by_group = df.groupby(compare_col)[metric].mean().reset_index()
+            count_by_group = df.groupby(compare_col)[metric].count().reset_index()
+            
+            avg_by_group['count'] = count_by_group[metric]
+            avg_by_group['label'] = avg_by_group[compare_col] + ' (n=' + avg_by_group['count'].astype(str) + ')'
+            
+            fig = px.bar(
+                avg_by_group,
+                x=compare_col,
+                y=metric,
+                color=compare_col,
+                text_auto=True,
+                title=f"Average {metric} by {compare_col}",
+                labels={
+                    metric: f"Avg. {metric.replace('_', ' ')}",
+                    compare_col: compare_col.replace('_', ' ')
+                },
+                hover_data={
+                    'count': True,
+                    'label': False,
+                    compare_col: False
+                }
+            )
+            
+            fig.update_layout(
+                xaxis_title="",
+                yaxis_title=f"Average {metric.replace('_', ' ')}",
+                showlegend=False,
+                xaxis={'categoryorder': 'total descending'}
+            )
+            
+            results[f"{metric}_bar"] = fig
+    
+    # If Sale_Price is available, create a scatter plot showing price vs area colored by comparison column
+    if "Sale_Price" in df.columns and "Lot_Area" in df.columns:
+        fig = px.scatter(
+            df,
+            x="Lot_Area", 
+            y="Sale_Price",
+            color=compare_col,
+            opacity=0.7,
+            title=f"Price vs Area by {compare_col}",
+            labels={
+                "Lot_Area": "Lot Area (sq.ft)",
+                "Sale_Price": "Sale Price ($)",
+                compare_col: compare_col.replace('_', ' ')
+            },
+            trendline="ols",
+            trendline_scope="overall"
+        )
+        
+        fig.update_layout(
+            legend_title=compare_col.replace('_', ' ')
+        )
+        
+        results["price_vs_area"] = fig
+    
+    # Create a radar chart comparing the average metrics by property type
+    if len(metrics) >= 3:
+        # Filter to only numeric metrics
+        numeric_metrics = [m for m in metrics if df[m].dtype in ['int64', 'float64']][:5]  # Limit to 5 metrics
+        
+        if len(numeric_metrics) >= 3:
+            # Create radar chart data
+            groups = df[compare_col].unique().tolist()
+            
+            # Normalize each metric to 0-1 scale for fair comparison
+            radar_df = df.copy()
+            for metric in numeric_metrics:
+                min_val = df[metric].min()
+                max_val = df[metric].max()
+                if max_val > min_val:  # Avoid division by zero
+                    radar_df[metric] = (df[metric] - min_val) / (max_val - min_val)
+                else:
+                    radar_df[metric] = 0  # All values are the same
+            
+            # Calculate averages by group
+            group_avgs = radar_df.groupby(compare_col)[numeric_metrics].mean().reset_index()
+            
+            # Create radar chart
+            fig = go.Figure()
+            
+            for i, group in enumerate(groups):
+                group_data = group_avgs[group_avgs[compare_col] == group]
+                if not group_data.empty:
+                    fig.add_trace(go.Scatterpolar(
+                        r=group_data[numeric_metrics].values.flatten().tolist(),
+                        theta=numeric_metrics,
+                        fill='toself',
+                        name=group
+                    ))
+            
+            fig.update_layout(
+                polar=dict(
+                    radialaxis=dict(
+                        visible=True,
+                        range=[0, 1]
+                    )
+                ),
+                title=f"Property Metrics Comparison by {compare_col} (Normalized)",
+                showlegend=True
+            )
+            
+            results["radar_comparison"] = fig
+    
+    return results
+
+
+def generate_year_trend_analysis(df: pd.DataFrame) -> Dict[str, go.Figure]:
+    """
+    Generate year-based trend analysis visualizations.
+    
+    Args:
+        df: DataFrame containing housing data with year-related columns
+        
+    Returns:
+        Dictionary of plotly figures with year-based trends
+    """
+    results = {}
+    
+    # Check if Year_Built column exists
+    if 'Year_Built' not in df.columns:
+        results["error"] = go.Figure().update_layout(
+            title="Year trend analysis requires Year_Built column"
+        )
+        return results
+        
+    # Convert Year_Built to numeric if not already
+    df = df.copy()
+    try:
+        df['Year_Built'] = pd.to_numeric(df['Year_Built'], errors='coerce')
+    except:
+        pass
+    
+    # Filter out invalid years
+    df = df[df['Year_Built'] > 1800].copy()
+    
+    if df.empty:
+        results["error"] = go.Figure().update_layout(
+            title="No valid year data available"
+        )
+        return results
+    
+    # 1. Average price by year built
+    if 'Sale_Price' in df.columns:
+        # Group by year and calculate statistics
+        year_stats = df.groupby('Year_Built').agg({
+            'Sale_Price': ['mean', 'median', 'count']
+        }).reset_index()
+        
+        # Flatten MultiIndex columns
+        year_stats.columns = ['_'.join(col).strip('_') for col in year_stats.columns.values]
+        
+        # Create line chart for price trends by year built
+        fig = px.line(
+            year_stats,
+            x='Year_Built',
+            y=['Sale_Price_mean', 'Sale_Price_median'],
+            labels={
+                'Year_Built': 'Year Built',
+                'Sale_Price_mean': 'Mean Price',
+                'Sale_Price_median': 'Median Price',
+                'value': 'Sale Price ($)'
+            },
+            title='Price Trends by Year Built',
+            markers=True
+        )
+        
+        # Add property count as bar chart on secondary y-axis
+        fig.add_trace(
+            go.Bar(
+                x=year_stats['Year_Built'],
+                y=year_stats['Sale_Price_count'],
+                name='Number of Properties',
+                opacity=0.3,
+                yaxis='y2'
+            )
+        )
+        
+        # Update layout with secondary y-axis
+        fig.update_layout(
+            yaxis2=dict(
+                title='Number of Properties',
+                overlaying='y',
+                side='right'
+            ),
+            legend=dict(
+                orientation='h',
+                yanchor='bottom',
+                y=-0.3,
+                xanchor='center',
+                x=0.5
+            )
+        )
+        
+        results['price_by_year'] = fig
+        
+        # 2. Create heatmap of decade vs. building type if available
+        if 'Bldg_Type' in df.columns:
+            # Create decade column
+            df['Decade'] = (df['Year_Built'] // 10) * 10
+            
+            # Create pivot table for heatmap
+            decade_type_pivot = pd.pivot_table(
+                df,
+                values='Sale_Price',
+                index='Decade',
+                columns='Bldg_Type',
+                aggfunc='mean'
+            ).fillna(0)
+            
+            # Create heatmap
+            fig = px.imshow(
+                decade_type_pivot,
+                text_auto='.0f',
+                labels=dict(
+                    x='Building Type',
+                    y='Decade',
+                    color='Avg. Price ($)'
+                ),
+                title='Average Price by Decade and Building Type',
+                color_continuous_scale='Viridis',
+                aspect='auto'
+            )
+            
+            fig.update_layout(
+                xaxis_title='Building Type',
+                yaxis_title='Decade'
+            )
+            
+            results['decade_bldg_heatmap'] = fig
+    
+    # 3. Create age vs price correlation scatter plot
+    if 'Sale_Price' in df.columns:
+        # Calculate age of property at time of dataset creation
+        current_year = pd.to_datetime('now').year
+        df['Property_Age'] = current_year - df['Year_Built']
+        
+        # Create scatter plot
+        fig = px.scatter(
+            df,
+            x='Property_Age',
+            y='Sale_Price',
+            opacity=0.7,
+            title='Property Price vs. Age',
+            labels={
+                'Property_Age': 'Property Age (years)',
+                'Sale_Price': 'Sale Price ($)'
+            },
+            trendline='ols',
+            trendline_color_override='red'
+        )
+        
+        # Calculate correlation coefficient
+        corr = df['Property_Age'].corr(df['Sale_Price'])
+        
+        # Add annotation with correlation coefficient
+        fig.add_annotation(
+            xref='paper', yref='paper',
+            x=0.02, y=0.98,
+            text=f'Correlation: {corr:.2f}',
+            showarrow=False,
+            font=dict(size=14),
+            bgcolor='rgba(255,255,255,0.8)',
+            bordercolor='black',
+            borderwidth=1,
+            borderpad=4
+        )
+        
+        results['age_price_correlation'] = fig
+    
+    return results

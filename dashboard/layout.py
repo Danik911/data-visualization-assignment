@@ -357,10 +357,52 @@ def create_tab_content():
     # Market Trends Tab
     market_trends_tab = dbc.Container(
         [
-            dbc.Alert(
-                "This tab will be enhanced in future versions with more temporal data analysis.",
-                color="info",
-                className="mb-4"
+            dbc.Row(
+                [
+                    # Price by Year Chart
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Price Trends by Year Built"),
+                                dcc.Loading(
+                                    dcc.Graph(id="price-by-year")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=12
+                    )
+                ]
+            ),
+            dbc.Row(
+                [
+                    # Price vs Property Age
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Price vs Property Age"),
+                                dcc.Loading(
+                                    dcc.Graph(id="age-price-correlation")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    ),
+                    # Decade & Building Type Heatmap
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Price by Decade & Building Type"),
+                                dcc.Loading(
+                                    dcc.Graph(id="decade-bldg-heatmap")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    )
+                ]
             ),
             dbc.Row(
                 [
@@ -375,12 +417,8 @@ def create_tab_content():
                             ]),
                             className="mb-4"
                         ),
-                        width=12
-                    )
-                ]
-            ),
-            dbc.Row(
-                [
+                        width=6
+                    ),
                     # Building Type Comparison
                     dbc.Col(
                         dbc.Card(
@@ -392,7 +430,101 @@ def create_tab_content():
                             ]),
                             className="mb-4"
                         ),
-                        width=12
+                        width=6
+                    )
+                ]
+            )
+        ],
+        fluid=True
+    )
+    
+    # Property Comparison Tab - New tab for enhanced comparison features
+    property_comparison_tab = dbc.Container(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            dbc.Label("Compare By"),
+                            dcc.Dropdown(
+                                id="comparison-column",
+                                options=[
+                                    {"label": "Building Type", "value": "Bldg_Type"},
+                                    {"label": "House Style", "value": "House_Style"},
+                                    {"label": "Neighborhood", "value": "Neighborhood"},
+                                    {"label": "Sale Condition", "value": "Sale_Condition"}
+                                ],
+                                value="Bldg_Type",
+                                clearable=False
+                            )
+                        ],
+                        width=4
+                    ),
+                    dbc.Col(
+                        dbc.Button(
+                            "Generate Comparisons",
+                            id="generate-comparison-button",
+                            color="primary",
+                            className="mt-4"
+                        ),
+                        width=4
+                    )
+                ],
+                className="mb-4"
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Price Distribution by Category"),
+                                dcc.Loading(
+                                    dcc.Graph(id="comparison-price-box")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    ),
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Average Price by Category"),
+                                dcc.Loading(
+                                    dcc.Graph(id="comparison-price-bar")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    )
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Price vs Area by Category"),
+                                dcc.Loading(
+                                    dcc.Graph(id="comparison-scatter")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    ),
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Multi-Metric Comparison"),
+                                dcc.Loading(
+                                    dcc.Graph(id="comparison-radar")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
                     )
                 ]
             )
@@ -424,6 +556,7 @@ def create_tab_content():
         "overview": overview_tab,
         "property_analysis": property_analysis_tab,
         "market_trends": market_trends_tab,
+        "property_comparison": property_comparison_tab,  # Add the new tab
         "data_table": data_table_tab
     }
 
@@ -445,6 +578,7 @@ def create_tabs(tab_content: dict) -> dbc.Container:
                     dbc.Tab(tab_content["overview"], label="Overview", tab_id="tab-overview"),
                     dbc.Tab(tab_content["property_analysis"], label="Property Analysis", tab_id="tab-property"),
                     dbc.Tab(tab_content["market_trends"], label="Market Trends", tab_id="tab-market"),
+                    dbc.Tab(tab_content["property_comparison"], label="Property Comparison", tab_id="tab-comparison"),
                     dbc.Tab(tab_content["data_table"], label="Data Table", tab_id="tab-data")
                 ],
                 id="dashboard-tabs",

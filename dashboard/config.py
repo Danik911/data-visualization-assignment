@@ -217,6 +217,15 @@ LOGGING_CONFIG = {
     }
 }
 
+# Define building type mappings for clearer labels
+BUILDING_TYPE_LABELS = {
+    "OneFam": "Single Family Home",
+    "TwnhsE": "End Unit Townhouse",
+    "Twnhs": "Interior Townhouse",
+    "Duplex": "Duplex",
+    "TwoFmCon": "Two-Family Conversion"
+}
+
 # Define available filter components with their types
 FILTER_COMPONENTS = {
     "Sale_Price": {
@@ -299,3 +308,15 @@ def get_filter_config(column_name: str) -> Dict[str, Any]:
 def get_columns_for_visualization(viz_type: str) -> List[str]:
     """Get recommended columns for a specific visualization type"""
     return VISUALIZATION_COLUMNS.get(viz_type, [])
+
+def get_building_type_label(building_type: str) -> str:
+    """
+    Get the user-friendly label for a building type code.
+    
+    Args:
+        building_type: The original building type code from the dataset
+        
+    Returns:
+        User-friendly building type label if available, otherwise the original code
+    """
+    return BUILDING_TYPE_LABELS.get(building_type, building_type)

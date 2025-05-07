@@ -155,12 +155,47 @@ def register_callbacks(app, data_provider):
         
         # Generate visualizations
         try:
+            # Check if dataframe has required columns
+            required_columns = ['Latitude', 'Longitude', 'Sale_Price']
+            missing_columns = [col for col in required_columns if col not in filtered_df.columns]
+            
+            if missing_columns:
+                raise ValueError(f"Missing required columns for map: {', '.join(missing_columns)}")
+                
+            # Check if dataframe has non-null values
+            if filtered_df[required_columns].isnull().any().any():
+                # Clean the dataframe by dropping rows with null values in required columns
+                filtered_df = filtered_df.dropna(subset=required_columns)
+                print(f"Dropped rows with null values. Remaining rows: {len(filtered_df)}")
+                
+                if len(filtered_df) == 0:
+                    raise ValueError("No valid data points after cleaning null values")
+            
+            # Generate Google Maps data
             price_map_data = generate_google_price_map(filtered_df)
+            
+            # Ensure price_map_data has the required structure
+            if not isinstance(price_map_data, dict) or 'data' not in price_map_data or 'center' not in price_map_data:
+                raise ValueError(f"Invalid map data structure: {price_map_data.keys() if isinstance(price_map_data, dict) else 'not a dict'}")
+                
+            # Convert to JSON for passing to the frontend
             price_map_json = json.dumps(price_map_data)
             print(f"Generated map data with {len(price_map_data['data'])} properties")
+            print(f"Map center: {price_map_data['center']}")
+            
         except Exception as e:
+            import traceback
             print(f"Error generating map data: {str(e)}")
-            price_map_json = None
+            print(traceback.format_exc())
+            
+            # Provide minimal data structure to avoid JavaScript errors
+            fallback_data = {
+                "data": [],
+                "center": {"lat": 41.6, "lng": -93.6},  # Default center (Des Moines, IA)
+                "zoom": 10,
+                "error": str(e)
+            }
+            price_map_json = json.dumps(fallback_data)
         
         price_distribution = generate_price_distribution(filtered_df)
         

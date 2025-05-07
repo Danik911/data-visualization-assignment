@@ -75,6 +75,7 @@ def create_filters(options: dict = None) -> dbc.Card:
     # Building Type filter if available
     building_type_filter = html.Div([])
     if "Bldg_Type" in options:
+        from dashboard.config import get_building_type_label
         building_type_filter = html.Div(
             [
                 dbc.Label("Building Type", className="form-label"),
@@ -82,7 +83,7 @@ def create_filters(options: dict = None) -> dbc.Card:
                     html.I(className="fas fa-building text-secondary me-2"),
                     dcc.Dropdown(
                         id="building-type-filter",
-                        options=[{"label": bt, "value": bt} for bt in options["Bldg_Type"]],
+                        options=[{"label": get_building_type_label(bt), "value": bt} for bt in options["Bldg_Type"]],
                         multi=True,
                         placeholder="Select building types...",
                         style={"width": "100%"},

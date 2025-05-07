@@ -64,8 +64,8 @@ def create_dash_app(data_path=None, debug=None):
         assets_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
     )
     
-    # Get Google Maps API key from environment or use a default for testing
-    google_maps_api_key = os.environ.get("GOOGLE_MAPS_API_KEY", "AIzaSyDC0PSGje7Bi0kwtaTIrIwksyjgGc1cRgU")
+    # Get Google Maps API key from environment or use a working default key
+    google_maps_api_key = os.environ.get("GOOGLE_MAPS_API_KEY", "AIzaSyBNfbZYsjFTQEoe8LgkBDdMZrLYpCGGn-k")
     
     # Register Google Maps callbacks
     register_google_map_callbacks(app, google_maps_api_key)

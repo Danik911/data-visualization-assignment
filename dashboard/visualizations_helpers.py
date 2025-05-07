@@ -317,8 +317,13 @@ class GooglePriceMap(GeographicVisualization):
         if not is_valid:
             return {"error": error_msg, "data": [], "center": {"lat": 0, "lng": 0}, "zoom": 10}
         
-        # Prepare data for Google Maps
-        map_data = self.df[['Latitude', 'Longitude', 'Sale_Price']].copy()
+        # Clean data to ensure no null values or invalid types
+        map_data = self.df.dropna(subset=['Latitude', 'Longitude', 'Sale_Price']).copy()
+        
+        # Ensure we have data after cleaning
+        if len(map_data) == 0:
+            return {"error": "No valid data points found after cleaning", "data": [], 
+                   "center": {"lat": 0, "lng": 0}, "zoom": 10}
         
         # Convert data types to ensure proper JSON serialization
         map_data['Latitude'] = map_data['Latitude'].astype(float)
@@ -329,9 +334,16 @@ class GooglePriceMap(GeographicVisualization):
         map_data['id'] = range(len(map_data))
         
         # Add additional properties for display if available
-        for col in ['Bldg_Type', 'Year_Built', 'Lot_Area']:
+        optional_columns = ['Bldg_Type', 'Year_Built', 'Lot_Area', 'Neighborhood']
+        for col in optional_columns:
             if col in self.df.columns:
                 map_data[col] = self.df[col]
+        
+        # Apply user-friendly building type labels if available
+        if 'Bldg_Type' in map_data.columns:
+            from dashboard.config import get_building_type_label
+            map_data['Bldg_Type_Display'] = map_data['Bldg_Type'].apply(get_building_type_label)
+            # Keep both columns - original for data integrity and display for UI
         
         # Get map configuration settings
         map_defaults = self.get_map_defaults()
@@ -341,13 +353,24 @@ class GooglePriceMap(GeographicVisualization):
         lat_mean = float(map_data['Latitude'].mean())
         lng_mean = float(map_data['Longitude'].mean())
         
+        # Add data statistics that might be useful for the frontend
+        stats = {
+            "price_min": float(map_data['Sale_Price'].min()),
+            "price_max": float(map_data['Sale_Price'].max()),
+            "price_avg": float(map_data['Sale_Price'].mean()),
+            "count": len(map_data)
+        }
+        
+        print(f"Prepared Google Maps data with {len(map_data)} properties")
+        
         return {
             "data": map_data.to_dict('records'),
             "center": {
                 "lat": lat_mean,
                 "lng": lng_mean
             },
-            "zoom": zoom_level
+            "zoom": zoom_level,
+            "stats": stats
         }
 
 
@@ -637,27 +660,45 @@ class BoxPlotVisualization(StatisticalVisualization):
         if not is_valid:
             return self.create_empty_figure(error_msg)
         
+        # Apply building type labels if the category column is Bldg_Type
+        if self.category_col == 'Bldg_Type':
+            from dashboard.config import get_building_type_label
+            df_plot = self.df.copy()
+            
+            # Create a new column for display with friendly building type names
+            df_plot['Bldg_Type_Display'] = df_plot['Bldg_Type'].apply(get_building_type_label)
+            
+            # Use the display column for visualization but keep original for data
+            category_col_display = 'Bldg_Type_Display'
+        else:
+            df_plot = self.df.copy()
+            category_col_display = self.category_col
+        
         # For better visualization, limit to top categories if there are too many
-        value_counts = self.df[self.category_col].value_counts()
+        value_counts = df_plot[self.category_col].value_counts()
         if len(value_counts) > 10:
             top_categories = value_counts.nlargest(10).index.tolist()
-            filtered_df = self.df[self.df[self.category_col].isin(top_categories)].copy()
-            filtered_df[self.category_col] = filtered_df[self.category_col].astype(str) + " "  # Add space to preserve category order
+            filtered_df = df_plot[df_plot[self.category_col].isin(top_categories)].copy()
+            if self.category_col == 'Bldg_Type':
+                # Keep the display names but add space to preserve category order
+                filtered_df[category_col_display] = filtered_df[category_col_display].astype(str) + " "
+            else:
+                filtered_df[category_col_display] = filtered_df[category_col_display].astype(str) + " "
         else:
-            filtered_df = self.df.copy()
+            filtered_df = df_plot.copy()
         
         # Get stats defaults
         stats_defaults = self.get_stats_defaults()
             
         fig = px.box(
             filtered_df,
-            x=self.category_col,
+            x=category_col_display,
             y=self.numeric_col,
-            color=self.category_col,
+            color=category_col_display,
             title=f"Distribution of {self.numeric_col} by {self.category_col}",
             labels={
                 self.numeric_col: self.numeric_col.replace('_', ' '),
-                self.category_col: self.category_col.replace('_', ' ')
+                category_col_display: self.category_col.replace('_', ' ')
             },
             points="outliers"  # Only show outlier points
         )

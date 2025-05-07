@@ -429,6 +429,8 @@ def generate_summary_cards(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
     Returns:
         Dictionary with summary statistics
     """
+    from dashboard.config import get_building_type_label
+    
     summary = {}
     
     # Total properties
@@ -466,8 +468,11 @@ def generate_summary_cards(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
         most_common_type = df['Bldg_Type'].value_counts().idxmax()
         type_percentage = (df['Bldg_Type'].value_counts().max() / len(df)) * 100
         
+        # Use the user-friendly building type label
+        friendly_type_name = get_building_type_label(most_common_type)
+        
         summary["common_type"] = {
-            "value": f"{most_common_type} ({type_percentage:.1f}%)",
+            "value": f"{friendly_type_name} ({type_percentage:.1f}%)",
             "description": "Most Common Building Type"
         }
     
@@ -491,9 +496,23 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
     
     results = {}
     
+    # If comparing by building type, create a copy of the dataframe with user-friendly labels
+    if compare_col == 'Bldg_Type':
+        from dashboard.config import get_building_type_label
+        df_plot = df.copy()
+        
+        # Create a new column for display with friendly building type names
+        df_plot['Bldg_Type_Display'] = df_plot['Bldg_Type'].apply(get_building_type_label)
+        
+        # Use the display column for visualization but keep original for data
+        compare_col_display = 'Bldg_Type_Display'
+    else:
+        df_plot = df.copy()
+        compare_col_display = compare_col
+    
     # Default metrics if not specified
     if not metrics:
-        available_cols = df.columns.tolist()
+        available_cols = df_plot.columns.tolist()
         possible_metrics = [
             "Sale_Price", "Lot_Area", "Lot_Frontage", "Year_Built", 
             "Total_Bsmt_SF", "First_Flr_SF", "Full_Bath", "Half_Bath", 
@@ -503,17 +522,17 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
     
     # Group comparison (boxplot for distribution comparison)
     for metric in metrics:
-        if metric in df.columns and df[metric].dtype in ['int64', 'float64']:
+        if metric in df_plot.columns and df_plot[metric].dtype in ['int64', 'float64']:
             # Create grouped box plot
             fig = px.box(
-                df,
-                x=compare_col,
+                df_plot,
+                x=compare_col_display,
                 y=metric,
-                color=compare_col,
+                color=compare_col_display,
                 title=f"{metric} by {compare_col}",
                 labels={
                     metric: metric.replace('_', ' '),
-                    compare_col: compare_col.replace('_', ' ')
+                    compare_col_display: compare_col.replace('_', ' ')
                 },
                 points="outliers"
             )
@@ -526,28 +545,42 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
             
             results[f"{metric}_box"] = fig
             
-            # Create grouped bar chart for averages
-            avg_by_group = df.groupby(compare_col)[metric].mean().reset_index()
-            count_by_group = df.groupby(compare_col)[metric].count().reset_index()
-            
-            avg_by_group['count'] = count_by_group[metric]
-            avg_by_group['label'] = avg_by_group[compare_col] + ' (n=' + avg_by_group['count'].astype(str) + ')'
+            # Create grouped bar chart for averages - use original compare_col for grouping, but display labels for visualization
+            if compare_col == 'Bldg_Type':
+                # Group by the original column for calculations
+                avg_by_group = df_plot.groupby(compare_col)[metric].mean().reset_index()
+                count_by_group = df_plot.groupby(compare_col)[metric].count().reset_index()
+                
+                # Add count and mapping to friendly names
+                avg_by_group['count'] = count_by_group[metric]
+                avg_by_group[compare_col_display] = avg_by_group[compare_col].apply(get_building_type_label)
+                
+                # Create labels with counts
+                avg_by_group['label'] = avg_by_group[compare_col_display] + ' (n=' + avg_by_group['count'].astype(str) + ')'
+            else:
+                # Standard grouping for non-building type columns
+                avg_by_group = df_plot.groupby(compare_col)[metric].mean().reset_index()
+                count_by_group = df_plot.groupby(compare_col)[metric].count().reset_index()
+                
+                avg_by_group['count'] = count_by_group[metric]
+                avg_by_group['label'] = avg_by_group[compare_col] + ' (n=' + avg_by_group['count'].astype(str) + ')'
             
             fig = px.bar(
                 avg_by_group,
-                x=compare_col,
+                x=compare_col_display if compare_col == 'Bldg_Type' else compare_col,
                 y=metric,
-                color=compare_col,
+                color=compare_col_display if compare_col == 'Bldg_Type' else compare_col,
                 text_auto=True,
                 title=f"Average {metric} by {compare_col}",
                 labels={
                     metric: f"Avg. {metric.replace('_', ' ')}",
+                    compare_col_display: compare_col.replace('_', ' '),
                     compare_col: compare_col.replace('_', ' ')
                 },
                 hover_data={
                     'count': True,
                     'label': False,
-                    compare_col: False
+                    compare_col if compare_col != 'Bldg_Type' else compare_col_display: False
                 }
             )
             
@@ -561,17 +594,18 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
             results[f"{metric}_bar"] = fig
     
     # If Sale_Price is available, create a scatter plot showing price vs area colored by comparison column
-    if "Sale_Price" in df.columns and "Lot_Area" in df.columns:
+    if "Sale_Price" in df_plot.columns and "Lot_Area" in df_plot.columns:
         fig = px.scatter(
-            df,
+            df_plot,
             x="Lot_Area", 
             y="Sale_Price",
-            color=compare_col,
+            color=compare_col_display if compare_col == 'Bldg_Type' else compare_col,
             opacity=0.7,
             title=f"Price vs Area by {compare_col}",
             labels={
                 "Lot_Area": "Lot Area (sq.ft)",
                 "Sale_Price": "Sale Price ($)",
+                compare_col_display: compare_col.replace('_', ' '),
                 compare_col: compare_col.replace('_', ' ')
             },
             trendline="ols",
@@ -587,19 +621,24 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
     # Create a radar chart comparing the average metrics by property type
     if len(metrics) >= 3:
         # Filter to only numeric metrics
-        numeric_metrics = [m for m in metrics if df[m].dtype in ['int64', 'float64']][:5]  # Limit to 5 metrics
+        numeric_metrics = [m for m in metrics if df_plot[m].dtype in ['int64', 'float64']][:5]  # Limit to 5 metrics
         
         if len(numeric_metrics) >= 3:
             # Create radar chart data
-            groups = df[compare_col].unique().tolist()
+            if compare_col == 'Bldg_Type':
+                groups = df_plot[compare_col].unique().tolist()
+                group_names = [get_building_type_label(g) for g in groups]
+            else:
+                groups = df_plot[compare_col].unique().tolist()
+                group_names = groups
             
             # Normalize each metric to 0-1 scale for fair comparison
-            radar_df = df.copy()
+            radar_df = df_plot.copy()
             for metric in numeric_metrics:
-                min_val = df[metric].min()
-                max_val = df[metric].max()
+                min_val = df_plot[metric].min()
+                max_val = df_plot[metric].max()
                 if max_val > min_val:  # Avoid division by zero
-                    radar_df[metric] = (df[metric] - min_val) / (max_val - min_val)
+                    radar_df[metric] = (df_plot[metric] - min_val) / (max_val - min_val)
                 else:
                     radar_df[metric] = 0  # All values are the same
             
@@ -612,11 +651,14 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
             for i, group in enumerate(groups):
                 group_data = group_avgs[group_avgs[compare_col] == group]
                 if not group_data.empty:
+                    # Use friendly names for display in radar chart
+                    display_name = group_names[i] if compare_col == 'Bldg_Type' else group
+                    
                     fig.add_trace(go.Scatterpolar(
                         r=group_data[numeric_metrics].values.flatten().tolist(),
                         theta=numeric_metrics,
                         fill='toself',
-                        name=group
+                        name=display_name
                     ))
             
             fig.update_layout(

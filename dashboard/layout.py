@@ -275,7 +275,7 @@ def create_tab_content():
         [
             dbc.Row(
                 [
-                    # Price Map
+                    # Price Map - Full Width
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody([
@@ -286,8 +286,12 @@ def create_tab_content():
                             ]),
                             className="mb-4"
                         ),
-                        width=8
-                    ),
+                        width=12  # Changed from 8 to 12 for full width
+                    )
+                ]
+            ),
+            dbc.Row(
+                [
                     # Price Distribution
                     dbc.Col(
                         dbc.Card(
@@ -299,12 +303,8 @@ def create_tab_content():
                             ]),
                             className="mb-4"
                         ),
-                        width=4
-                    )
-                ]
-            ),
-            dbc.Row(
-                [
+                        width=6  # Changed from 4 to 6 for better balance after making map full width
+                    ),
                     # Feature Importance
                     dbc.Col(
                         dbc.Card(
@@ -317,7 +317,11 @@ def create_tab_content():
                             className="mb-4"
                         ),
                         width=6
-                    ),
+                    )
+                ]
+            ),
+            dbc.Row(
+                [
                     # Building Type Distribution
                     dbc.Col(
                         dbc.Card(
@@ -739,18 +743,23 @@ def create_layout(data_provider=None):
                     # Summary Cards
                     create_summary_cards(summary_data),
                     
+                    # Filters - Now above tabs instead of in sidebar
                     dbc.Row(
                         [
-                            # Filters Sidebar
                             dbc.Col(
                                 create_filters(filter_options),
-                                width=3
-                            ),
-                            
-                            # Main Dashboard Content
+                                width=12  # Full width for filters
+                            )
+                        ],
+                        className="mb-4"  # Add margin below filters
+                    ),
+                    
+                    # Main Dashboard Content - Full width now
+                    dbc.Row(
+                        [
                             dbc.Col(
                                 create_tabs(tab_content),
-                                width=9
+                                width=12  # Full width for tabs content
                             )
                         ]
                     )

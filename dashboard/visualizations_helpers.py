@@ -7,7 +7,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from typing import Dict, List, Any, Optional, Tuple, Union
-from dashboard.config import get_colorscale, get_chart_defaults, get_color_palette
+from dashboard.config import get_colorscale, get_chart_defaults, get_color_palette, get_column_display_label
 
 
 class Visualization:
@@ -405,8 +405,8 @@ class PriceDistribution(StatisticalVisualization):
             self.df,
             x="Sale_Price",
             nbins=int((self.df["Sale_Price"].max() - self.df["Sale_Price"].min()) / bin_size),
-            title="Distribution of Housing Prices",
-            labels={"Sale_Price": "Sale Price ($)"},
+            title=f"Distribution of {get_column_display_label('Sale_Price')}",
+            labels={"Sale_Price": get_column_display_label("Sale_Price")},
             opacity=stats_defaults["opacity"],
             color_discrete_sequence=colors
         )
@@ -422,9 +422,9 @@ class PriceDistribution(StatisticalVisualization):
         )
         
         # Apply standard layout
-        fig = self.apply_standard_layout(fig, "Distribution of Housing Prices", "statistics")
+        fig = self.apply_standard_layout(fig, f"Distribution of {get_column_display_label('Sale_Price')}", "statistics")
         fig.update_layout(
-            xaxis_title="Sale Price ($)",
+            xaxis_title=get_column_display_label("Sale_Price"),
             yaxis_title="Number of Properties",
             bargap=0.1
         )
@@ -470,10 +470,11 @@ class ScatterComparison(RelationshipVisualization):
             y=self.y_col,
             color=self.color_col if self.color_col in self.df.columns else None,
             opacity=rel_defaults["opacity"],
-            title=f"{self.y_col} vs {self.x_col}",
+            title=f"{get_column_display_label(self.y_col)} vs {get_column_display_label(self.x_col)}",
             labels={
-                self.x_col: self.x_col.replace('_', ' '), 
-                self.y_col: self.y_col.replace('_', ' ')
+                self.x_col: get_column_display_label(self.x_col), 
+                self.y_col: get_column_display_label(self.y_col),
+                self.color_col: get_column_display_label(self.color_col) if self.color_col in self.df.columns else None
             },
             hover_data=self.df.columns[:5],  # Include first 5 columns in hover data
             trendline='ols' if trendline else None,
@@ -487,11 +488,11 @@ class ScatterComparison(RelationshipVisualization):
         ))
         
         # Apply standard layout
-        fig = self.apply_standard_layout(fig, f"{self.y_col} vs {self.x_col}", "relationship")
+        fig = self.apply_standard_layout(fig, f"{get_column_display_label(self.y_col)} vs {get_column_display_label(self.x_col)}", "relationship")
         fig.update_layout(
-            xaxis_title=self.x_col.replace('_', ' '),
-            yaxis_title=self.y_col.replace('_', ' '),
-            legend_title=self.color_col.replace('_', ' ') if self.color_col else None
+            xaxis_title=get_column_display_label(self.x_col),
+            yaxis_title=get_column_display_label(self.y_col),
+            legend_title=get_column_display_label(self.color_col) if self.color_col else None
         )
         
         return fig
@@ -539,11 +540,11 @@ class TimeSeries(TimeSeriesVisualization):
                 x=self.date_col,
                 y=self.value_col,
                 color=self.group_col,
-                title=f"{self.value_col} Over Time by {self.group_col}",
+                title=f"{get_column_display_label(self.value_col)} Over Time by {get_column_display_label(self.group_col)}",
                 labels={
-                    self.date_col: self.date_col.replace('_', ' '),
-                    self.value_col: self.value_col.replace('_', ' '),
-                    self.group_col: self.group_col.replace('_', ' ')
+                    self.date_col: get_column_display_label(self.date_col),
+                    self.value_col: get_column_display_label(self.value_col),
+                    self.group_col: get_column_display_label(self.group_col)
                 }
             )
         else:
@@ -551,10 +552,10 @@ class TimeSeries(TimeSeriesVisualization):
                 df,
                 x=self.date_col,
                 y=self.value_col,
-                title=f"{self.value_col} Over Time",
+                title=f"{get_column_display_label(self.value_col)} Over Time",
                 labels={
-                    self.date_col: self.date_col.replace('_', ' '),
-                    self.value_col: self.value_col.replace('_', ' ')
+                    self.date_col: get_column_display_label(self.date_col),
+                    self.value_col: get_column_display_label(self.value_col)
                 }
             )
             
@@ -579,10 +580,10 @@ class TimeSeries(TimeSeriesVisualization):
                 )
         
         # Apply standard layout
-        fig = self.apply_standard_layout(fig, f"{self.value_col} Over Time", "time_series")
+        fig = self.apply_standard_layout(fig, f"{get_column_display_label(self.value_col)} Over Time", "time_series")
         fig.update_layout(
-            xaxis_title=self.date_col.replace('_', ' '),
-            yaxis_title=self.value_col.replace('_', ' ')
+            xaxis_title=get_column_display_label(self.date_col),
+            yaxis_title=get_column_display_label(self.value_col)
         )
         
         return fig
@@ -695,19 +696,19 @@ class BoxPlotVisualization(StatisticalVisualization):
             x=category_col_display,
             y=self.numeric_col,
             color=category_col_display,
-            title=f"Distribution of {self.numeric_col} by {self.category_col}",
+            title=f"Distribution of {get_column_display_label(self.numeric_col)} by {get_column_display_label(self.category_col)}",
             labels={
-                self.numeric_col: self.numeric_col.replace('_', ' '),
-                category_col_display: self.category_col.replace('_', ' ')
+                self.numeric_col: get_column_display_label(self.numeric_col),
+                category_col_display: get_column_display_label(self.category_col)
             },
             points="outliers"  # Only show outlier points
         )
         
         # Apply standard layout
-        fig = self.apply_standard_layout(fig, f"Distribution of {self.numeric_col} by {self.category_col}", "statistics")
+        fig = self.apply_standard_layout(fig, f"Distribution of {get_column_display_label(self.numeric_col)} by {get_column_display_label(self.category_col)}", "statistics")
         fig.update_layout(
-            xaxis_title=self.category_col.replace('_', ' '),
-            yaxis_title=self.numeric_col.replace('_', ' '),
+            xaxis_title=get_column_display_label(self.category_col),
+            yaxis_title=get_column_display_label(self.numeric_col),
             showlegend=False,  # Hide legend as it's redundant with x-axis
             xaxis={'categoryorder': 'total descending'}  # Order categories by total value
         )

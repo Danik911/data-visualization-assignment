@@ -226,6 +226,26 @@ BUILDING_TYPE_LABELS = {
     "TwoFmCon": "Two-Family Conversion"
 }
 
+# Define column display names for better readability
+COLUMN_DISPLAY_LABELS = {
+    "Lot_Frontage": "Lot Frontage (ft)",
+    "Lot_Area": "Lot Area (sq ft)",
+    "Bldg_Type": "Building Type",
+    "House_Style": "House Style",
+    "Overall_Cond": "Overall Condition",
+    "Year_Built": "Year Built",
+    "Exter_Cond": "Exterior Condition",
+    "Total_Bsmt_SF": "Total Basement Area (sq ft)",
+    "First_Flr_SF": "First Floor Area (sq ft)",
+    "Second_Flr_SF": "Second Floor Area (sq ft)",
+    "Full_Bath": "Full Bathrooms",
+    "Half_Bath": "Half Bathrooms",
+    "Bedroom_AbvGr": "Bedrooms (Above Ground)",
+    "Kitchen_AbvGr": "Kitchens (Above Ground)",
+    "Fireplaces": "Fireplaces",
+    "Sale_Price": "Sale Price ($)"
+}
+
 # Define available filter components with their types
 FILTER_COMPONENTS = {
     "Sale_Price": {
@@ -320,3 +340,15 @@ def get_building_type_label(building_type: str) -> str:
         User-friendly building type label if available, otherwise the original code
     """
     return BUILDING_TYPE_LABELS.get(building_type, building_type)
+
+def get_column_display_label(column_name: str) -> str:
+    """
+    Get the user-friendly display label for a column name.
+    
+    Args:
+        column_name: The original column name from the dataset
+        
+    Returns:
+        User-friendly column display label if available, otherwise the original name
+    """
+    return COLUMN_DISPLAY_LABELS.get(column_name, column_name)

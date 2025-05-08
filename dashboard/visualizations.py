@@ -7,7 +7,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from typing import Dict, List, Any, Optional, Tuple
-from dashboard.config import get_colorscale, get_chart_defaults, get_color_palette
+from dashboard.config import get_colorscale, get_chart_defaults, get_color_palette, get_column_display_label
 
 
 # ---- Helper functions ----
@@ -529,17 +529,17 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
                 x=compare_col_display,
                 y=metric,
                 color=compare_col_display,
-                title=f"{metric} by {compare_col}",
+                title=f"{get_column_display_label(metric)} by {get_column_display_label(compare_col)}",
                 labels={
-                    metric: metric.replace('_', ' '),
-                    compare_col_display: compare_col.replace('_', ' ')
+                    metric: get_column_display_label(metric),
+                    compare_col_display: get_column_display_label(compare_col)
                 },
                 points="outliers"
             )
             
             fig.update_layout(
-                xaxis_title=compare_col.replace('_', ' '),
-                yaxis_title=metric.replace('_', ' '),
+                xaxis_title=get_column_display_label(compare_col),
+                yaxis_title=get_column_display_label(metric),
                 showlegend=False
             )
             
@@ -571,11 +571,11 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
                 y=metric,
                 color=compare_col_display if compare_col == 'Bldg_Type' else compare_col,
                 text_auto=True,
-                title=f"Average {metric} by {compare_col}",
+                title=f"Average {get_column_display_label(metric)} by {get_column_display_label(compare_col)}",
                 labels={
-                    metric: f"Avg. {metric.replace('_', ' ')}",
-                    compare_col_display: compare_col.replace('_', ' '),
-                    compare_col: compare_col.replace('_', ' ')
+                    metric: f"Avg. {get_column_display_label(metric)}",
+                    compare_col_display: get_column_display_label(compare_col),
+                    compare_col: get_column_display_label(compare_col)
                 },
                 hover_data={
                     'count': True,
@@ -586,7 +586,7 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
             
             fig.update_layout(
                 xaxis_title="",
-                yaxis_title=f"Average {metric.replace('_', ' ')}",
+                yaxis_title=f"Average {get_column_display_label(metric)}",
                 showlegend=False,
                 xaxis={'categoryorder': 'total descending'}
             )
@@ -601,19 +601,19 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
             y="Sale_Price",
             color=compare_col_display if compare_col == 'Bldg_Type' else compare_col,
             opacity=0.7,
-            title=f"Price vs Area by {compare_col}",
+            title=f"{get_column_display_label('Sale_Price')} vs {get_column_display_label('Lot_Area')} by {get_column_display_label(compare_col)}",
             labels={
-                "Lot_Area": "Lot Area (sq.ft)",
-                "Sale_Price": "Sale Price ($)",
-                compare_col_display: compare_col.replace('_', ' '),
-                compare_col: compare_col.replace('_', ' ')
+                "Lot_Area": get_column_display_label("Lot_Area"),
+                "Sale_Price": get_column_display_label("Sale_Price"),
+                compare_col_display: get_column_display_label(compare_col),
+                compare_col: get_column_display_label(compare_col)
             },
             trendline="ols",
             trendline_scope="overall"
         )
         
         fig.update_layout(
-            legend_title=compare_col.replace('_', ' ')
+            legend_title=get_column_display_label(compare_col)
         )
         
         results["price_vs_area"] = fig
@@ -656,7 +656,7 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
                     
                     fig.add_trace(go.Scatterpolar(
                         r=group_data[numeric_metrics].values.flatten().tolist(),
-                        theta=numeric_metrics,
+                        theta=[get_column_display_label(metric) for metric in numeric_metrics],
                         fill='toself',
                         name=display_name
                     ))
@@ -668,7 +668,7 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
                         range=[0, 1]
                     )
                 ),
-                title=f"Property Metrics Comparison by {compare_col} (Normalized)",
+                title=f"Property Metrics Comparison by {get_column_display_label(compare_col)} (Normalized)",
                 showlegend=True
             )
             
@@ -724,12 +724,12 @@ def generate_year_trend_analysis(df: pd.DataFrame) -> Dict[str, go.Figure]:
             x='Year_Built',
             y=['Sale_Price_mean', 'Sale_Price_median'],
             labels={
-                'Year_Built': 'Year Built',
-                'Sale_Price_mean': 'Mean Price',
-                'Sale_Price_median': 'Median Price',
-                'value': 'Sale Price ($)'
+                'Year_Built': get_column_display_label('Year_Built'),
+                'Sale_Price_mean': f"Mean {get_column_display_label('Sale_Price')}",
+                'Sale_Price_median': f"Median {get_column_display_label('Sale_Price')}",
+                'value': f"{get_column_display_label('Sale_Price')} ($)"
             },
-            title='Price Trends by Year Built',
+            title=f"{get_column_display_label('Sale_Price')} Trends by {get_column_display_label('Year_Built')}",
             markers=True
         )
         
@@ -781,18 +781,18 @@ def generate_year_trend_analysis(df: pd.DataFrame) -> Dict[str, go.Figure]:
                 decade_type_pivot,
                 text_auto='.0f',
                 labels=dict(
-                    x='Building Type',
-                    y='Decade',
-                    color='Avg. Price ($)'
+                    x=get_column_display_label('Bldg_Type'),
+                    y=get_column_display_label('Decade'),
+                    color=f"Avg. {get_column_display_label('Sale_Price')} ($)"
                 ),
-                title='Average Price by Decade and Building Type',
+                title=f"Average {get_column_display_label('Sale_Price')} by {get_column_display_label('Decade')} and {get_column_display_label('Bldg_Type')}",
                 color_continuous_scale='Viridis',
                 aspect='auto'
             )
             
             fig.update_layout(
-                xaxis_title='Building Type',
-                yaxis_title='Decade'
+                xaxis_title=get_column_display_label('Bldg_Type'),
+                yaxis_title=get_column_display_label('Decade')
             )
             
             results['decade_bldg_heatmap'] = fig
@@ -809,10 +809,10 @@ def generate_year_trend_analysis(df: pd.DataFrame) -> Dict[str, go.Figure]:
             x='Property_Age',
             y='Sale_Price',
             opacity=0.7,
-            title='Property Price vs. Age',
+            title=f"{get_column_display_label('Sale_Price')} vs. {get_column_display_label('Property_Age')}",
             labels={
-                'Property_Age': 'Property Age (years)',
-                'Sale_Price': 'Sale Price ($)'
+                'Property_Age': f"{get_column_display_label('Property_Age')} (years)",
+                'Sale_Price': f"{get_column_display_label('Sale_Price')} ($)"
             },
             trendline='ols',
             trendline_color_override='red'

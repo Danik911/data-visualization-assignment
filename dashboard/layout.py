@@ -429,20 +429,7 @@ def create_tab_content():
                             ]),
                             className="mb-4"
                         ),
-                        width=6
-                    ),
-                    # Parallel Coordinates Plot
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([
-                                html.H4("Multi-Dimensional Analysis"),
-                                dcc.Loading(
-                                    dcc.Graph(id="parallel-coordinates")
-                                )
-                            ]),
-                            className="mb-4"
-                        ),
-                        width=6
+                        width=12  # Changed from 6 to 12 for full width
                     )
                 ]
             )

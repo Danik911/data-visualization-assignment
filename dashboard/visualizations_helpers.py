@@ -622,7 +622,7 @@ class CorrelationHeatmap(RelationshipVisualization):
         fig = px.imshow(
             corr_matrix,
             text_auto=True,
-            aspect="auto",
+            aspect="auto",  # This ensures the cells are auto-sized
             color_continuous_scale='RdBu_r',
             title="Correlation Heatmap",
             labels=dict(color="Correlation")
@@ -630,9 +630,12 @@ class CorrelationHeatmap(RelationshipVisualization):
         
         # Apply standard layout
         fig = self.apply_standard_layout(fig, "Correlation Heatmap", "relationship")
+        
+        # Make the figure responsive to container size
         fig.update_layout(
-            height=800,  # Larger size to ensure readability
-            width=800
+            height=800,  # Maintain height for readability
+            autosize=True,  # Enable autosize to fill container
+            margin={"r": 20, "t": 50, "l": 20, "b": 20}  # Adjust margins for better fit
         )
         
         return fig

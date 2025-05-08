@@ -296,14 +296,18 @@ class PriceMap(GeographicVisualization):
 class GooglePriceMap(GeographicVisualization):
     """Google Maps housing price map visualization"""
     
-    def __init__(self, df: pd.DataFrame):
+    def __init__(self, df: pd.DataFrame, max_points: int = 200, use_clustering: bool = True):
         """
         Initialize Google Maps price map visualization
         
         Args:
             df: DataFrame with housing data
+            max_points: Maximum number of points to display on map
+            use_clustering: Whether to use clustering for better visualization
         """
         super().__init__(df)
+        self.max_points = max_points
+        self.use_clustering = use_clustering
         
     def generate(self) -> Dict[str, Any]:
         """
@@ -324,6 +328,55 @@ class GooglePriceMap(GeographicVisualization):
         if len(map_data) == 0:
             return {"error": "No valid data points found after cleaning", "data": [], 
                    "center": {"lat": 0, "lng": 0}, "zoom": 10}
+        
+        # Apply sampling for large datasets to prevent browser freezing
+        original_count = len(map_data)
+        need_sampling = original_count > self.max_points
+        
+        if need_sampling:
+            # Use either random sampling or a smart sampling strategy
+            if self.use_clustering and original_count > self.max_points * 2:
+                # Use K-means clustering for smart sampling when dataset is very large
+                try:
+                    from sklearn.cluster import KMeans
+                    
+                    # Select only the geospatial columns for clustering
+                    geo_data = map_data[['Latitude', 'Longitude']].copy()
+                    
+                    # Determine number of clusters based on data size
+                    n_clusters = min(self.max_points, len(geo_data) // 3)
+                    
+                    # Fit K-means to find cluster centers
+                    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+                    map_data['Cluster'] = kmeans.fit_predict(geo_data)
+                    
+                    # Sample from each cluster proportionally
+                    sampled_data = []
+                    for cluster_id in range(n_clusters):
+                        cluster_points = map_data[map_data['Cluster'] == cluster_id]
+                        sample_size = max(1, int((len(cluster_points) / original_count) * self.max_points))
+                        cluster_sample = cluster_points.sample(n=min(sample_size, len(cluster_points)))
+                        sampled_data.append(cluster_sample)
+                    
+                    # Combine sampled points from each cluster
+                    map_data = pd.concat(sampled_data)
+                    
+                    # Add clustering info to the result
+                    clustering_applied = True
+                    
+                except (ImportError, Exception) as e:
+                    # Fall back to random sampling if clustering fails
+                    print(f"Clustering failed, falling back to random sampling: {str(e)}")
+                    map_data = map_data.sample(n=self.max_points, random_state=42)
+                    clustering_applied = False
+            else:
+                # Use simple random sampling
+                map_data = map_data.sample(n=self.max_points, random_state=42)
+                clustering_applied = False
+            
+            print(f"Applied sampling to Google Maps data: {original_count} -> {len(map_data)} points")
+        else:
+            clustering_applied = False
         
         # Convert data types to ensure proper JSON serialization
         map_data['Latitude'] = map_data['Latitude'].astype(float)
@@ -358,10 +411,15 @@ class GooglePriceMap(GeographicVisualization):
             "price_min": float(map_data['Sale_Price'].min()),
             "price_max": float(map_data['Sale_Price'].max()),
             "price_avg": float(map_data['Sale_Price'].mean()),
-            "count": len(map_data)
+            "count": len(map_data),
+            "total_count": original_count,
+            "sampled": need_sampling,
+            "clustering_applied": clustering_applied,
+            "use_marker_clustering": self.use_clustering
         }
         
-        print(f"Prepared Google Maps data with {len(map_data)} properties")
+        print(f"Prepared Google Maps data with {len(map_data)} properties" + 
+              f" (sampled from {original_count})" if need_sampling else "")
         
         return {
             "data": map_data.to_dict('records'),
@@ -370,7 +428,8 @@ class GooglePriceMap(GeographicVisualization):
                 "lng": lng_mean
             },
             "zoom": zoom_level,
-            "stats": stats
+            "stats": stats,
+            "use_clustering": self.use_clustering
         }
 
 

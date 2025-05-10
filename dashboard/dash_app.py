@@ -10,6 +10,10 @@ from dash import html
 import dash_bootstrap_components as dbc
 import logging
 import logging.config
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Import dashboard components
 from dashboard.data_provider import DashboardDataProvider
@@ -64,8 +68,11 @@ def create_dash_app(data_path=None, debug=None):
         assets_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
     )
     
-    # Get Google Maps API key from environment or use a working default key
-    google_maps_api_key = os.environ.get("GOOGLE_MAPS_API_KEY", "AIzaSyBNfbZYsjFTQEoe8LgkBDdMZrLYpCGGn-k")
+    # Get Google Maps API key from environment
+    google_maps_api_key = os.environ.get("GOOGLE_MAPS_API_KEY")
+    if not google_maps_api_key:
+        logger.error("GOOGLE_MAPS_API_KEY environment variable is not set")
+        raise ValueError("GOOGLE_MAPS_API_KEY environment variable must be set")
     
     # Register Google Maps callbacks
     register_google_map_callbacks(app, google_maps_api_key)

@@ -7,6 +7,8 @@ from dash import Input, Output, State, callback, dash_table, html, ctx, dcc
 import pandas as pd
 import json
 from typing import Dict, List, Any, Optional
+import logging
+import time
 
 # Import visualization functions for generating plots
 from dashboard.visualizations import (
@@ -24,6 +26,7 @@ from dashboard.visualizations import (
     generate_google_price_map       # New function for Google Maps integration
 )
 
+logger = logging.getLogger(__name__)
 
 def register_callbacks(app, data_provider):
     """
@@ -91,31 +94,73 @@ def register_callbacks(app, data_provider):
         Input("building-type-filter", "value"),
         Input("price-range-filter", "value"),
         Input("area-range-filter", "value"),
-        Input("reset-filters-button", "n_clicks")
+        Input("reset-filters-button", "n_clicks"),
+        prevent_initial_call=True  # Added to prevent initial duplicate callbacks
     )
     def filter_data(building_types, price_range, area_range, reset_clicks):
         # Create filters dictionary
         filters = {}
         
+        # Debug filter values received from UI
+        print("==== FILTER DEBUG ====")
+        print(f"Building types from dropdown: {building_types}")
+        if building_types:
+            print(f"Building type value type: {type(building_types)}")
+            if isinstance(building_types, list):
+                for bt in building_types:
+                    print(f"  - '{bt}' (type: {type(bt)})")
+            
         # Only add filters if they have values
         if building_types:
             filters["Bldg_Type"] = building_types
+            print(f"Applied Building Type filter: {building_types}")
             
         if price_range:
             filters["Sale_Price"] = {"range": price_range}
+            print(f"Applied Price Range filter: {price_range}")
             
         if area_range:
             filters["Lot_Area"] = {"range": area_range}
+            print(f"Applied Lot Area filter: {area_range}")
         
         # Reset filters on button click (context triggered)
         if ctx.triggered and "reset-filters-button" in ctx.triggered[0]["prop_id"]:
             filters = {}
+            print("Reset all filters")
         
         # Get filtered data from provider
         filtered_df = data_provider.get_filtered_data(filters)
         
+        # Debug dataset after filtering
+        if building_types:
+            print("=== FILTERED DATASET DEBUG ===")
+            print(f"Original Bldg_Type values in data:")
+            bldg_counts = data_provider.get_data()['Bldg_Type'].value_counts().to_dict()
+            for bt, count in bldg_counts.items():
+                print(f"  - '{bt}': {count} records")
+            
+            print(f"Filtered dataset Bldg_Type values:")
+            if 'Bldg_Type' in filtered_df.columns:
+                filtered_counts = filtered_df['Bldg_Type'].value_counts().to_dict()
+                for bt, count in filtered_counts.items():
+                    print(f"  - '{bt}': {count} records")
+            
+            # Check if specific building type exists
+            if isinstance(building_types, list) and len(building_types) > 0:
+                for bt in building_types:
+                    matching = filtered_df[filtered_df['Bldg_Type'] == bt]
+                    print(f"Records matching exactly '{bt}': {len(matching)}")
+        
+        # Log filter results
+        active_filter_count = len(filters)
+        print(f"Applied {active_filter_count} filters, resulting in {len(filtered_df)} records")
+        
         # Convert to JSON for store
-        return filtered_df.to_json(date_format='iso', orient='split')
+        filtered_json = filtered_df.to_json(date_format='iso', orient='split')
+        print(f"Generated filtered data JSON (length: {len(filtered_json)})")
+        
+        # Return only the filtered data 
+        return filtered_json
     
     # Update summary cards based on filtered data
     @callback(
@@ -123,8 +168,36 @@ def register_callbacks(app, data_provider):
         Input("filtered-data-store", "data")
     )
     def update_summary_cards(filtered_data_json):
+        # Check if filtered_data_json is None
+        if filtered_data_json is None:
+            # Return empty summary cards when there's no data
+            from dashboard.layout import create_summary_cards
+            empty_summary = {
+                "total_properties": {"value": 0, "description": "Total Properties"},
+                "avg_price": {"value": "$0", "description": "Average Price"},
+                "median_price": {"value": "$0", "description": "Median Price"},
+                "price_range": {"value": "$0 - $0", "description": "Price Range"},
+                "avg_area": {"value": "0 sq.ft", "description": "Average Lot Area"},
+                "common_type": {"value": "None (0.0%)", "description": "Most Common Building Type"}
+            }
+            return create_summary_cards(empty_summary)
+        
+        # Continue with normal processing if we have data
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(filtered_data_json, orient='split')
+
+        # ADD THIS CHECK FOR EMPTY DATAFRAME
+        if filtered_df.empty:
+            from dashboard.layout import create_summary_cards
+            empty_summary = {
+                "total_properties": {"value": 0, "description": "Total Properties"},
+                "avg_price": {"value": "N/A", "description": "Average Price"},
+                "median_price": {"value": "N/A", "description": "Median Price"},
+                "price_range": {"value": "N/A", "description": "Price Range"},
+                "avg_area": {"value": "N/A", "description": "Average Lot Area"},
+                "common_type": {"value": "N/A", "description": "Most Common Building Type"}
+            }
+            return create_summary_cards(empty_summary)
         
         # Generate summary statistics
         summary_data = generate_summary_cards(filtered_df)
@@ -141,17 +214,52 @@ def register_callbacks(app, data_provider):
         Output("building-type-distribution", "figure"),
         Input("filtered-data-store", "data"),
         Input("dashboard-tabs", "active_tab"),
-        prevent_initial_call=True
+        prevent_initial_call='initial_duplicate'
     )
     def update_overview_visualizations(filtered_data_json, active_tab):
+        # ADD IMPORT TIME HERE
+        import time
+
+        # Check if this is a triggered update from another callback
+        if ctx.triggered and "filtered-data-store" in ctx.triggered[0]["prop_id"]:
+            print("Map update triggered by filter change")
+            
+        # Default empty figure for when tab is not active or data is missing
+        empty_fig = {"data": [], "layout": {}}
+        no_data_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
+
         # Only update when Overview tab is active
         if active_tab != "tab-overview":
-            # Return empty figures when tab is not active
-            empty_fig = {"data": [], "layout": {}}
-            return None, empty_fig, empty_fig, empty_fig
+            # WHEN TAB IS NOT ACTIVE, send an empty map structure but indicate no tab activation
+            empty_map_data_inactive_tab = {
+                'data': [], 'center': {'lat': 0, 'lng': 0}, 'zoom': 2, 
+                'filter_change': False, # Or True, depending on desired behavior for data persistency
+                'timestamp': time.time(),
+                'tab_activated_timestamp': None # Explicitly None
+            }
+            return json.dumps(empty_map_data_inactive_tab), empty_fig, empty_fig, empty_fig
+            
+        # Check if filtered_data_json is None or represents an empty DataFrame
+        if filtered_data_json is None:
+            return None, no_data_fig, no_data_fig, no_data_fig
         
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(filtered_data_json, orient='split')
+        print(f"Processing map data with {len(filtered_df)} records")
+
+        # Handle empty DataFrame for chart generation
+        if filtered_df.empty:
+            # For the map data, we still need to send a valid structure even if empty
+            empty_map_data = {
+                'data': [],
+                'center': {'lat': 0, 'lng': 0}, # Default center
+                'zoom': 2, # Default zoom
+                'filter_change': True,
+                'timestamp': time.time(),
+                'tab_activated_timestamp': time.time(),
+                'error': 'No data for selected filters.'
+            }
+            return json.dumps(empty_map_data), no_data_fig, no_data_fig, no_data_fig
         
         # Generate visualizations
         try:
@@ -172,15 +280,34 @@ def register_callbacks(app, data_provider):
                     raise ValueError("No valid data points after cleaning null values")
             
             # Generate Google Maps data
+            print("Generating map data...")
             price_map_data = generate_google_price_map(filtered_df)
+            
+            # Add filter change flag to ensure complete map regeneration
+            price_map_data["filter_change"] = True
+            price_map_data["tab_activated_timestamp"] = time.time()
             
             # Ensure price_map_data has the required structure
             if not isinstance(price_map_data, dict) or 'data' not in price_map_data or 'center' not in price_map_data:
                 raise ValueError(f"Invalid map data structure: {price_map_data.keys() if isinstance(price_map_data, dict) else 'not a dict'}")
-                
+
+            # ==> ADD DETAILED LOGGING HERE <==
+            logger.debug(f"MAP_DEBUG: Pre-serialization: price_map_data type: {type(price_map_data)}")
+            if isinstance(price_map_data.get('data'), list):
+                logger.debug(f"MAP_DEBUG: Pre-serialization: price_map_data['data'] length: {len(price_map_data['data'])}")
+                logger.debug(f"MAP_DEBUG: Pre-serialization: price_map_data['data'] sample (first 2): {price_map_data['data'][:2]}")
+            else:
+                logger.debug(f"MAP_DEBUG: Pre-serialization: price_map_data['data'] is not a list or not found. Value: {price_map_data.get('data')}")
+            logger.debug(f"MAP_DEBUG: Pre-serialization: price_map_data center: {price_map_data.get('center')}")
+            logger.debug(f"MAP_DEBUG: Pre-serialization: price_map_data full (first 500 chars of string): {str(price_map_data)[:500]}")
+            
             # Convert to JSON for passing to the frontend
             price_map_json = json.dumps(price_map_data)
-            print(f"Generated map data with {len(price_map_data['data'])} properties")
+            # ==> ADD LOGGING FOR SERIALIZED JSON <==
+            logger.debug(f"MAP_DEBUG: Serialized JSON length: {len(price_map_json)}")
+            logger.debug(f"MAP_DEBUG: Serialized JSON (first 300 chars): {price_map_json[:300]}")
+            
+            print(f"Generated map data with {len(price_map_data['data'])} properties and timestamp {price_map_data.get('timestamp', 'none')}")
             print(f"Map center: {price_map_data['center']}")
             
         except Exception as e:
@@ -189,11 +316,16 @@ def register_callbacks(app, data_provider):
             print(traceback.format_exc())
             
             # Provide minimal data structure to avoid JavaScript errors
+            # Include a timestamp to force map refresh even with error data
+            import time
             fallback_data = {
                 "data": [],
                 "center": {"lat": 41.6, "lng": -93.6},  # Default center (Des Moines, IA)
                 "zoom": 10,
-                "error": str(e)
+                "error": str(e),
+                "timestamp": int(time.time() * 1000),  # Current time in milliseconds
+                "filter_change": True,  # Force complete map regeneration
+                'tab_activated_timestamp': time.time()
             }
             price_map_json = json.dumps(fallback_data)
         
@@ -220,6 +352,12 @@ def register_callbacks(app, data_provider):
     def update_map_fallback(google_map_data, filtered_data_json):
         # Create a static fallback map using Plotly if needed
         if not google_map_data:
+            # Check if filtered_data_json is None
+            if filtered_data_json is None:
+                # Return empty div with message if no data is available
+                return html.Div("No data available for map visualization", 
+                               style={"textAlign": "center", "marginTop": "50px", "color": "#888"})
+                
             # Convert JSON to DataFrame
             filtered_df = pd.read_json(filtered_data_json, orient='split')
             
@@ -249,6 +387,10 @@ def register_callbacks(app, data_provider):
         if active_tab != "tab-property" or not x_col or not y_col:
             return {"data": [], "layout": {"title": "Select x and y variables"}}
         
+        # Check if filtered_data_json is None
+        if filtered_data_json is None:
+            return {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
+        
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(filtered_data_json, orient='split')
         
@@ -267,6 +409,10 @@ def register_callbacks(app, data_provider):
         if active_tab != "tab-property" or not numeric_col or not category_col:
             return {"data": [], "layout": {"title": "Select numeric and category variables"}}
         
+        # Check if filtered_data_json is None
+        if filtered_data_json is None:
+            return {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
+        
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(filtered_data_json, orient='split')
         
@@ -283,6 +429,10 @@ def register_callbacks(app, data_provider):
         if active_tab != "tab-property":
             return {"data": [], "layout": {}}
         
+        # Check if filtered_data_json is None
+        if filtered_data_json is None:
+            return {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
+        
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(filtered_data_json, orient='split')
         
@@ -298,6 +448,10 @@ def register_callbacks(app, data_provider):
         # Only update when Property Analysis tab is active
         if active_tab != "tab-property":
             return {"data": [], "layout": {}}
+        
+        # Check if filtered_data_json is None
+        if filtered_data_json is None:
+            return {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
         
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(filtered_data_json, orient='split')
@@ -329,6 +483,11 @@ def register_callbacks(app, data_provider):
         # Only update when Market Trends tab is active
         if active_tab != "tab-market":
             empty_fig = {"data": [], "layout": {}}
+            return empty_fig, empty_fig
+        
+        # Check if filtered_data_json is None
+        if filtered_data_json is None:
+            empty_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
             return empty_fig, empty_fig
         
         # Convert JSON to DataFrame
@@ -382,6 +541,11 @@ def register_callbacks(app, data_provider):
             empty_fig = {"data": [], "layout": {}}
             return empty_fig, empty_fig, empty_fig
         
+        # Check if filtered_data_json is None
+        if filtered_data_json is None:
+            empty_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
+            return empty_fig, empty_fig, empty_fig
+        
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(filtered_data_json, orient='split')
         
@@ -413,6 +577,12 @@ def register_callbacks(app, data_provider):
             empty_fig = {"data": [], "layout": {}}
             return empty_fig, empty_fig, empty_fig, empty_fig
         
+        # Check if filtered_data_json is None
+        if filtered_data_json is None:
+            # Return empty figures with a message when no data is available
+            empty_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
+            return empty_fig, empty_fig, empty_fig, empty_fig
+        
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(filtered_data_json, orient='split')
         
@@ -442,6 +612,11 @@ def register_callbacks(app, data_provider):
         # Only update when Data Table tab is active
         if active_tab != "tab-data":
             return []
+        
+        # Check if filtered_data_json is None
+        if filtered_data_json is None:
+            return [html.Div("No property data available for the current filter criteria", 
+                           style={"textAlign": "center", "marginTop": "50px", "color": "#888"})]
         
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(filtered_data_json, orient='split')

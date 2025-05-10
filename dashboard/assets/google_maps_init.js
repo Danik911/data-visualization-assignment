@@ -86,6 +86,7 @@ window.addEventListener('DOMContentLoaded', function() {
       }
       
       const mapData = typeof data === 'string' ? JSON.parse(data) : data;
+      console.log("Map Data received:", mapData);
       
       // Check for errors in the data
       if (mapData.error) {
@@ -100,12 +101,52 @@ window.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
-      // Initialize map if it doesn't exist yet or if it needs to be recreated
-      if (!window.googleMap) {
-        console.log(`Creating new Google Map centered at: ${mapData.center.lat}, ${mapData.center.lng}`);
+      // Ensure map center has valid coordinates
+      const center = mapData.center || { lat: 41.6, lng: -93.6 }; // Default to Des Moines if center is invalid
+      // Validate center coordinates
+      if (typeof center.lat !== 'number' || typeof center.lng !== 'number' || 
+          isNaN(center.lat) || isNaN(center.lng)) {
+        console.error('Invalid map center:', center);
+        center.lat = 41.6;
+        center.lng = -93.6; // Default to Des Moines
+      }
+      
+      // MODIFIED: Always recreate the map for a fresh state
+      // Clear existing map object if it exists
+      if (window.googleMap) {
+        // Clear existing markers
+        if (window.mapMarkers && window.mapMarkers.length > 0) {
+          for (let marker of window.mapMarkers) {
+            marker.setMap(null);
+          }
+        }
+        
+        // Clear existing marker clusterer
+        if (window.markerClustererInstance) {
+          window.markerClustererInstance = null;
+        }
+        
+        // Log that we're completely recreating the map
+        console.log(`Completely reinitializing map for new filtered data (timestamp: ${mapData.timestamp || 'none'})`);
+        
+        // Create a new map instance (this forces a complete refresh)
+        window.googleMap = new google.maps.Map(mapContainer, {
+          center: center,
+          zoom: mapData.zoom || 12,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          mapTypeControl: true,
+          streetViewControl: true,
+          fullscreenControl: true
+        });
+        
+        // Create new info window
+        window.infoWindow = new google.maps.InfoWindow();
+      } else {
+        // Initialize map for the first time
+        console.log(`Creating new Google Map centered at: ${center.lat}, ${center.lng}`);
         
         window.googleMap = new google.maps.Map(mapContainer, {
-          center: mapData.center,
+          center: center,
           zoom: mapData.zoom || 12,
           mapTypeId: google.maps.MapTypeId.ROADMAP,
           mapTypeControl: true,
@@ -115,23 +156,6 @@ window.addEventListener('DOMContentLoaded', function() {
         
         // Create info window for markers
         window.infoWindow = new google.maps.InfoWindow();
-      } else {
-        // Update center if map already exists
-        window.googleMap.setCenter(mapData.center);
-        console.log('Using existing map object');
-      }
-      
-      // Clear existing markers if any
-      if (window.mapMarkers && window.mapMarkers.length > 0) {
-        for (let marker of window.mapMarkers) {
-          marker.setMap(null);
-        }
-      }
-      
-      // Clear existing marker clusterer if it exists
-      if (window.markerClustererInstance) {
-        // No need to call clearMarkers, just set it to null to be garbage collected
-        window.markerClustererInstance = null;
       }
       
       // Store new markers
@@ -148,26 +172,64 @@ window.addEventListener('DOMContentLoaded', function() {
           console.log(`Using provided price range: $${minPrice} - $${maxPrice}`);
         } else {
           // Calculate price range from data points
-          const prices = mapData.data.map(item => item.Sale_Price);
+          // Ensure we only use valid price values
+          const prices = mapData.data
+            .filter(item => typeof item.Sale_Price === 'number' && !isNaN(item.Sale_Price))
+            .map(item => item.Sale_Price);
+          
+          if (prices.length === 0) {
+            console.error('No valid price data found');
+            return;
+          }
+          
           minPrice = Math.min(...prices);
           maxPrice = Math.max(...prices);
           console.log(`Calculated price range: $${minPrice} - $${maxPrice}`);
         }
         
-        const priceRange = maxPrice - minPrice;
+        const priceRange = maxPrice - minPrice || 1; // Prevent division by zero
         
         console.log(`Adding ${mapData.data.length} markers to map`);
         
+        // Debug the first few data points
+        if (mapData.data.length > 0) {
+          console.log("First marker data:", mapData.data[0]);
+        }
+        
+        // Validate data points before adding markers
+        let validMarkers = 0;
+        let invalidMarkers = 0;
+        
         // Add markers for each property
         for (let property of mapData.data) {
-          // Skip invalid data points
-          if (typeof property.Latitude !== 'number' || typeof property.Longitude !== 'number' || 
-              typeof property.Sale_Price !== 'number') {
-            console.warn('Skipping invalid property data:', property);
+          // Skip invalid data points - thorough validation
+          if (property === null || typeof property !== 'object') {
+            console.warn('Skipping null or non-object property');
+            invalidMarkers++;
             continue;
           }
           
-          const normalizedPrice = (property.Sale_Price - minPrice) / priceRange;
+          // Validate latitude, longitude and price
+          const lat = parseFloat(property.Latitude);
+          const lng = parseFloat(property.Longitude);
+          const price = parseFloat(property.Sale_Price);
+          
+          if (isNaN(lat) || isNaN(lng) || isNaN(price) || 
+              !isFinite(lat) || !isFinite(lng) || !isFinite(price)) {
+            console.warn('Skipping invalid property data:', 
+              {lat: property.Latitude, lng: property.Longitude, price: property.Sale_Price});
+            invalidMarkers++;
+            continue;
+          }
+          
+          // Validate coordinate range
+          if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+            console.warn('Skipping out-of-range coordinates:', {lat, lng});
+            invalidMarkers++;
+            continue;
+          }
+          
+          const normalizedPrice = (price - minPrice) / priceRange;
           
           // Color gradient from green (low) to red (high)
           const hue = (1 - normalizedPrice) * 120;
@@ -176,12 +238,12 @@ window.addEventListener('DOMContentLoaded', function() {
           // Create marker for this property
           const marker = new google.maps.Marker({
             position: {
-              lat: property.Latitude,
-              lng: property.Longitude
+              lat: lat,
+              lng: lng
             },
             // Don't set the map yet if we're using clustering
             map: mapData.use_clustering ? null : window.googleMap,
-            title: `$${property.Sale_Price.toLocaleString()}`,
+            title: `$${price.toLocaleString()}`,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
               fillColor: color,
@@ -195,7 +257,7 @@ window.addEventListener('DOMContentLoaded', function() {
           // Create rich info window content
           let contentString = `
             <div style="padding: 8px; max-width: 300px;">
-              <h5 style="margin-top: 0; color: #2c3e50;">$${property.Sale_Price.toLocaleString()}</h5>
+              <h5 style="margin-top: 0; color: #2c3e50;">$${price.toLocaleString()}</h5>
           `;
           
           // Add additional property details if available
@@ -216,7 +278,7 @@ window.addEventListener('DOMContentLoaded', function() {
           }
           
           contentString += `
-              <p><b>Location:</b> ${property.Latitude.toFixed(6)}, ${property.Longitude.toFixed(6)}</p>
+              <p><b>Location:</b> ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
             </div>
           `;
           
@@ -228,9 +290,9 @@ window.addEventListener('DOMContentLoaded', function() {
             // Store click data in the hidden div
             const clickData = {
               id: property.id || 0,
-              lat: property.Latitude,
-              lng: property.Longitude,
-              price: property.Sale_Price
+              lat: lat,
+              lng: lng,
+              price: price
             };
             
             const clickDataElement = document.getElementById('google-price-map-click-data');
@@ -244,6 +306,17 @@ window.addEventListener('DOMContentLoaded', function() {
           });
           
           window.mapMarkers.push(marker);
+          validMarkers++;
+        }
+        
+        console.log(`Marker validation summary: ${validMarkers} valid, ${invalidMarkers} invalid`);
+        
+        if (validMarkers === 0) {
+          console.error('No valid markers could be created');
+          mapContainer.innerHTML += `<div class="alert alert-warning" style="position: absolute; top: 10px; left: 10px; z-index: 1000; width: 80%;">
+            No valid property coordinates found. Please check your data or try a different filter.
+          </div>`;
+          return;
         }
         
         // Apply marker clustering if enabled
@@ -384,30 +457,107 @@ window.addEventListener('DOMContentLoaded', function() {
         }
       } else {
         console.warn('No map data points available');
-        mapContainer.innerHTML += `<div class="alert alert-warning" style="position: absolute; top: 10px; left: 10px; z-index: 1000;">No property data available for the current filter criteria</div>`;
+        // Check if data is actually empty or just not properly formatted
+        console.log("mapData.data details:", { 
+          exists: !!mapData.data, 
+          isArray: Array.isArray(mapData.data), 
+          length: mapData.data ? mapData.data.length : 0 
+        });
+        
+        mapContainer.innerHTML += `<div class="alert alert-warning" style="position: absolute; top: 10px; left: 10px; z-index: 1000; width: 80%;">
+          No property data available for the current filter criteria. Try changing your filters.
+        </div>`;
       }
       
       console.log('Map initialized successfully');
+      if (window.googleMap) {
+        google.maps.event.trigger(window.googleMap, 'resize');
+        console.log('Manually triggered map resize event.');
+      }
     } catch (error) {
       console.error('Error initializing Google Maps:', error);
       mapContainer.innerHTML = `<div class="alert alert-danger">Error initializing map: ${error.message}</div>`;
     }
   }
   
-  // Observer to watch for data updates
-  const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      if (mutation.type === 'childList' && mutation.target.id === 'google-price-map-data') {
-        const data = mutation.target.textContent;
-        if (data && data !== window.googleMapData) {
-          console.log('Map data updated, reinitializing map');
-          window.googleMapData = data;
-          window.initGoogleMap(data);
+  // Callback function to execute when mutations are observed
+  function handleMapData(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+        let relevantMutationDetected = false;
+        let mutationDescription = "";
+
+        if (mutation.type === 'childList' && mutation.target.id === 'google-price-map-data') {
+            relevantMutationDetected = true;
+            mutationDescription = `childList mutation on #${mutation.target.id}`;
+        } else if (mutation.type === 'characterData' && mutation.target.parentElement && mutation.target.parentElement.id === 'google-price-map-data') {
+            relevantMutationDetected = true;
+            mutationDescription = `characterData mutation for #${mutation.target.parentElement.id}`;
         }
-      }
-    });
-  });
+
+        if (relevantMutationDetected) {
+            console.log(`MAP_JS_DEBUG: handleMapData triggered by ${mutationDescription}`);
+            const dataElement = document.getElementById('google-price-map-data');
+            
+            if (dataElement && dataElement.textContent && dataElement.textContent.trim() !== '') {
+                const jsonDataToParse = dataElement.textContent;
+                console.log(`Map data received, length: ${jsonDataToParse.length} chars. Content (first 100): ${jsonDataToParse.substring(0,100)}`);
+                try {
+                    const parsedData = JSON.parse(jsonDataToParse);
+                    console.log(`MAP_JS_DEBUG: Successfully parsed data. filter_change: ${parsedData.filter_change}, timestamp: ${parsedData.timestamp}, tab_activated: ${parsedData.tab_activated_timestamp}, data items: ${parsedData.data ? parsedData.data.length : 'N/A'}`);
+
+                    // Always update the global data store first
+                    window.googleMapData = parsedData; 
+
+                    let callInitMap = false;
+                    let reason = [];
+
+                    if (parsedData.filter_change) {
+                        console.log("Filter change detected! Scheduling map refresh with current data.");
+                        callInitMap = true;
+                        reason.push("filter_change");
+                    }
+
+                    if (parsedData.tab_activated_timestamp) {
+                        console.log("Tab activation detected! Scheduling map refresh with current data if not already from filter_change.");
+                        callInitMap = true; // Ensure map init if tab becomes active
+                        if (!reason.includes("filter_change")) reason.push("tab_activated");
+                    }
+
+                    if (callInitMap && parsedData && parsedData.data && parsedData.center) {
+                        if (checkGoogleMapsApi()) {
+                            // Adding a slightly longer delay to see if it helps with any race conditions during rapid updates.
+                            setTimeout(function() {
+                                console.log(`Executing initGoogleMap (delay: 150ms). Reason: ${reason.join(', ')}. Using latest parsedData.`);
+                                loadMarkerClusterer(function() { 
+                                    // IMPORTANT: Use the parsedData that triggered this specific call
+                                    window.initGoogleMap(parsedData); 
+                                });
+                            }, 150); 
+                        } else {
+                            console.warn("Google Maps API not ready, delaying map initialization.");
+                        }
+                    } else if (parsedData && parsedData.data === "FILTER_TRIGGER_DATA") {
+                        console.warn("Received FILTER_TRIGGER_DATA. This should have been removed from Python. Map will likely be empty or incorrect.");
+                    } else if (!callInitMap) {
+                        console.log("MAP_JS_DEBUG: Conditions for calling initGoogleMap not met (no filter_change or tab_activated_timestamp). Parsed data:", parsedData);
+                    }
+                    else {
+                        console.warn("Received map data is invalid, incomplete, or has no data/center. Not updating map.", parsedData);
+                    }
+                } catch (e) {
+                     console.error('MAP_JS_DEBUG: Error parsing map data JSON. Raw content that failed (first 500 chars):', jsonDataToParse.substring(0, 500), 'Error:', e);
+                }
+                return; // Process only the first relevant mutation in the batch
+            } else {
+                console.warn("MAP_JS_DEBUG: Relevant mutation detected, but dataElement or its textContent is empty/null or whitespace.");
+            }
+        }
+    }
+  }
   
+  // Instantiate the observer before using it in waitForDataElement
+  const observer = new MutationObserver(handleMapData);
+
   // Wait for the map data element to exist, then start observing it
   const waitForDataElement = setInterval(function() {
     const dataElement = document.getElementById('google-price-map-data');
@@ -418,13 +568,16 @@ window.addEventListener('DOMContentLoaded', function() {
       // Check if it already has data
       if (dataElement.textContent) {
         console.log('Initial data found, initializing map');
-        window.initGoogleMap(dataElement.textContent);
+        // Call handleMapData directly IF initial content exists, to ensure consistent processing
+        // Create a mock mutation list for the initial load, as handleMapData expects it
+        const mockMutation = { type: 'childList', target: dataElement };
+        handleMapData([mockMutation], observer); // Pass observer instance too
       } else {
         console.log('No initial data, waiting for updates');
       }
       
       // Observe future changes
-      observer.observe(dataElement, { childList: true });
+      observer.observe(dataElement, { childList: true, characterData: true, subtree: true });
     }
   }, 100);
   

@@ -163,10 +163,20 @@ def generate_price_distribution(df: pd.DataFrame, bin_size: int = 50000) -> go.F
     Returns:
         Plotly figure object with the price distribution
     """
+    if df.empty or 'Sale_Price' not in df.columns or df['Sale_Price'].isna().all():
+        return _create_empty_figure("No valid price data available for distribution plot.")
+    
+    # Ensure Sale_Price is numeric and drop NaNs for calculation if any exist
+    # (though primary check is above, this is a safeguard for calculations)
+    sale_prices = pd.to_numeric(df['Sale_Price'], errors='coerce').dropna()
+    if sale_prices.empty:
+        return _create_empty_figure("No valid numeric price data after cleaning for distribution plot.")
+
     from dashboard.visualizations_helpers import PriceDistribution
     
     # Use the PriceDistribution class to generate the visualization
-    price_dist = PriceDistribution(df, bin_size)
+    # We pass the cleaned sale_prices by creating a temporary DataFrame for the helper
+    price_dist = PriceDistribution(pd.DataFrame(sale_prices, columns=['Sale_Price']), bin_size)
     return price_dist.generate()
 
 
@@ -421,62 +431,81 @@ def generate_parallel_coordinates(
 
 def generate_summary_cards(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
     """
-    Generate summary statistics for dashboard cards.
+    Generate summary statistics for the dashboard cards.
     
     Args:
         df: DataFrame containing housing data
         
     Returns:
-        Dictionary with summary statistics
+        Dictionary containing summary statistics
     """
-    from dashboard.config import get_building_type_label
-    
-    summary = {}
-    
-    # Total properties
-    summary["total_properties"] = {
-        "value": len(df),
-        "description": "Total Properties"
+    # Default values for empty or problematic data
+    default_summary = {
+        "total_properties": {"value": 0, "description": "Total Properties"},
+        "avg_price": {"value": "N/A", "description": "Average Price"},
+        "median_price": {"value": "N/A", "description": "Median Price"},
+        "price_range": {"value": "N/A", "description": "Price Range"},
+        "avg_area": {"value": "N/A", "description": "Average Lot Area"},
+        "common_type": {"value": "N/A", "description": "Most Common Building Type"}
     }
-    
-    # Average price if Sale_Price column exists
-    if 'Sale_Price' in df.columns:
-        summary["avg_price"] = {
-            "value": f"${df['Sale_Price'].mean():,.0f}",
-            "description": "Average Price"
-        }
+
+    if df.empty or not all(col in df.columns for col in ['Sale_Price', 'Lot_Area', 'Bldg_Type']):
+        # If essential columns are missing, also return default
+        if df.empty:
+            return default_summary
+        else: # df is not empty, but columns are missing, fill what we can
+            summary = default_summary.copy()
+            summary["total_properties"] = {"value": f"{len(df):,}", "description": "Total Properties"}
+            if 'Sale_Price' in df.columns and not df['Sale_Price'].empty and df['Sale_Price'].notna().any():
+                summary["avg_price"] = {"value": f"${df['Sale_Price'].mean():,.0f}", "description": "Average Price"}
+                summary["median_price"] = {"value": f"${df['Sale_Price'].median():,.0f}", "description": "Median Price"}
+                summary["price_range"] = {"value": f"${df['Sale_Price'].min():,.0f} - ${df['Sale_Price'].max():,.0f}", "description": "Price Range"}
+            if 'Lot_Area' in df.columns and not df['Lot_Area'].empty and df['Lot_Area'].notna().any():
+                summary["avg_area"] = {"value": f"{df['Lot_Area'].mean():,.0f} sq.ft", "description": "Average Lot Area"}
+            if 'Bldg_Type' in df.columns and not df['Bldg_Type'].empty and df['Bldg_Type'].notna().any():
+                most_common = df['Bldg_Type'].mode()
+                if not most_common.empty:
+                    most_common_type = most_common[0]
+                    type_percentage = (df['Bldg_Type'].value_counts(normalize=True).max() * 100)
+                    summary["common_type"] = {"value": f"{most_common_type} ({type_percentage:.1f}%)", "description": "Most Common Building Type"}
+            return summary
+
+    try:
+        # Calculate summary statistics
+        total_properties = len(df)
         
-        summary["median_price"] = {
-            "value": f"${df['Sale_Price'].median():,.0f}",
-            "description": "Median Price"
-        }
+        # Average price if Sale_Price column exists
+        if 'Sale_Price' in df.columns:
+            avg_price = df['Sale_Price'].mean()
+            median_price = df['Sale_Price'].median()
+            price_range = f"${df['Sale_Price'].min():,.0f} - ${df['Sale_Price'].max():,.0f}"
         
-        summary["price_range"] = {
-            "value": f"${df['Sale_Price'].min():,.0f} - ${df['Sale_Price'].max():,.0f}",
-            "description": "Price Range"
-        }
-    
-    # Average area if Lot_Area column exists
-    if 'Lot_Area' in df.columns:
-        summary["avg_area"] = {
-            "value": f"{df['Lot_Area'].mean():,.0f} sq.ft",
-            "description": "Average Lot Area"
-        }
-    
-    # Building type distribution if Bldg_Type column exists
-    if 'Bldg_Type' in df.columns:
-        most_common_type = df['Bldg_Type'].value_counts().idxmax()
-        type_percentage = (df['Bldg_Type'].value_counts().max() / len(df)) * 100
+        # Average area if Lot_Area column exists
+        if 'Lot_Area' in df.columns:
+            avg_area = df['Lot_Area'].mean()
+        
+        # Building type distribution if Bldg_Type column exists
+        if 'Bldg_Type' in df.columns:
+            most_common_type = df['Bldg_Type'].value_counts().idxmax()
+            type_percentage = (df['Bldg_Type'].value_counts().max() / len(df)) * 100
         
         # Use the user-friendly building type label
+        from dashboard.config import get_building_type_label
         friendly_type_name = get_building_type_label(most_common_type)
         
-        summary["common_type"] = {
-            "value": f"{friendly_type_name} ({type_percentage:.1f}%)",
-            "description": "Most Common Building Type"
+        # Create summary dictionary
+        summary = {
+            "total_properties": {"value": total_properties, "description": "Total Properties"},
+            "avg_price": {"value": f"${avg_price:.0f}" if 'Sale_Price' in df.columns else "N/A", "description": "Average Price"},
+            "median_price": {"value": f"${median_price:.0f}" if 'Sale_Price' in df.columns else "N/A", "description": "Median Price"},
+            "price_range": {"value": price_range if 'Sale_Price' in df.columns else "N/A", "description": "Price Range"},
+            "avg_area": {"value": f"{avg_area:.0f} sq.ft" if 'Lot_Area' in df.columns else "N/A", "description": "Average Lot Area"},
+            "common_type": {"value": f"{friendly_type_name} ({type_percentage:.1f}%)" if 'Bldg_Type' in df.columns else "N/A", "description": "Most Common Building Type"}
         }
-    
-    return summary
+        
+        return summary
+    except Exception as e:
+        return _create_empty_figure(f"Error generating summary cards: {str(e)}")
 
 
 def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Type", metrics: List[str] = None) -> Dict[str, go.Figure]:

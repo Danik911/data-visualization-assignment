@@ -195,7 +195,7 @@ LOGGING_CONFIG = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "standard",
             "stream": "ext://sys.stdout"
         },
@@ -213,6 +213,11 @@ LOGGING_CONFIG = {
             "handlers": ["console", "file"],
             "level": "INFO",
             "propagate": True
+        },
+        "dashboard.callbacks": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": False
         }
     }
 }

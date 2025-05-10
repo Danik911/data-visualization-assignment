@@ -761,7 +761,7 @@ def create_layout(data_provider=None):
             create_footer(),
             
             # Store for sharing data between callbacks
-            dcc.Store(id="filtered-data-store")
+            dcc.Store(id="filtered-data-store", data=data_provider.get_data().to_json(date_format='iso', orient='split'))
         ]
     )
     

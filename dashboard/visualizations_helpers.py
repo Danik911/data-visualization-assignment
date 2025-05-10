@@ -8,6 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from typing import Dict, List, Any, Optional, Tuple, Union
 from dashboard.config import get_colorscale, get_chart_defaults, get_color_palette, get_column_display_label
+import numpy as np
 
 
 class Visualization:
@@ -296,7 +297,7 @@ class PriceMap(GeographicVisualization):
 class GooglePriceMap(GeographicVisualization):
     """Google Maps housing price map visualization"""
     
-    def __init__(self, df: pd.DataFrame, max_points: int = 200, use_clustering: bool = True):
+    def __init__(self, df: pd.DataFrame, max_points: int = 1000, use_clustering: bool = True):
         """
         Initialize Google Maps price map visualization
         
@@ -321,6 +322,19 @@ class GooglePriceMap(GeographicVisualization):
         if not is_valid:
             return {"error": error_msg, "data": [], "center": {"lat": 0, "lng": 0}, "zoom": 10}
         
+        # DEBUGGING: Print data summary before processing
+        print(f"GooglePriceMap: Processing {len(self.df)} records")
+        
+        # IMPORTANT: Ensure latitude and longitude are proper numeric values
+        # Convert to float explicitly to avoid type issues
+        if 'Latitude' in self.df.columns and 'Longitude' in self.df.columns:
+            self.df['Latitude'] = pd.to_numeric(self.df['Latitude'], errors='coerce')
+            self.df['Longitude'] = pd.to_numeric(self.df['Longitude'], errors='coerce')
+            
+            # Print sample of lat/long values for verification
+            print(f"Sample latitude values: {self.df['Latitude'].head(3).tolist()}")
+            print(f"Sample longitude values: {self.df['Longitude'].head(3).tolist()}")
+        
         # Clean data to ensure no null values or invalid types
         map_data = self.df.dropna(subset=['Latitude', 'Longitude', 'Sale_Price']).copy()
         
@@ -328,6 +342,8 @@ class GooglePriceMap(GeographicVisualization):
         if len(map_data) == 0:
             return {"error": "No valid data points found after cleaning", "data": [], 
                    "center": {"lat": 0, "lng": 0}, "zoom": 10}
+                   
+        print(f"GooglePriceMap: After cleaning, {len(map_data)} valid records remain")
         
         # Apply sampling for large datasets to prevent browser freezing
         original_count = len(map_data)
@@ -378,10 +394,14 @@ class GooglePriceMap(GeographicVisualization):
         else:
             clustering_applied = False
         
-        # Convert data types to ensure proper JSON serialization
+        # CRITICAL: Ensure data types for proper JSON serialization
+        # Explicitly convert to float and validate
         map_data['Latitude'] = map_data['Latitude'].astype(float)
         map_data['Longitude'] = map_data['Longitude'].astype(float)
         map_data['Sale_Price'] = map_data['Sale_Price'].astype(float)
+        
+        # Verify no NaN values are present
+        map_data = map_data.replace([np.inf, -np.inf], np.nan).dropna(subset=['Latitude', 'Longitude', 'Sale_Price'])
         
         # Add ID for each point
         map_data['id'] = range(len(map_data))
@@ -406,6 +426,12 @@ class GooglePriceMap(GeographicVisualization):
         lat_mean = float(map_data['Latitude'].mean())
         lng_mean = float(map_data['Longitude'].mean())
         
+        # DEBUGGING: Print coordinate range to verify validity
+        lat_min, lat_max = float(map_data['Latitude'].min()), float(map_data['Latitude'].max())
+        lng_min, lng_max = float(map_data['Longitude'].min()), float(map_data['Longitude'].max())
+        print(f"Latitude range: {lat_min} to {lat_max}")
+        print(f"Longitude range: {lng_min} to {lng_max}")
+        
         # Add data statistics that might be useful for the frontend
         stats = {
             "price_min": float(map_data['Sale_Price'].min()),
@@ -418,18 +444,40 @@ class GooglePriceMap(GeographicVisualization):
             "use_marker_clustering": self.use_clustering
         }
         
-        print(f"Prepared Google Maps data with {len(map_data)} properties" + 
-              f" (sampled from {original_count})" if need_sampling else "")
+        # Convert to records, ensuring each record has valid coordinates
+        data_records = []
+        for _, row in map_data.iterrows():
+            try:
+                record = row.to_dict()
+                # Ensure coordinates are valid numbers
+                if (isinstance(record['Latitude'], float) and 
+                    isinstance(record['Longitude'], float) and
+                    not pd.isna(record['Latitude']) and 
+                    not pd.isna(record['Longitude'])):
+                    data_records.append(record)
+            except Exception as e:
+                print(f"Error processing row: {e}")
+        
+        print(f"Prepared Google Maps data with {len(data_records)} properties" + 
+              (f" (sampled from {original_count})" if need_sampling else ""))
+        
+        if len(data_records) > 0:
+            print(f"First data point: Lat={data_records[0]['Latitude']}, Lng={data_records[0]['Longitude']}")
+        
+        # Add timestamp to ensure each output is unique
+        import time
+        timestamp = int(time.time() * 1000)  # Current time in milliseconds
         
         return {
-            "data": map_data.to_dict('records'),
+            "data": data_records,
             "center": {
                 "lat": lat_mean,
                 "lng": lng_mean
             },
             "zoom": zoom_level,
             "stats": stats,
-            "use_clustering": self.use_clustering
+            "use_clustering": self.use_clustering,
+            "timestamp": timestamp  # Add timestamp to make each output unique
         }
 
 

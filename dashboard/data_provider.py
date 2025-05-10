@@ -83,11 +83,40 @@ class DashboardDataProvider:
         
         for column, filter_value in filters.items():
             if column not in filtered_df.columns:
+                print(f"Warning: Column '{column}' not found in the dataframe")
                 continue
                 
             if isinstance(filter_value, list):
                 # Handle list of values (OR condition)
-                filtered_df = filtered_df[filtered_df[column].isin(filter_value)]
+                if column == 'Bldg_Type':
+                    # Special handling for building types which might not match exactly
+                    from dashboard.config import BUILDING_TYPE_LABELS
+                    
+                    # Create a dictionary mapping display labels back to actual values
+                    reverse_mapping = {}
+                    for db_value, display_label in BUILDING_TYPE_LABELS.items():
+                        reverse_mapping[display_label] = db_value
+                        # Also add the original value for direct matches
+                        reverse_mapping[db_value] = db_value
+                    
+                    # Convert the filter values to database values
+                    actual_filter_values = []
+                    for val in filter_value:
+                        # If the value is in our reverse mapping, use the database value
+                        if val in reverse_mapping:
+                            actual_filter_values.append(reverse_mapping[val])
+                        else:
+                            # Otherwise keep the original value
+                            actual_filter_values.append(val)
+                    
+                    print(f"Converted building type filter from UI: {filter_value}")
+                    print(f"To actual database values: {actual_filter_values}")
+                    
+                    # Apply the filter using the actual database values
+                    filtered_df = filtered_df[filtered_df[column].isin(actual_filter_values)]
+                else:
+                    # For other columns, apply filter normally
+                    filtered_df = filtered_df[filtered_df[column].isin(filter_value)]
             elif isinstance(filter_value, dict) and "range" in filter_value:
                 # Handle range filters
                 min_val, max_val = filter_value["range"]

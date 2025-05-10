@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Housing Data Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background-color: #f9fafb;
+        }
+        .header {
+            background-color: #2c6e91;
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .content {
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        .feature-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            height: 100%;
+            transition: transform 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 2rem;
+            color: #2c6e91;
+            margin-bottom: 1rem;
+        }
+        .screenshot {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        code {
+            background-color: #f5f5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .btn-primary {
+            background-color: #2c6e91;
+            border-color: #2c6e91;
+        }
+        .btn-primary:hover {
+            background-color: #1d5a78;
+            border-color: #1d5a78;
+        }
+        .footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        .highlight {
+            color: #e67e22;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header text-center">
+        <div class="container">
+            <h1>Housing Data Dashboard</h1>
+            <p class="lead">An interactive data visualization tool for housing market analysis</p>
+            <a href="https://github.com/Danik911/data-visualization-assignment" class="btn btn-light mt-3">
+                <i class="fab fa-github me-2"></i>View on GitHub
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>Project Overview</h2>
+                    <p>
+                        This dashboard provides interactive visualizations for housing market data, allowing users to explore 
+                        property prices, features, and market trends through an intuitive interface.
+                    </p>
+                    <p>
+                        <strong>Note:</strong> This is a Python-based Dash application which requires a server to run. 
+                        This page only hosts the documentation and code. To use the actual dashboard, please follow the 
+                        installation instructions below.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="mb-4">Key Features</h2>
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h4>Interactive Mapping</h4>
+                    <p>Visualize property locations and prices on an interactive map to identify geographic patterns.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h4>Price Distribution</h4>
+                    <p>Analyze housing price distributions across different property types and neighborhoods.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4>Market Trends</h4>
+                    <p>Track market trends and price changes over time with interactive time series visualizations.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>Installation Guide</h2>
+            <p>To run this dashboard locally, follow these steps:</p>
+            
+            <h5>1. Clone the repository</h5>
+            <pre><code>git clone https://github.com/Danik911/data-visualization-assignment.git
+cd data-visualization-assignment</code></pre>
+            
+            <h5>2. Set up a virtual environment</h5>
+            <pre><code># Windows
+python -m venv .venv
+.venv\Scripts\activate
+
+# macOS/Linux
+python -m venv .venv
+source .venv/bin/activate</code></pre>
+            
+            <h5>3. Install dependencies</h5>
+            <pre><code>pip install -r requirements.txt</code></pre>
+            
+            <h5>4. Configure environment variables</h5>
+            <p>Create a <code>.env</code> file in the root directory with:</p>
+            <pre><code>GOOGLE_MAPS_API_KEY=your_google_maps_api_key</code></pre>
+            
+            <h5>5. Run the dashboard</h5>
+            <pre><code>python run_dashboard.py</code></pre>
+            
+            <p>The dashboard will be available at <a href="http://localhost:8050" target="_blank">http://localhost:8050</a></p>
+        </div>
+
+        <div class="content">
+            <h2>Deployment Options</h2>
+            <p>While GitHub Pages hosts this code repository, to deploy the live dashboard you can use:</p>
+            <ul>
+                <li><a href="https://render.com/" target="_blank">Render</a></li>
+                <li><a href="https://www.heroku.com/" target="_blank">Heroku</a></li>
+                <li><a href="https://www.pythonanywhere.com/" target="_blank">PythonAnywhere</a></li>
+                <li><a href="https://aws.amazon.com/elasticbeanstalk/" target="_blank">AWS Elastic Beanstalk</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer text-center">
+        <div class="container">
+            <p>Created by Daniil Vladimirov</p>
+            <p>View the source code on <a href="https://github.com/Danik911/data-visualization-assignment" class="text-white">GitHub</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html> 

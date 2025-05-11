@@ -4,7 +4,7 @@ Housing Data Dashboard
 This is the main entry point for the Housing Data Dashboard application.
 """
 
-from dashboard.dash_app import run_dashboard
+from simplified_dash_app import run_dashboard
 
 # Import server for gunicorn
 app = run_dashboard(

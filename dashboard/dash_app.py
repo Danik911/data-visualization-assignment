@@ -94,7 +94,7 @@ def create_dash_app(data_path=None, debug=None):
     return app
 
 
-def run_dashboard(data_path=None, host=None, port=None, debug=None):
+def run_dashboard(data_path=None, host=None, port=None, debug=None, return_app=False):
     """
     Run the dashboard application.
     
@@ -103,12 +103,20 @@ def run_dashboard(data_path=None, host=None, port=None, debug=None):
         host: Host to run the server on
         port: Port to run the server on
         debug: Whether to run in debug mode
+        return_app: If True, return the app object instead of running it
+    
+    Returns:
+        The Dash app object if return_app is True
     """
     # Use config values with fallbacks
     host = host or SERVER_HOST
     port = port or SERVER_PORT
     
     app = create_dash_app(data_path, debug)
+    
+    if return_app:
+        return app
+    
     app.run(host=host, port=port, debug=debug)  # Updated from app.run_server() to app.run()
 
 

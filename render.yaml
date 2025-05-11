@@ -1,0 +1,13 @@
+services:
+  # A web service for the dashboard application
+  - type: web
+    name: housing-data-dashboard
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:server
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false # This will prompt for the value during deployment
+    healthCheckPath: / 

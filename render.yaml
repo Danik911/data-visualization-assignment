@@ -3,13 +3,16 @@ services:
   - type: web
     name: housing-data-dashboard
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:server
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:server --timeout 120"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9.0
+        value: 3.11.9
       - key: GOOGLE_MAPS_API_KEY
-        sync: false # This will prompt for the value during deployment
+        generateValue: true
       - key: MAP_DEBUG_MODE
         value: "true"  # Enable map debugging to help diagnose issues
+      - key: DASHBOARD_ENV
+        value: "production" # Set to production for Render to potentially disable Dash debug mode
     healthCheckPath: / 

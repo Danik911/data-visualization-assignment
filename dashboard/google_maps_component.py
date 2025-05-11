@@ -61,7 +61,7 @@ def register_google_map_callbacks(app, api_key):
         api_key: Google Maps API key
     """
     # Add Google Maps script to head with async and defer attributes
-    app.index_string = app.index_string.replace(
-        '</head>',
-        f'<script async defer src="https://maps.googleapis.com/maps/api/js?key={api_key}&libraries=places"></script></head>'
-    )
+    # app.index_string = app.index_string.replace(
+    #     '</head>',
+    #     f'<script async defer src="https://maps.googleapis.com/maps/api/js?key={api_key}&libraries=places"></script></head>'
+    # )

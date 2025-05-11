@@ -86,16 +86,18 @@ def create_dash_app(data_path=None, debug=None):
     
     # More robustly ensure the correct Google Maps script is loaded
     # Remove any existing Google Maps API script tags first
-    # This regex matches <script ... src="...maps.googleapis.com..." ...></script>
-    app.index_string = re.sub(r'<script[^>]*src="[^"]*maps\\.googleapis\\.com[^"]*"[^>]*>\\s*</script>', '', app.index_string, flags=re.IGNORECASE)
+    # Regex 1: Catches <script ... google ... maps ... > ... </script>
+    app.index_string = re.sub(r'<script[^>]*?google[^>]*?maps[^>]*?>.*?</script>', '', app.index_string, flags=re.IGNORECASE | re.DOTALL)
+    # Regex 2: Catches <script ... src="...maps.googleapis.com..." ... > ... </script>
+    app.index_string = re.sub(r'<script[^>]*?src=[^>]*?maps\\.googleapis\\.com[^>]*?>.*?</script>', '', app.index_string, flags=re.IGNORECASE | re.DOTALL)
     
-    # Add Google Maps script to head with async and defer attributes
-    # Ensure this is the only Google Maps script tag being added
-    if f"maps.googleapis.com/maps/api/js?key={google_maps_api_key}" not in app.index_string:
-        app.index_string = app.index_string.replace(
-            '</head>',
-            f'<script async defer src="https://maps.googleapis.com/maps/api/js?key={google_maps_api_key}&libraries=places&loading=async"></script></head>'
-        )
+    # Unconditionally add the definitive Google Maps script tag to the head
+    maps_script_tag = f'<script async defer src="https://maps.googleapis.com/maps/api/js?key={google_maps_api_key}&libraries=places&loading=async"></script>'
+    if '</head>' in app.index_string:
+        app.index_string = app.index_string.replace('</head>', f'{maps_script_tag}</head>')
+    else:
+        # Fallback if no </head> tag is found (should not happen with default Dash index_string)
+        app.index_string += maps_script_tag
             
     # Set up cache if needed
     if CACHE_CONFIG:

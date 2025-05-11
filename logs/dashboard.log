@@ -3084,3 +3084,579 @@ ValueError: cannot convert float NaN to integer
 2025-05-10 19:32:39,625 [INFO] werkzeug: 127.0.0.1 - - [10/May/2025 19:32:39] "POST /_dash-update-component HTTP/1.1" 200 -
 2025-05-10 19:32:39,698 [INFO] werkzeug: 127.0.0.1 - - [10/May/2025 19:32:39] "POST /_dash-update-component HTTP/1.1" 200 -
 2025-05-10 19:32:39,842 [INFO] werkzeug: 127.0.0.1 - - [10/May/2025 19:32:39] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:50,762 [INFO] __main__: Creating dashboard application
+2025-05-10 20:34:50,827 [INFO] __main__: Dashboard application created successfully
+2025-05-10 20:34:50,828 [INFO] dash.dash: Dash is running on http://0.0.0.0:8050/
+
+2025-05-10 20:34:50,839 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8050
+ * Running on http://172.17.17.251:8050
+2025-05-10 20:34:50,840 [INFO] werkzeug: [33mPress CTRL+C to quit[0m
+2025-05-10 20:34:57,527 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "GET / HTTP/1.1" 200 -
+2025-05-10 20:34:57,547 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-10 20:34:57,550 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "GET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1" 200 -
+2025-05-10 20:34:57,752 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-10 20:34:57,755 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-10 20:34:57,874 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1[0m" 304 -
+2025-05-10 20:34:57,881 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1[0m" 304 -
+2025-05-10 20:34:57,883 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+2025-05-10 20:34:57,894 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "[36mGET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+2025-05-10 20:34:57,950 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:57,963 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:57,975 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:57,978 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:57,985 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:57,992 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:57,995 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:57] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:58,668 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:58] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:58,882 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:58] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:58,886 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:58] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:34:59,030 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:34:59] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:01,028 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:01] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:01,246 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:01] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:06,273 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:06,328 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:06,339 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:06,349 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:06,353 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:06,358 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:06,363 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:06,367 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:06,372 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:06,379 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:07,389 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:07,489 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,188 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,212 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,228 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,230 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,233 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,237 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,242 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,253 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,254 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,259 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,476 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:11,537 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:11] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:17,981 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:17] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,012 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,014 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,017 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,020 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,025 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,033 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,047 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,051 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,058 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,237 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:18,285 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:18] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:23,641 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:23] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:23,644 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:23] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:23,651 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:23] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:23,659 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:23] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:23,665 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:23] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:23,666 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:23] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:23,692 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:23] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:23,695 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:23] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:23,746 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:23] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:23,836 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:23] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:24,721 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:24] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,347 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,349 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,351 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,389 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,396 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,415 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,430 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,476 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,534 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,545 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:30,756 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:44,705 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:44] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:44,734 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:44] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:44,739 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:44] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:44,744 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:44] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:44,751 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:44] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:44,754 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:44] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:44,757 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:44] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:44,801 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:44] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:44,842 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:44] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:44,879 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:44] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,089 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,110 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,475 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,497 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,498 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,500 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,504 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,506 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,510 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,595 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,623 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,672 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,723 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:45,880 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:45] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,451 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,485 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,489 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,493 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,500 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,504 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,509 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,524 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,530 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,579 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,829 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:46,865 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:46] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,086 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,126 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,132 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,137 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,139 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,142 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,149 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,192 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,199 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,210 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,519 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:48,623 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:48] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,370 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,392 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,394 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,399 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,401 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,405 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,409 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,442 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,464 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,515 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,807 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:50,840 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:50] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,060 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,066 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,072 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,097 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,117 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,127 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,139 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,242 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,280 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,400 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-10 20:35:53,475 [INFO] werkzeug: 172.17.17.251 - - [10/May/2025 20:35:53] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:52,527 [INFO] __main__: Creating dashboard application
+2025-05-11 08:18:52,628 [INFO] __main__: Dashboard application created successfully
+2025-05-11 08:18:52,628 [INFO] dash.dash: Dash is running on http://0.0.0.0:8050/
+
+2025-05-11 08:18:52,661 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8050
+ * Running on http://172.17.16.226:8050
+2025-05-11 08:18:52,661 [INFO] werkzeug: [33mPress CTRL+C to quit[0m
+2025-05-11 08:18:55,118 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "GET / HTTP/1.1" 200 -
+2025-05-11 08:18:55,152 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 08:18:55,167 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "GET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1" 200 -
+2025-05-11 08:18:55,372 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-11 08:18:55,378 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-11 08:18:55,463 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+2025-05-11 08:18:55,506 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1[0m" 304 -
+2025-05-11 08:18:55,525 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1[0m" 304 -
+2025-05-11 08:18:55,680 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:55,700 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:55,711 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:55,717 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:55,720 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:55,736 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:55,738 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:55,782 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:55] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:56,246 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:56] "[36mGET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+2025-05-11 08:18:56,664 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:56] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:57,035 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:57] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:18:57,038 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:18:57] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:02,232 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:02] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:02,343 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:02] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:08,667 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "GET / HTTP/1.1" 200 -
+2025-05-11 08:19:08,718 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 08:19:08,720 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "[36mGET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1[0m" 304 -
+2025-05-11 08:19:08,791 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-11 08:19:08,793 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-11 08:19:08,807 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "GET /_favicon.ico?v=3.0.4 HTTP/1.1" 200 -
+2025-05-11 08:19:08,878 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1[0m" 304 -
+2025-05-11 08:19:08,879 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1[0m" 304 -
+2025-05-11 08:19:08,884 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+2025-05-11 08:19:08,893 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "[36mGET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+2025-05-11 08:19:08,995 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:08] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:09,032 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:09,042 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:09,051 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:09,058 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:09,076 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:09,122 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:09,206 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:09,208 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:09,287 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:09,289 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:10,543 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:10] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:10,650 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:10] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 08:19:14,838 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:14] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 200 -
+2025-05-11 08:19:14,839 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:14] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 08:19:15,850 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:15] "[36mGET /_dash-component-suites/dash/dcc/dash_core_components-shared.js.map HTTP/1.1[0m" 304 -
+2025-05-11 08:19:15,864 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:15] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js.map HTTP/1.1[0m" 304 -
+2025-05-11 08:19:15,865 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:15] "[36mGET /_dash-component-suites/dash/dcc/dash_core_components.js.map HTTP/1.1[0m" 304 -
+2025-05-11 08:19:15,868 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:15] "[36mGET /_dash-component-suites/dash/html/dash_html_components.min.js.map HTTP/1.1[0m" 304 -
+2025-05-11 08:19:15,869 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:15] "[36mGET /_dash-component-suites/dash/dash_table/bundle.js.map HTTP/1.1[0m" 304 -
+2025-05-11 08:19:15,876 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:15] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js.map HTTP/1.1[0m" 304 -
+2025-05-11 08:19:15,877 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 08:19:15] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:20:32,039 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "GET / HTTP/1.1" 200 -
+2025-05-11 18:20:32,087 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 18:20:32,110 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "[36mGET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1[0m" 304 -
+2025-05-11 18:20:32,145 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-11 18:20:32,147 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-11 18:20:32,161 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1[0m" 304 -
+2025-05-11 18:20:32,164 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1[0m" 304 -
+2025-05-11 18:20:32,168 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+2025-05-11 18:20:32,178 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "[36mGET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+2025-05-11 18:20:32,230 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:32,242 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:32,253 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:32,258 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:32,262 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:32,341 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:32,353 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:32,354 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:32,373 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:32] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:33,033 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:33] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:33,040 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:33] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:33,045 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:33] "GET /_favicon.ico?v=3.0.4 HTTP/1.1" 200 -
+2025-05-11 18:20:33,230 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:33] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:33,335 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:33] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:20:35,897 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:35] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 18:20:35,910 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:35] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 200 -
+2025-05-11 18:20:36,860 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:36] "[36mGET /_dash-component-suites/dash/dcc/dash_core_components-shared.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:20:36,866 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:36] "[36mGET /_dash-component-suites/dash/dash_table/bundle.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:20:36,867 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:36] "[36mGET /_dash-component-suites/dash/dcc/dash_core_components.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:20:36,872 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:36] "[36mGET /_dash-component-suites/dash/html/dash_html_components.min.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:20:36,875 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:36] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:20:36,879 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:36] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:20:36,880 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:20:36] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:28:24,482 [INFO] __main__: Creating dashboard application
+2025-05-11 18:28:24,552 [INFO] __main__: Dashboard application created successfully
+2025-05-11 18:28:24,554 [INFO] dash.dash: Dash is running on http://0.0.0.0:8050/
+
+2025-05-11 18:28:24,570 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8050
+ * Running on http://172.17.20.4:8050
+2025-05-11 18:28:24,571 [INFO] werkzeug: [33mPress CTRL+C to quit[0m
+2025-05-11 18:28:37,220 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET / HTTP/1.1" 200 -
+2025-05-11 18:28:37,241 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1" 200 -
+2025-05-11 18:28:37,262 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1" 200 -
+2025-05-11 18:28:37,280 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/deps/react@18.v3_0_4m1746564318.3.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,285 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/deps/prop-types@15.v3_0_4m1746564318.8.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,315 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/deps/react-dom@18.v3_0_4m1746564318.3.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,323 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_2m1746564322.min.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,325 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/deps/polyfill@7.v3_0_4m1746564318.12.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,329 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/dcc/dash_core_components-shared.v3_0_6m1746564318.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,385 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/html/dash_html_components.v3_0_2m1746564319.min.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,385 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/dash_table/bundle.v6_0_2m1746564318.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,402 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_0_4m1746564318.min.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,411 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/dcc/dash_core_components.v3_0_6m1746564318.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,459 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-11 18:28:37,462 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-11 18:28:37,485 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,487 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,490 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,500 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "GET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1" 200 -
+2025-05-11 18:28:37,542 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:37,567 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:37,578 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:37,585 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:37,604 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:37,607 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:37,610 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:37] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:38,084 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:38,235 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:38] "GET /_favicon.ico?v=3.0.4 HTTP/1.1" 200 -
+2025-05-11 18:28:38,249 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:38,253 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:38,907 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:41,078 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:41] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:41,194 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:41] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:28:58,767 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:58] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 18:28:59,710 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:59] "GET /_dash-component-suites/dash/dcc/dash_core_components.js.map HTTP/1.1" 200 -
+2025-05-11 18:28:59,711 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:59] "GET /_dash-component-suites/dash/dcc/dash_core_components-shared.js.map HTTP/1.1" 200 -
+2025-05-11 18:28:59,714 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:59] "GET /_dash-component-suites/dash/html/dash_html_components.min.js.map HTTP/1.1" 200 -
+2025-05-11 18:28:59,717 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:59] "GET /_dash-component-suites/dash/dash_table/bundle.js.map HTTP/1.1" 200 -
+2025-05-11 18:28:59,720 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:59] "GET /_dash-component-suites/dash/dcc/async-dropdown.js.map HTTP/1.1" 200 -
+2025-05-11 18:28:59,723 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:59] "GET /_dash-component-suites/dash/dcc/async-slider.js.map HTTP/1.1" 200 -
+2025-05-11 18:28:59,724 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:28:59] "GET /_dash-component-suites/dash/dcc/async-graph.js.map HTTP/1.1" 200 -
+2025-05-11 18:37:25,762 [INFO] __main__: Creating dashboard application
+2025-05-11 18:37:25,816 [INFO] __main__: Dashboard application created successfully
+2025-05-11 18:37:25,817 [INFO] dash.dash: Dash is running on http://0.0.0.0:8050/
+
+2025-05-11 18:37:25,827 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8050
+ * Running on http://172.17.20.4:8050
+2025-05-11 18:37:25,828 [INFO] werkzeug: [33mPress CTRL+C to quit[0m
+2025-05-11 18:37:29,710 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:29] "GET / HTTP/1.1" 200 -
+2025-05-11 18:37:29,732 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:29] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 18:37:29,735 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:29] "[36mGET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1[0m" 304 -
+2025-05-11 18:37:29,914 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:29] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-11 18:37:29,916 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:29] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-11 18:37:29,995 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:29] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1[0m" 304 -
+2025-05-11 18:37:29,998 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:29] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1[0m" 304 -
+2025-05-11 18:37:30,003 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:30] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+2025-05-11 18:37:30,012 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:30] "[36mGET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+2025-05-11 18:37:30,069 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:30,090 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:30,098 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:30,101 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:30,116 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:30,121 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:30,126 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:30,436 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:30] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:31,024 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:31] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:31,212 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:31] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:31,214 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:31] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:32,936 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:32] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:33,063 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:33] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:37:34,949 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:34] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 18:37:35,885 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:35] "[36mGET /_dash-component-suites/dash/dcc/dash_core_components-shared.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:37:35,886 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:35] "[36mGET /_dash-component-suites/dash/dcc/dash_core_components.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:37:35,890 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:35] "[36mGET /_dash-component-suites/dash/html/dash_html_components.min.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:37:35,895 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:35] "[36mGET /_dash-component-suites/dash/dash_table/bundle.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:37:35,899 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:35] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:37:35,900 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:35] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:37:35,903 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:37:35] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:42:04,296 [INFO] __main__: Creating dashboard application
+2025-05-11 18:42:04,351 [INFO] __main__: Dashboard application created successfully
+2025-05-11 18:42:04,352 [INFO] dash.dash: Dash is running on http://0.0.0.0:8050/
+
+2025-05-11 18:42:04,363 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8050
+ * Running on http://172.17.20.4:8050
+2025-05-11 18:42:04,364 [INFO] werkzeug: [33mPress CTRL+C to quit[0m
+2025-05-11 18:42:06,528 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "GET / HTTP/1.1" 200 -
+2025-05-11 18:42:06,546 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 18:42:06,552 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "[36mGET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1[0m" 304 -
+2025-05-11 18:42:06,744 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-11 18:42:06,747 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-11 18:42:06,822 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1[0m" 304 -
+2025-05-11 18:42:06,824 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1[0m" 304 -
+2025-05-11 18:42:06,827 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+2025-05-11 18:42:06,834 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "[36mGET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+2025-05-11 18:42:06,881 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:06,915 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:06,919 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:06,921 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:06,928 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:06,938 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:06,943 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:06] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:07,459 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:07,710 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:07,711 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:07,796 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:09,684 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:09,809 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:09] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:42:15,622 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:15] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 18:42:15,647 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:15] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 200 -
+2025-05-11 18:42:16,552 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:16] "[36mGET /_dash-component-suites/dash/dcc/dash_core_components-shared.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:42:16,554 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:16] "[36mGET /_dash-component-suites/dash/dcc/dash_core_components.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:42:16,565 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:16] "[36mGET /_dash-component-suites/dash/html/dash_html_components.min.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:42:16,567 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:16] "[36mGET /_dash-component-suites/dash/dash_table/bundle.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:42:16,569 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:16] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:42:16,576 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:16] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:42:16,583 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:42:16] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js.map HTTP/1.1[0m" 304 -
+2025-05-11 18:46:09,489 [INFO] __main__: Creating dashboard application
+2025-05-11 18:46:09,541 [INFO] __main__: Dashboard application created successfully
+2025-05-11 18:46:09,541 [INFO] dash.dash: Dash is running on http://0.0.0.0:8050/
+
+2025-05-11 18:46:09,551 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8050
+ * Running on http://172.17.20.4:8050
+2025-05-11 18:46:09,551 [INFO] werkzeug: [33mPress CTRL+C to quit[0m
+2025-05-11 18:46:12,362 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET / HTTP/1.1" 200 -
+2025-05-11 18:46:12,379 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1" 200 -
+2025-05-11 18:46:12,383 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/deps/polyfill@7.v3_0_4m1746564318.12.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,387 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/deps/react@18.v3_0_4m1746564318.3.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,390 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/deps/react-dom@18.v3_0_4m1746564318.3.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,395 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/deps/prop-types@15.v3_0_4m1746564318.8.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,398 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_2m1746564322.min.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,404 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1" 200 -
+2025-05-11 18:46:12,409 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_0_4m1746564318.min.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,410 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/dcc/dash_core_components.v3_0_6m1746564318.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,420 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/dcc/dash_core_components-shared.v3_0_6m1746564318.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,421 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/html/dash_html_components.v3_0_2m1746564319.min.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,425 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/dash_table/bundle.v6_0_2m1746564318.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,607 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-11 18:46:12,609 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-11 18:46:12,696 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,698 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,704 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,711 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1" 200 -
+2025-05-11 18:46:12,794 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:12,834 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:12,848 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:12,861 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:12,865 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:12,867 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:12,870 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:12,878 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:12] "GET /_favicon.ico?v=3.0.4 HTTP/1.1" 200 -
+2025-05-11 18:46:13,586 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:13] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:13,695 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:13] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:14,029 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:14] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:14,032 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:14] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:15,602 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:15] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:15,717 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:15] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:46:18,483 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:18] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 18:46:18,493 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:18] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 200 -
+2025-05-11 18:46:19,406 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:19] "GET /_dash-component-suites/dash/dcc/dash_core_components-shared.js.map HTTP/1.1" 200 -
+2025-05-11 18:46:19,408 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:19] "GET /_dash-component-suites/dash/dcc/dash_core_components.js.map HTTP/1.1" 200 -
+2025-05-11 18:46:19,409 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:19] "GET /_dash-component-suites/dash/html/dash_html_components.min.js.map HTTP/1.1" 200 -
+2025-05-11 18:46:19,411 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:19] "GET /_dash-component-suites/dash/dash_table/bundle.js.map HTTP/1.1" 200 -
+2025-05-11 18:46:19,415 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:19] "GET /_dash-component-suites/dash/dcc/async-dropdown.js.map HTTP/1.1" 200 -
+2025-05-11 18:46:19,418 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:19] "GET /_dash-component-suites/dash/dcc/async-slider.js.map HTTP/1.1" 200 -
+2025-05-11 18:46:19,419 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 18:46:19] "GET /_dash-component-suites/dash/dcc/async-graph.js.map HTTP/1.1" 200 -
+2025-05-11 18:50:10,696 [INFO] __main__: Creating dashboard application
+2025-05-11 18:50:10,752 [INFO] __main__: Dashboard application created successfully
+2025-05-11 18:50:10,753 [INFO] dash.dash: Dash is running on http://0.0.0.0:8050/
+
+2025-05-11 18:50:10,764 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8050
+ * Running on http://172.17.20.4:8050
+2025-05-11 18:50:10,765 [INFO] werkzeug: [33mPress CTRL+C to quit[0m
+2025-05-11 18:52:31,165 [INFO] __main__: Creating dashboard application
+2025-05-11 18:52:31,220 [INFO] __main__: Dashboard application created successfully
+2025-05-11 18:52:31,221 [INFO] dash.dash: Dash is running on http://0.0.0.0:8050/
+
+2025-05-11 18:52:31,234 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8050
+ * Running on http://172.17.20.4:8050
+2025-05-11 18:52:31,235 [INFO] werkzeug: [33mPress CTRL+C to quit[0m
+2025-05-11 18:52:37,932 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET / HTTP/1.1" 200 -
+2025-05-11 18:52:37,954 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1" 200 -
+2025-05-11 18:52:37,957 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /_dash-component-suites/dash/deps/polyfill@7.v3_0_4m1746564318.12.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:52:37,960 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /_dash-component-suites/dash/deps/react@18.v3_0_4m1746564318.3.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:52:37,963 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /_dash-component-suites/dash/deps/react-dom@18.v3_0_4m1746564318.3.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:52:37,967 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /_dash-component-suites/dash/deps/prop-types@15.v3_0_4m1746564318.8.1.min.js HTTP/1.1" 200 -
+2025-05-11 18:52:37,973 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_2m1746564322.min.js HTTP/1.1" 200 -
+2025-05-11 18:52:37,974 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1" 200 -
+2025-05-11 18:52:37,976 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_0_4m1746564318.min.js HTTP/1.1" 200 -
+2025-05-11 18:52:37,986 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /_dash-component-suites/dash/dcc/dash_core_components.v3_0_6m1746564318.js HTTP/1.1" 200 -
+2025-05-11 18:52:37,990 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /_dash-component-suites/dash/dcc/dash_core_components-shared.v3_0_6m1746564318.js HTTP/1.1" 200 -
+2025-05-11 18:52:37,994 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /_dash-component-suites/dash/html/dash_html_components.v3_0_2m1746564319.min.js HTTP/1.1" 200 -
+2025-05-11 18:52:37,998 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:37] "GET /_dash-component-suites/dash/dash_table/bundle.v6_0_2m1746564318.js HTTP/1.1" 200 -
+2025-05-11 18:52:38,126 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-11 18:52:38,129 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-11 18:52:38,154 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "GET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1" 200 -
+2025-05-11 18:52:38,156 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "GET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1" 200 -
+2025-05-11 18:52:38,161 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "GET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1" 200 -
+2025-05-11 18:52:38,169 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "GET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1" 200 -
+2025-05-11 18:52:38,216 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:38,243 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:38,246 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:38,258 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:38,261 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:38,265 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:38,275 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:38,992 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:38,995 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:38] "GET /_favicon.ico?v=3.0.4 HTTP/1.1" 200 -
+2025-05-11 18:52:39,104 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:39] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:39,654 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:39] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:39,657 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:39] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:41,049 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:41] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:41,169 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:41] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,497 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,520 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,526 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,531 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,534 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,536 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,539 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,546 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,554 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,558 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,681 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:47,732 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:47] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,429 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,450 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,457 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,462 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,465 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,467 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,471 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,477 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,491 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,495 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,620 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 18:52:51,663 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 18:52:51] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:16,503 [INFO] __main__: Creating dashboard application
+2025-05-11 20:24:16,596 [INFO] __main__: Dashboard application created successfully
+2025-05-11 20:24:16,597 [INFO] dash.dash: Dash is running on http://0.0.0.0:8050/
+
+2025-05-11 20:24:16,628 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8050
+ * Running on http://172.17.20.4:8050
+2025-05-11 20:24:16,629 [INFO] werkzeug: [33mPress CTRL+C to quit[0m
+2025-05-11 20:24:20,028 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "GET / HTTP/1.1" 200 -
+2025-05-11 20:24:20,063 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 20:24:20,077 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "[36mGET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1[0m" 304 -
+2025-05-11 20:24:20,268 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-11 20:24:20,274 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-11 20:24:20,345 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+2025-05-11 20:24:20,353 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1[0m" 304 -
+2025-05-11 20:24:20,369 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1[0m" 304 -
+2025-05-11 20:24:20,447 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:20,475 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:20,477 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:20,482 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:20,497 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:20,504 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:20,506 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:20,578 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:20,817 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:20,819 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:20] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:21,195 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:21] "[36mGET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+2025-05-11 20:24:21,652 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:21] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:27,073 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:27] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:27,213 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:27] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,608 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,637 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,656 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,662 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,665 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,673 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,681 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,688 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,692 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,697 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,881 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:24:29,951 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 20:24:29] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:06,793 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:06] "GET / HTTP/1.1" 200 -
+2025-05-11 20:29:06,822 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:06] "[36mGET /assets/dashboard.css?m=1746769063.7525816 HTTP/1.1[0m" 304 -
+2025-05-11 20:29:06,829 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:06] "[36mGET /assets/google_maps_init.js?m=1746904054.7197492 HTTP/1.1[0m" 304 -
+2025-05-11 20:29:06,987 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:06] "GET /_dash-layout HTTP/1.1" 200 -
+2025-05-11 20:29:06,990 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:06] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-05-11 20:29:07,044 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1[0m" 304 -
+2025-05-11 20:29:07,046 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "[36mGET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1[0m" 304 -
+2025-05-11 20:29:07,051 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+2025-05-11 20:29:07,060 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "[36mGET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+2025-05-11 20:29:07,073 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "GET /_favicon.ico?v=3.0.4 HTTP/1.1" 200 -
+2025-05-11 20:29:07,118 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:07,141 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:07,152 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:07,161 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:07,172 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:07,173 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:07,179 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:07,372 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:07,381 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:07] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:08,147 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:08] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:08,149 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:08] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:08,457 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:08] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-11 20:29:08,586 [INFO] werkzeug: 172.17.20.4 - - [11/May/2025 20:29:08] "POST /_dash-update-component HTTP/1.1" 200 -

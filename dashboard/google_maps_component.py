@@ -63,5 +63,43 @@ def register_google_map_callbacks(app, api_key):
     # Add Google Maps script to head with async and defer attributes
     # app.index_string = app.index_string.replace(
     #     '</head>',
-    #     f'<script async defer src="https://maps.googleapis.com/maps/api/js?key={api_key}&libraries=places"></script></head>'
+    #     f'<script async defer src="https://maps.googleapis.com/maps/api/js?key={api_key}&libraries=places&loading=async"></script></head>'
     # )
+
+    # Clientside callback to initialize/update the map when data changes
+    app.clientside_callback(
+        """
+        function(data) {
+            if (window.initGoogleMap) {
+                // Assuming 'google-price-map' is the main ID for create_google_map
+                const mapContainerId = 'google-price-map-container';
+                console.log('RENDER_DEBUG: Clientside callback triggered. Data type:', typeof data, 'Container ID:', mapContainerId);
+                if (data) { // Check if data is not null or undefined
+                    let parsedData = data;
+                    if (typeof data === 'string') {
+                        if (data.length === 0) {
+                             console.log('RENDER_DEBUG: Clientside callback - Empty string data received.');
+                             return ''; // Do nothing if empty string
+                        }
+                        try {
+                            parsedData = JSON.parse(data);
+                        } catch (e) {
+                            console.error('RENDER_DEBUG: Clientside callback - Error parsing string data:', e, 'Raw data:', data.substring(0,100));
+                            return ''; // Return empty string for the dummy output
+                        }
+                    }
+                    // Ensure parsedData has the expected structure (e.g., a .data property if your JS expects it)
+                    // The initGoogleMap in google_maps_init.js expects an object, often with a 'data' key and a 'center' key
+                    window.initGoogleMap(parsedData, mapContainerId);
+                } else {
+                    console.log('RENDER_DEBUG: Clientside callback - Null or undefined data received.');
+                }
+            } else {
+                console.error('RENDER_DEBUG: window.initGoogleMap is not defined. Check google_maps_init.js.');
+            }
+            return ''; // Dummy return for the output
+        }
+        """,
+        dash.Output("google-price-map-loading-placeholder", "children"),  # Corrected to dash.Output
+        [dash.Input("google-price-map-data", "children")]  # Corrected to dash.Input
+    )

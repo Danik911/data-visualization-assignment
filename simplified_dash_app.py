@@ -66,7 +66,7 @@ def create_dash_app(data_path=None, debug=None):
         external_stylesheets=theme["external_stylesheets"],
         suppress_callback_exceptions=True,
         title="Housing Data Dashboard",
-        assets_folder=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "dashboard", "assets")
+        assets_folder="dashboard/assets"
     )
     
     # Get Google Maps API key from environment

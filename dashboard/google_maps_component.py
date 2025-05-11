@@ -73,8 +73,8 @@ def register_google_map_callbacks(app, api_key):
             function_name='initMap'
         ),
         dash.Output("google-price-map-loading-placeholder", "children"),
-        [dash.Input("google-price-map-data", "children")]
+        [dash.Input("google-price-map-data", "children")],
         # Optionally, if your JS initMap needs the map container ID passed explicitly from here:
-        # dash.State("google-price-map-container", "id") 
+        dash.State("google-price-map-container", "id") 
         # Then your JS function would be: function(data, container_id) { ... }
     )

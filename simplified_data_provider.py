@@ -7,10 +7,24 @@ import os
 import pandas as pd
 import json
 from typing import Dict, List, Any, Optional
+from io import StringIO  # Import StringIO for proper JSON handling
 
 # Import the simplified helper
 from simplified_pandas_helper import SimplifiedPandasHelper
 
+# Add this utility function to the file (outside of any class)
+def safe_read_json(json_str):
+    """
+    Safely read JSON string into pandas DataFrame, avoiding FutureWarning.
+    
+    Args:
+        json_str: JSON string to read
+        
+    Returns:
+        pandas DataFrame from the JSON
+    """
+    # Use StringIO to avoid FutureWarning
+    return pd.read_json(StringIO(json_str))
 
 class SimplifiedDataProvider:
     """
@@ -154,4 +168,29 @@ class SimplifiedDataProvider:
                     'max': float(self.df[col].max())
                 }
         
-        return options 
+        return options
+        
+    def get_regression_models(self):
+        """
+        Returns simplified dummy regression models for the dashboard.
+        This is a simplified version that returns static placeholder data.
+        """
+        # Return a simplified dummy regression model data
+        return {
+            "models": [
+                {
+                    "name": "Price vs. Area",
+                    "x": "Lot_Area",
+                    "y": "Sale_Price",
+                    "r2": 0.45,
+                    "description": "Simplified model showing relationship between lot area and sale price"
+                },
+                {
+                    "name": "Price vs. Year Built",
+                    "x": "Year_Built",
+                    "y": "Sale_Price",
+                    "r2": 0.38,
+                    "description": "Simplified model showing relationship between year built and sale price"
+                }
+            ]
+        } 

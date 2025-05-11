@@ -10,4 +10,6 @@ services:
         value: 3.9.0
       - key: GOOGLE_MAPS_API_KEY
         sync: false # This will prompt for the value during deployment
+      - key: MAP_DEBUG_MODE
+        value: "true"  # Enable map debugging to help diagnose issues
     healthCheckPath: / 

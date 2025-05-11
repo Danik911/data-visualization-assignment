@@ -9,6 +9,7 @@ import json
 from typing import Dict, List, Any, Optional
 import logging
 import time
+from io import StringIO
 
 # Import visualization functions for generating plots
 from dashboard.visualizations import (
@@ -184,7 +185,7 @@ def register_callbacks(app, data_provider):
         
         # Continue with normal processing if we have data
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
 
         # ADD THIS CHECK FOR EMPTY DATAFRAME
         if filtered_df.empty:
@@ -244,7 +245,7 @@ def register_callbacks(app, data_provider):
             return None, no_data_fig, no_data_fig, no_data_fig
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
         print(f"Processing map data with {len(filtered_df)} records")
 
         # Handle empty DataFrame for chart generation
@@ -359,7 +360,7 @@ def register_callbacks(app, data_provider):
                                style={"textAlign": "center", "marginTop": "50px", "color": "#888"})
                 
             # Convert JSON to DataFrame
-            filtered_df = pd.read_json(filtered_data_json, orient='split')
+            filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
             
             # Generate regular price map as fallback
             price_map_fig = generate_price_map(filtered_df)
@@ -392,7 +393,7 @@ def register_callbacks(app, data_provider):
             return {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
         
         # Generate scatter plot
         return generate_scatter_plot(filtered_df, x_col, y_col, color_col, trendline=True)
@@ -414,7 +415,7 @@ def register_callbacks(app, data_provider):
             return {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
         
         # Generate box plot
         return generate_box_plot(filtered_df, numeric_col, category_col)
@@ -434,7 +435,7 @@ def register_callbacks(app, data_provider):
             return {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
         
         # Generate correlation heatmap
         return generate_correlation_heatmap(filtered_df)
@@ -454,7 +455,7 @@ def register_callbacks(app, data_provider):
             return {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
         
         # Select important columns for parallel coordinates
         important_cols = ["Sale_Price", "Lot_Area", "Lot_Frontage"]
@@ -491,7 +492,7 @@ def register_callbacks(app, data_provider):
             return empty_fig, empty_fig
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
         
         # Calculate price per square foot if columns exist
         if "Sale_Price" in filtered_df.columns and "Lot_Area" in filtered_df.columns:
@@ -547,7 +548,7 @@ def register_callbacks(app, data_provider):
             return empty_fig, empty_fig, empty_fig
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
         
         # Generate year trend visualizations
         year_trends = generate_year_trend_analysis(filtered_df)
@@ -578,13 +579,13 @@ def register_callbacks(app, data_provider):
             return empty_fig, empty_fig, empty_fig, empty_fig
         
         # Check if filtered_data_json is None
-        if filtered_data_json is None:
+        if filtered_data_json is None or n_clicks == 0:
             # Return empty figures with a message when no data is available
             empty_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
             return empty_fig, empty_fig, empty_fig, empty_fig
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
         
         # Check if comparison column exists
         if compare_col not in filtered_df.columns:
@@ -619,7 +620,7 @@ def register_callbacks(app, data_provider):
                            style={"textAlign": "center", "marginTop": "50px", "color": "#888"})]
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(filtered_data_json, orient='split')
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
         
         # Limit to 1000 rows for performance
         if len(filtered_df) > 1000:

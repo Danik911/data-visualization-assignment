@@ -11,6 +11,7 @@ import dash_bootstrap_components as dbc
 import logging
 import logging.config
 from dotenv import load_dotenv
+import re
 
 # Load environment variables
 load_dotenv()
@@ -73,7 +74,7 @@ def create_dash_app(data_path=None, debug=None):
     if not google_maps_api_key:
         logger.warning("GOOGLE_MAPS_API_KEY environment variable is not set - using placeholder")
         # Provide a fallback key for basic functionality - may not show the map
-        google_maps_api_key = "AIzaSyBNLrJhOMz6idD05pzfn5lhA-TAw-mAZCU"
+        google_maps_api_key = "AIzaSyBNLrJhOMz6idD05pzfn5lhA-TAw-mAZCU" # Placeholder, ensure your actual key is set in Render
         
     # Add a flag to indicate whether we're in debug mode for maps
     map_debug_mode = os.environ.get("MAP_DEBUG_MODE", "false").lower() == "true"
@@ -83,6 +84,19 @@ def create_dash_app(data_path=None, debug=None):
     # Register Google Maps callbacks
     register_google_map_callbacks(app, google_maps_api_key)
     
+    # More robustly ensure the correct Google Maps script is loaded
+    # Remove any existing Google Maps API script tags first
+    # This regex matches <script ... src="...maps.googleapis.com..." ...></script>
+    app.index_string = re.sub(r'<script[^>]*src="[^"]*maps\\.googleapis\\.com[^"]*"[^>]*>\\s*</script>', '', app.index_string, flags=re.IGNORECASE)
+    
+    # Add Google Maps script to head with async and defer attributes
+    # Ensure this is the only Google Maps script tag being added
+    if f"maps.googleapis.com/maps/api/js?key={google_maps_api_key}" not in app.index_string:
+        app.index_string = app.index_string.replace(
+            '</head>',
+            f'<script async defer src="https://maps.googleapis.com/maps/api/js?key={google_maps_api_key}&libraries=places&loading=async"></script></head>'
+        )
+            
     # Set up cache if needed
     if CACHE_CONFIG:
         from flask_caching import Cache

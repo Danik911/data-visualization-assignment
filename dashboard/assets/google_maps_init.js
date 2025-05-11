@@ -62,6 +62,10 @@ window.addEventListener('DOMContentLoaded', function() {
   
   // Function to initialize map when data is available
   window.initGoogleMap = function(data) {
+    console.log('RENDER_DEBUG: initGoogleMap CALLED. Data type:', typeof data);
+    if (typeof data === 'string') {
+      console.log('RENDER_DEBUG: Raw string data (first 500 chars):', data.substring(0, 500));
+    }
     console.log('Initializing Google Maps with data');
     
     // Wait for container to be ready
@@ -80,13 +84,16 @@ window.addEventListener('DOMContentLoaded', function() {
   
   // Function to initialize the map and add markers
   function initializeMapWithMarkers(data, mapContainer) {
+    console.log('RENDER_DEBUG: initializeMapWithMarkers CALLED.');
     try {
       if (!checkGoogleMapsApi()) {
+        console.error('RENDER_DEBUG: checkGoogleMapsApi failed in initializeMapWithMarkers');
         return;
       }
+      console.log('RENDER_DEBUG: checkGoogleMapsApi PASSED.');
       
       const mapData = typeof data === 'string' ? JSON.parse(data) : data;
-      console.log("Map Data received:", mapData);
+      console.log("RENDER_DEBUG: Map Data received and parsed:", mapData);
       
       // Check for errors in the data
       if (mapData.error) {
@@ -103,6 +110,7 @@ window.addEventListener('DOMContentLoaded', function() {
       
       // Ensure map center has valid coordinates
       const center = mapData.center || { lat: 41.6, lng: -93.6 }; // Default to Des Moines if center is invalid
+      console.log('RENDER_DEBUG: Calculated center:', center);
       // Validate center coordinates
       if (typeof center.lat !== 'number' || typeof center.lng !== 'number' || 
           isNaN(center.lat) || isNaN(center.lng)) {
@@ -469,14 +477,20 @@ window.addEventListener('DOMContentLoaded', function() {
         </div>`;
       }
       
-      console.log('Map initialized successfully');
+      console.log('RENDER_DEBUG: initializeMapWithMarkers COMPLETED SUCCESSFULLY.');
+      
       if (window.googleMap) {
         google.maps.event.trigger(window.googleMap, 'resize');
         console.log('Manually triggered map resize event.');
       }
     } catch (error) {
-      console.error('Error initializing Google Maps:', error);
-      mapContainer.innerHTML = `<div class="alert alert-danger">Error initializing map: ${error.message}</div>`;
+      console.error('RENDER_DEBUG: Error in initializeMapWithMarkers:', error);
+      console.error('RENDER_DEBUG: Error name:', error.name);
+      console.error('RENDER_DEBUG: Error message:', error.message);
+      console.error('RENDER_DEBUG: Error stack:', error.stack);
+      if (mapContainer) {
+        mapContainer.innerHTML = `<div class="alert alert-danger">JS ERROR: ${error.message}. Check console (RENDER_DEBUG).</div>`;
+      }
     }
   }
   

@@ -92,11 +92,15 @@ def register_callbacks(app, data_provider):
     # Apply filters and store filtered dataframe
     @callback(
         Output("filtered-data-store", "data"),
+        Output("filter-count-badge", "children"),  # New output to update filter count badge
+        Output("building-type-filter", "value"),   # New output to reset building type dropdown
+        Output("price-range-filter", "value"),     # New output to reset price range slider
+        Output("area-range-filter", "value"),      # New output to reset area range slider
         Input("building-type-filter", "value"),
         Input("price-range-filter", "value"),
         Input("area-range-filter", "value"),
         Input("reset-filters-button", "n_clicks"),
-        prevent_initial_call=True  # Added to prevent initial duplicate callbacks
+        prevent_initial_call=True
     )
     def filter_data(building_types, price_range, area_range, reset_clicks):
         # Create filters dictionary
@@ -124,11 +128,14 @@ def register_callbacks(app, data_provider):
             filters["Lot_Area"] = {"range": area_range}
             print(f"Applied Lot Area filter: {area_range}")
         
-        # Reset filters on button click (context triggered)
-        if ctx.triggered and "reset-filters-button" in ctx.triggered[0]["prop_id"]:
+        # Check if reset button was clicked
+        is_reset = ctx.triggered and "reset-filters-button" in ctx.triggered[0]["prop_id"]
+        
+        # Reset filters on button click
+        if is_reset:
             filters = {}
             print("Reset all filters")
-        
+            
         # Get filtered data from provider
         filtered_df = data_provider.get_filtered_data(filters)
         
@@ -160,8 +167,49 @@ def register_callbacks(app, data_provider):
         filtered_json = filtered_df.to_json(date_format='iso', orient='split')
         print(f"Generated filtered data JSON (length: {len(filtered_json)})")
         
-        # Return only the filtered data 
-        return filtered_json
+        # Update filter count badge text
+        filter_badge_text = f"{active_filter_count} active filter{'s' if active_filter_count != 1 else ''}"
+        
+        # Get default ranges for price and area if needed for reset
+        column_options = data_provider.get_column_options()
+        default_price_range = [
+            column_options["Sale_Price"]["min"], 
+            column_options["Sale_Price"]["max"]
+        ] if "Sale_Price" in column_options else price_range
+        
+        default_area_range = [
+            column_options["Lot_Area"]["min"],
+            column_options["Lot_Area"]["max"]
+        ] if "Lot_Area" in column_options else area_range
+        
+        # Return appropriate values for all outputs
+        if is_reset:
+            # When reset button is clicked, return reset values for UI components
+            return filtered_json, filter_badge_text, [], default_price_range, default_area_range
+        else:
+            # During normal filtering, return current values for UI components to maintain their state
+            return filtered_json, filter_badge_text, building_types, price_range, area_range
+    
+    # Update filter badge styling based on active filter count
+    @callback(
+        Output("filter-count-badge", "color"),
+        Output("filter-count-badge", "className"),
+        Input("filter-count-badge", "children")
+    )
+    def update_filter_badge_style(badge_text):
+        # Extract the number of active filters from the badge text
+        try:
+            active_filters = int(badge_text.split()[0])
+        except (ValueError, AttributeError, IndexError):
+            active_filters = 0
+        
+        # Change style based on active filters
+        if active_filters > 0:
+            # Use a more visible color for active filters
+            return "primary", "mb-3"
+        else:
+            # Default light style for no filters
+            return "light", "text-secondary mb-3"
     
     # Update summary cards based on filtered data
     @callback(

@@ -133,6 +133,31 @@ class Visualization:
         raise NotImplementedError("Subclasses must implement generate()")
 
 
+# Moved create_empty_figure here to be a standalone function
+def create_empty_figure(message: str) -> go.Figure:
+    """
+    Create an empty figure with an error message.
+
+    Args:
+        message: Error message to display
+
+    Returns:
+        Empty Plotly figure with error message
+    """
+    fig = go.Figure()
+    fig.update_layout(
+        title=message,
+        annotations=[
+            {
+                "text": message,
+                "showarrow": False,
+                "font": {"size": 14}
+            }
+        ]
+    )
+    return fig
+
+
 class GeographicVisualization(Visualization):
     """Base class for geographic visualizations"""
     

@@ -706,11 +706,11 @@ def register_callbacks(app, data_provider):
         # Generate property comparisons
         comparison_figs = generate_property_comparisons(filtered_df, compare_col)
         
-        # Extract the figures we need
-        price_box = comparison_figs.get('Sale_Price_box', {"data": [], "layout": {"title": "Price data not available"}})
-        price_bar = comparison_figs.get('Sale_Price_bar', {"data": [], "layout": {"title": "Price data not available"}})
-        scatter = comparison_figs.get('price_vs_area', {"data": [], "layout": {"title": "Area data not available"}})
-        radar = comparison_figs.get('radar_comparison', {"data": [], "layout": {"title": "Comparison data not available"}})
+        # Extract the figures we need using the correct layout IDs as keys
+        price_box = comparison_figs.get("comparison-price-box", {"data": [], "layout": {"title": "Price Box data not available"}})
+        price_bar = comparison_figs.get("comparison-price-bar", {"data": [], "layout": {"title": "Price Bar data not available"}})
+        scatter = comparison_figs.get("comparison-scatter", {"data": [], "layout": {"title": "Scatter data not available"}})
+        radar = comparison_figs.get("comparison-radar", {"data": [], "layout": {"title": "Radar data not available"}})
         
         return price_box, price_bar, scatter, radar
     

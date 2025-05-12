@@ -63,11 +63,18 @@ def create_dash_app(data_path=None, debug=None):
     # Create Dash app with theme
     app = dash.Dash(
         __name__,
-        external_stylesheets=theme["external_stylesheets"],
+        external_stylesheets=[
+            dbc.themes.LUX,
+            dbc.icons.FONT_AWESOME
+        ],
+        meta_tags=[
+            {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+        ],
         suppress_callback_exceptions=True,
         title="Housing Data Dashboard",
         assets_folder="dashboard/assets"
     )
+    server = app.server
     
     # Get Google Maps API key from environment
     google_maps_api_key = os.environ.get("GOOGLE_MAPS_API_KEY")

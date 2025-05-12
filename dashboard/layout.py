@@ -344,6 +344,7 @@ def create_tab_content():
     # Property Comparison Tab: Only the first row (controls)
     property_comparison_tab = dbc.Container(
         [
+            # Row for Controls
             dbc.Row(
                 [
                     dbc.Col(

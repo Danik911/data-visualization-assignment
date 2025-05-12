@@ -8,6 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from typing import Dict, List, Any, Optional, Tuple
 from dashboard.config import get_colorscale, get_chart_defaults, get_color_palette, get_column_display_label
+import logging  # Added for logging
 
 
 # ---- Helper functions ----
@@ -522,190 +523,244 @@ def generate_property_comparisons(df: pd.DataFrame, compare_col: str = "Bldg_Typ
     """
     import plotly.graph_objects as go
     import plotly.express as px
-    from dashboard.visualizations_helpers import get_column_display_label, _create_empty_figure
+    from dashboard.visualizations_helpers import get_column_display_label, create_empty_figure
+    import logging
 
-    # Check for missing or empty data
-    if compare_col not in df.columns or df[compare_col].dropna().empty:
-        msg = f"Comparison column '{compare_col}' not found or contains no data."
-        return {
-            "Sale_Price_box": _create_empty_figure(msg),
-            "Sale_Price_bar": _create_empty_figure(msg),
-            "price_vs_area": _create_empty_figure(msg),
-            "radar_comparison": _create_empty_figure(msg)
-        }
+    logger = logging.getLogger(__name__)
 
-    # Remove rows with missing comparison column
-    df_plot = df.dropna(subset=[compare_col]).copy()
-    if df_plot.empty:
-        msg = f"No data available for selected comparison: {compare_col}."
-        return {
-            "Sale_Price_box": _create_empty_figure(msg),
-            "Sale_Price_bar": _create_empty_figure(msg),
-            "price_vs_area": _create_empty_figure(msg),
-            "radar_comparison": _create_empty_figure(msg)
-        }
+    # Initialize results with empty figures for all expected keys using layout IDs
+    results = {
+        "comparison-price-box": create_empty_figure("Initializing..."),
+        "comparison-price-bar": create_empty_figure("Initializing..."),
+        "comparison-scatter": create_empty_figure("Initializing..."),
+        "comparison-radar": create_empty_figure("Initializing...")
+    }
 
-    # If comparing by building type, use friendly labels
-    if compare_col == 'Bldg_Type':
-        from dashboard.config import get_building_type_label
-        df_plot['Bldg_Type_Display'] = df_plot['Bldg_Type'].apply(get_building_type_label)
-        compare_col_display = 'Bldg_Type_Display'
-    else:
-        compare_col_display = compare_col
+    try:
+        # Check for missing or empty data
+        if compare_col not in df.columns or df[compare_col].dropna().empty:
+            msg = f"Comparison column '{compare_col}' not found or contains no data."
+            logger.warning(msg)
+            # Update results with specific message
+            for key in results: results[key] = create_empty_figure(msg)
+            return results
 
-    # Default metrics if not specified
-    if not metrics:
-        available_cols = df_plot.columns.tolist()
-        possible_metrics = [
-            "Sale_Price", "Lot_Area", "Lot_Frontage", "Year_Built",
-            "Total_Bsmt_SF", "First_Flr_SF", "Full_Bath", "Half_Bath",
-            "Bedroom_AbvGr", "Fireplaces"
-        ]
-        metrics = [col for col in possible_metrics if col in available_cols][:5]
+        # Remove rows with missing comparison column
+        df_plot = df.dropna(subset=[compare_col]).copy()
+        if df_plot.empty:
+            msg = f"No data available for selected comparison: {compare_col} after dropping NA."
+            logger.warning(msg)
+            # Update results with specific message
+            for key in results: results[key] = create_empty_figure(msg)
+            return results
 
-    results = {}
+        # If comparing by building type, use friendly labels
+        if compare_col == 'Bldg_Type':
+            from dashboard.config import get_building_type_label
+            df_plot['Bldg_Type_Display'] = df_plot['Bldg_Type'].apply(get_building_type_label)
+            compare_col_display = 'Bldg_Type_Display'
+        else:
+            compare_col_display = compare_col
 
-    # Group comparison (boxplot and bar chart)
-    for metric in metrics:
-        if metric in df_plot.columns and df_plot[metric].dtype in ['int64', 'float64']:
+        # Default metrics if not specified
+        if not metrics:
+            available_cols = df_plot.columns.tolist()
+            possible_metrics = [
+                "Sale_Price", "Lot_Area", "Lot_Frontage", "Year_Built",
+                "Total_Bsmt_SF", "First_Flr_SF", "Full_Bath", "Half_Bath",
+                "Bedroom_AbvGr", "Fireplaces"
+            ]
+            metrics = [col for col in possible_metrics if col in available_cols][:5]
+            # Ensure Sale_Price is included if available, for expected output keys
+            if "Sale_Price" in available_cols and "Sale_Price" not in metrics:
+                if len(metrics) >= 5: metrics.pop() # Make space if full
+                metrics.insert(0, "Sale_Price") # Add Sale_Price
+
+        # --- Plotting Logic Starts ---
+        # Group comparison (boxplot and bar chart)
+        for metric in metrics:
+            if metric in df_plot.columns and df_plot[metric].dtype in ['int64', 'float64']:
+                try:
+                    # Box plot
+                    fig_box = px.box(
+                        df_plot,
+                        x=compare_col_display,
+                        y=metric,
+                        color=compare_col_display,
+                        title=f"{get_column_display_label(metric)} by {get_column_display_label(compare_col)}",
+                        labels={
+                            metric: get_column_display_label(metric),
+                            compare_col_display: get_column_display_label(compare_col)
+                        },
+                        points="outliers"
+                    )
+                    fig_box.update_layout(
+                        xaxis_title=get_column_display_label(compare_col),
+                        yaxis_title=get_column_display_label(metric),
+                        showlegend=False
+                    )
+                    # Update results if the metric matches an expected key prefix
+                    if metric == "Sale_Price":
+                       results["comparison-price-box"] = fig_box # Use layout ID
+
+                    # Bar chart for averages
+                    avg_by_group = df_plot.groupby(compare_col)[metric].mean().reset_index()
+                    count_by_group = df_plot.groupby(compare_col)[metric].count().reset_index()
+                    avg_by_group['count'] = count_by_group[metric]
+                    if compare_col == 'Bldg_Type':
+                        from dashboard.config import get_building_type_label
+                        avg_by_group[compare_col_display] = avg_by_group[compare_col].apply(get_building_type_label)
+                        avg_by_group['label'] = avg_by_group[compare_col_display] + ' (n=' + avg_by_group['count'].astype(str) + ')'
+                    else:
+                        avg_by_group['label'] = avg_by_group[compare_col].astype(str) + ' (n=' + avg_by_group['count'].astype(str) + ')'
+                    fig_bar = px.bar(
+                        avg_by_group,
+                        x=compare_col_display if compare_col == 'Bldg_Type' else compare_col,
+                        y=metric,
+                        color=compare_col_display if compare_col == 'Bldg_Type' else compare_col,
+                        text_auto=True,
+                        title=f"Average {get_column_display_label(metric)} by {get_column_display_label(compare_col)}",
+                        labels={
+                            metric: f"Avg. {get_column_display_label(metric)}",
+                            compare_col_display: get_column_display_label(compare_col),
+                            compare_col: get_column_display_label(compare_col)
+                        },
+                        hover_data={
+                            'count': True,
+                            'label': False,
+                            compare_col if compare_col != 'Bldg_Type' else compare_col_display: False
+                        }
+                    )
+                    fig_bar.update_layout(
+                        xaxis_title="",
+                        yaxis_title=f"Average {get_column_display_label(metric)}",
+                        showlegend=False,
+                        xaxis={'categoryorder': 'total descending'}
+                    )
+                    # Update results if the metric matches an expected key prefix
+                    if metric == "Sale_Price":
+                        results["comparison-price-bar"] = fig_bar # Use layout ID
+                except Exception as e:
+                    msg = f"Error generating chart for {metric}: {str(e)}"
+                    logger.error(msg, exc_info=True)
+                    if metric == "Sale_Price":
+                        results["comparison-price-box"] = create_empty_figure(msg) # Use layout ID
+                        results["comparison-price-bar"] = create_empty_figure(msg) # Use layout ID
+
+        # Scatter plot (price vs area)
+        if "Sale_Price" in df_plot.columns and "Lot_Area" in df_plot.columns:
             try:
-                # Box plot
-                fig_box = px.box(
+                fig = px.scatter(
                     df_plot,
-                    x=compare_col_display,
-                    y=metric,
+                    x="Lot_Area",
+                    y="Sale_Price",
                     color=compare_col_display,
-                    title=f"{get_column_display_label(metric)} by {get_column_display_label(compare_col)}",
+                    opacity=0.7,
+                    title=f"{get_column_display_label('Sale_Price')} vs {get_column_display_label('Lot_Area')} by {get_column_display_label(compare_col)}",
                     labels={
-                        metric: get_column_display_label(metric),
-                        compare_col_display: get_column_display_label(compare_col)
-                    },
-                    points="outliers"
-                )
-                fig_box.update_layout(
-                    xaxis_title=get_column_display_label(compare_col),
-                    yaxis_title=get_column_display_label(metric),
-                    showlegend=False
-                )
-                results[f"{metric}_box"] = fig_box
-
-                # Bar chart for averages
-                avg_by_group = df_plot.groupby(compare_col)[metric].mean().reset_index()
-                count_by_group = df_plot.groupby(compare_col)[metric].count().reset_index()
-                avg_by_group['count'] = count_by_group[metric]
-                if compare_col == 'Bldg_Type':
-                    from dashboard.config import get_building_type_label
-                    avg_by_group[compare_col_display] = avg_by_group[compare_col].apply(get_building_type_label)
-                    avg_by_group['label'] = avg_by_group[compare_col_display] + ' (n=' + avg_by_group['count'].astype(str) + ')'
-                else:
-                    avg_by_group['label'] = avg_by_group[compare_col].astype(str) + ' (n=' + avg_by_group['count'].astype(str) + ')'
-                fig_bar = px.bar(
-                    avg_by_group,
-                    x=compare_col_display if compare_col == 'Bldg_Type' else compare_col,
-                    y=metric,
-                    color=compare_col_display if compare_col == 'Bldg_Type' else compare_col,
-                    text_auto=True,
-                    title=f"Average {get_column_display_label(metric)} by {get_column_display_label(compare_col)}",
-                    labels={
-                        metric: f"Avg. {get_column_display_label(metric)}",
+                        "Lot_Area": get_column_display_label("Lot_Area"),
+                        "Sale_Price": get_column_display_label("Sale_Price"),
                         compare_col_display: get_column_display_label(compare_col),
                         compare_col: get_column_display_label(compare_col)
                     },
-                    hover_data={
-                        'count': True,
-                        'label': False,
-                        compare_col if compare_col != 'Bldg_Type' else compare_col_display: False
-                    }
+                    trendline="ols",
+                    trendline_scope="overall"
                 )
-                fig_bar.update_layout(
-                    xaxis_title="",
-                    yaxis_title=f"Average {get_column_display_label(metric)}",
-                    showlegend=False,
-                    xaxis={'categoryorder': 'total descending'}
-                )
-                results[f"{metric}_bar"] = fig_bar
-            except Exception as e:
-                msg = f"Error generating chart for {metric}: {str(e)}"
-                results[f"{metric}_box"] = _create_empty_figure(msg)
-                results[f"{metric}_bar"] = _create_empty_figure(msg)
-
-    # Scatter plot (price vs area)
-    if "Sale_Price" in df_plot.columns and "Lot_Area" in df_plot.columns:
-        try:
-            fig = px.scatter(
-                df_plot,
-                x="Lot_Area",
-                y="Sale_Price",
-                color=compare_col_display,
-                opacity=0.7,
-                title=f"{get_column_display_label('Sale_Price')} vs {get_column_display_label('Lot_Area')} by {get_column_display_label(compare_col)}",
-                labels={
-                    "Lot_Area": get_column_display_label("Lot_Area"),
-                    "Sale_Price": get_column_display_label("Sale_Price"),
-                    compare_col_display: get_column_display_label(compare_col),
-                    compare_col: get_column_display_label(compare_col)
-                },
-                trendline="ols",
-                trendline_scope="overall"
-            )
-            fig.update_layout(
-                legend_title=get_column_display_label(compare_col)
-            )
-            results["price_vs_area"] = fig
-        except Exception as e:
-            results["price_vs_area"] = _create_empty_figure(f"Error generating scatter plot: {str(e)}")
-
-    # Radar chart (normalized metrics)
-    if len(metrics) >= 3:
-        numeric_metrics = [m for m in metrics if df_plot[m].dtype in ['int64', 'float64']][:5]
-        if len(numeric_metrics) >= 3:
-            try:
-                if compare_col == 'Bldg_Type':
-                    from dashboard.config import get_building_type_label
-                    groups = df_plot[compare_col].unique().tolist()
-                    group_names = [get_building_type_label(g) for g in groups]
-                else:
-                    groups = df_plot[compare_col].unique().tolist()
-                    group_names = groups
-                radar_df = df_plot.copy()
-                for metric in numeric_metrics:
-                    min_val = df_plot[metric].min()
-                    max_val = df_plot[metric].max()
-                    if max_val > min_val:
-                        radar_df[metric] = (df_plot[metric] - min_val) / (max_val - min_val)
-                    else:
-                        radar_df[metric] = 0
-                group_avgs = radar_df.groupby(compare_col)[numeric_metrics].mean().reset_index()
-                fig = go.Figure()
-                for i, group in enumerate(groups):
-                    group_data = group_avgs[group_avgs[compare_col] == group]
-                    if not group_data.empty:
-                        display_name = group_names[i] if compare_col == 'Bldg_Type' else group
-                        fig.add_trace(go.Scatterpolar(
-                            r=group_data[numeric_metrics].values.flatten().tolist(),
-                            theta=[get_column_display_label(metric) for metric in numeric_metrics],
-                            fill='toself',
-                            name=display_name
-                        ))
                 fig.update_layout(
-                    polar=dict(
-                        radialaxis=dict(
-                            visible=True,
-                            range=[0, 1]
-                        )
-                    ),
-                    title=f"Property Metrics Comparison by {get_column_display_label(compare_col)} (Normalized)",
-                    showlegend=True
+                    legend_title=get_column_display_label(compare_col)
                 )
-                results["radar_comparison"] = fig
+                results["comparison-scatter"] = fig # Use layout ID
             except Exception as e:
-                results["radar_comparison"] = _create_empty_figure(f"Error generating radar chart: {str(e)}")
+                msg = f"Error generating scatter plot: {str(e)}"
+                logger.error(msg, exc_info=True)
+                results["comparison-scatter"] = create_empty_figure(msg) # Use layout ID
 
-    # Ensure all outputs are present
-    for key in ["Sale_Price_box", "Sale_Price_bar", "price_vs_area", "radar_comparison"]:
-        if key not in results:
-            results[key] = _create_empty_figure(f"No data for {key.replace('_', ' ').title()}")
-    return results
+        # Radar chart (normalized metrics)
+        if len(metrics) >= 3:
+            # Filter for numeric metrics among the selected ones
+            numeric_metrics = [m for m in metrics if m in df_plot.columns and df_plot[m].dtype in ['int64', 'float64']][:5]
+            
+            if len(numeric_metrics) >= 3:
+                try:
+                    if compare_col == 'Bldg_Type':
+                        from dashboard.config import get_building_type_label
+                        groups = df_plot[compare_col].unique().tolist()
+                        group_names = [get_building_type_label(g) for g in groups]
+                    else:
+                        groups = df_plot[compare_col].unique().tolist()
+                        group_names = groups
+                    
+                    radar_df = df_plot.copy()
+                    
+                    # Normalize selected numeric metrics
+                    for metric in numeric_metrics:
+                        min_val = df_plot[metric].min()
+                        max_val = df_plot[metric].max()
+                        if max_val > min_val:
+                            radar_df[metric] = (df_plot[metric] - min_val) / (max_val - min_val)
+                        else:
+                            radar_df[metric] = 0 # Avoid division by zero if all values are the same
+
+                    group_avgs = radar_df.groupby(compare_col)[numeric_metrics].mean().reset_index()
+                    
+                    fig = go.Figure()
+                    
+                    # Add traces for each group
+                    for i, group in enumerate(groups):
+                        group_data = group_avgs[group_avgs[compare_col] == group]
+                        if not group_data.empty:
+                            values = group_data[numeric_metrics].iloc[0].values.flatten().tolist()
+                            fig.add_trace(go.Scatterpolar(
+                                r=values,
+                                theta=numeric_metrics, # Use original metric names for labels
+                                fill='toself',
+                                name=group_names[i] # Use display name
+                            ))
+                            
+                    fig.update_layout(
+                        polar=dict(
+                            radialaxis=dict(
+                                visible=True,
+                                range=[0, 1] # Normalized range
+                            )
+                        ),
+                        showlegend=True,
+                        title="Normalized Metrics Comparison"
+                    )
+                    results["comparison-radar"] = fig # Use layout ID
+                except Exception as e:
+                    msg = f"Error generating radar chart: {str(e)}"
+                    logger.error(msg, exc_info=True)
+                    results["comparison-radar"] = create_empty_figure(msg) # Use layout ID
+            else: # Not enough numeric metrics for radar
+                results["comparison-radar"] = create_empty_figure("Need at least 3 numeric metrics for radar chart.") # Use layout ID
+        else: # Not enough metrics selected overall
+             results["comparison-radar"] = create_empty_figure("Need at least 3 metrics selected for radar chart.") # Use layout ID
+
+        # --- Final check ---
+        # Ensure all expected keys exist before returning, use empty if any failed
+        final_results = {}
+        expected_keys = ["comparison-price-box", "comparison-price-bar", "comparison-scatter", "comparison-radar"] # Use layout IDs
+        for key in expected_keys:
+            if key in results and isinstance(results[key], go.Figure):
+                 final_results[key] = results[key]
+            else:
+                 # Log if a key is missing unexpectedly (should have been initialized)
+                 if key not in results: 
+                     logger.warning(f"Expected key '{key}' missing from results in generate_property_comparisons.")
+                 # Use the imported standalone function
+                 final_results[key] = create_empty_figure(f"Failed to generate comparison chart ({key}). Error: {e}")
+
+        return final_results
+
+    except Exception as e:
+        msg = f"Unexpected error generating comparisons: {str(e)}"
+        logger.error(msg, exc_info=True)
+        # Update all figures in the initialized dict with an error message
+        error_figure = create_empty_figure(msg)
+        for key in results:
+            results[key] = error_figure
+        return results # Return the dict with error figures
 
 
 def generate_year_trend_analysis(df: pd.DataFrame) -> Dict[str, go.Figure]:
@@ -722,7 +777,7 @@ def generate_year_trend_analysis(df: pd.DataFrame) -> Dict[str, go.Figure]:
     
     # Check if Year_Built column exists
     if 'Year_Built' not in df.columns:
-        results["error"] = _create_empty_figure("Year trend analysis requires Year_Built column")
+        results["error"] = create_empty_figure("Year trend analysis requires Year_Built column")
         return results
         
     # Convert Year_Built to numeric if not already
@@ -736,7 +791,7 @@ def generate_year_trend_analysis(df: pd.DataFrame) -> Dict[str, go.Figure]:
     df = df[df['Year_Built'] > 1800].copy()
     
     if df.empty:
-        results["error"] = _create_empty_figure("No valid year data available")
+        results["error"] = create_empty_figure("No valid year data available")
         return results
     
     # 1. Average price by year built

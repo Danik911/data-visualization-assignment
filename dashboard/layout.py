@@ -8,7 +8,7 @@ from dash import html, dcc, callback, Output, Input, State, no_update
 import plotly.graph_objects as go # Import Plotly graph objects
 
 # Import necessary functions from other modules
-from dashboard.data_provider import load_and_preprocess_data, get_feature_names, get_numeric_features, get_categorical_features
+# REMOVE: from dashboard.data_provider import load_and_preprocess_data, get_feature_names, get_numeric_features, get_categorical_features
 from dashboard.google_maps_component import create_google_map
 from dashboard.pandas_helper import load_data
 

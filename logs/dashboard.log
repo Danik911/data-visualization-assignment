@@ -3756,3 +3756,5 @@ ValueError: cannot convert float NaN to integer
 2025-05-12 11:46:16,349 [INFO] dashboard.dash_app: Dashboard application created successfully
 2025-05-12 11:58:14,475 [INFO] dashboard.dash_app: Creating dashboard application
 2025-05-12 11:58:14,546 [INFO] dashboard.dash_app: Dashboard application created successfully
+2025-05-12 12:09:35,744 [INFO] dashboard.dash_app: Creating dashboard application
+2025-05-12 12:09:35,798 [INFO] dashboard.dash_app: Dashboard application created successfully

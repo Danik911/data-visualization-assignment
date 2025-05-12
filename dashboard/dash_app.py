@@ -88,6 +88,8 @@ def create_dash_app(data_path=None, debug=None):
     
     # Configure layout
     app.layout = create_layout(data_provider)
+    # Set validation_layout to include all Output IDs/components
+    app.validation_layout = app.layout
     
     # Register callbacks
     register_callbacks(app, data_provider)

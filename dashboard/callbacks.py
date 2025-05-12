@@ -3,7 +3,7 @@ Callbacks module for the dashboard.
 This module handles all interactive elements and user interactions.
 """
 
-from dash import Input, Output, State, callback, dash_table, html, ctx, dcc
+from dash import Input, Output, State, callback, dash_table, html, ctx, dcc, no_update
 import pandas as pd
 import json
 from typing import Dict, List, Any, Optional
@@ -281,21 +281,34 @@ def register_callbacks(app, data_provider):
 
         # Only update when Overview tab is active
         if active_tab != "tab-overview":
-            # WHEN TAB IS NOT ACTIVE, send an empty map structure but indicate no tab activation
-            empty_map_data_inactive_tab = {
-                'data': [], 'center': {'lat': 0, 'lng': 0}, 'zoom': 2, 
-                'filter_change': False, # Or True, depending on desired behavior for data persistency
-                'timestamp': time.time(),
-                'tab_activated_timestamp': None # Explicitly None
-            }
-            return json.dumps(empty_map_data_inactive_tab), empty_fig, empty_fig, empty_fig, empty_fig
+            # WHEN TAB IS NOT ACTIVE, return no_update for all outputs
+            return no_update, no_update, no_update, no_update, no_update
             
         # Check if filtered_data_json is None or represents an empty DataFrame
         if filtered_data_json is None:
-            return None, no_data_fig, no_data_fig, no_data_fig, no_data_fig
+            # Return message indicating no data
+            empty_map_data_no_json = {
+                'data': [], 'center': {'lat': 0, 'lng': 0}, 'zoom': 2, 
+                'filter_change': False, 'timestamp': time.time(),
+                'tab_activated_timestamp': time.time(), # Still set timestamp
+                'error': 'No data received from filter store'
+            }
+            return json.dumps(empty_map_data_no_json), no_data_fig, no_data_fig, no_data_fig, no_data_fig
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
+        try:
+            filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
+        except ValueError as e:
+            logger.error(f"Error decoding filtered data JSON: {e}")
+            # Return error message for map and no_data figures
+            error_map_data = {
+                'data': [], 'center': {'lat': 0, 'lng': 0}, 'zoom': 2, 
+                'filter_change': False, 'timestamp': time.time(),
+                'tab_activated_timestamp': time.time(), # Still set timestamp
+                'error': 'Error decoding filter data'
+            }
+            return json.dumps(error_map_data), no_data_fig, no_data_fig, no_data_fig, no_data_fig
+            
         print(f"Processing map data with {len(filtered_df)} records")
 
         # Handle empty DataFrame for chart generation
@@ -594,13 +607,13 @@ def register_callbacks(app, data_provider):
     def update_market_trends_visualizations(filtered_data_json, active_tab):
         # Only update when Market Trends tab is active
         if active_tab != "tab-market":
-            empty_fig = {"data": [], "layout": {}}
-            return empty_fig, empty_fig
+            # Return no_update when tab is not active
+            return no_update, no_update
         
         # Check if filtered_data_json is None
         if filtered_data_json is None:
-            empty_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
-            return empty_fig, empty_fig
+            # Return no_update when tab is not active
+            return no_update, no_update
         
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
@@ -649,14 +662,13 @@ def register_callbacks(app, data_provider):
     def update_year_trend_visualizations(filtered_data_json, active_tab):
         # Only update when Market Trends tab is active
         if active_tab != "tab-market":
-            # Return empty figures when tab is not active
-            empty_fig = {"data": [], "layout": {}}
-            return empty_fig, empty_fig, empty_fig
+            # Return no_update when tab is not active
+            return no_update, no_update, no_update
         
         # Check if filtered_data_json is None
         if filtered_data_json is None:
-            empty_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
-            return empty_fig, empty_fig, empty_fig
+            # Return no_update when tab is not active
+            return no_update, no_update, no_update
         
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
@@ -664,10 +676,10 @@ def register_callbacks(app, data_provider):
         # Generate year trend visualizations
         year_trends = generate_year_trend_analysis(filtered_df)
         
-        # Return the generated figures, or empty figures if not available
-        price_by_year = year_trends.get('price_by_year', {"data": [], "layout": {"title": "Year data not available"}})
-        age_price = year_trends.get('age_price_correlation', {"data": [], "layout": {"title": "Age data not available"}})
-        decade_heatmap = year_trends.get('decade_bldg_heatmap', {"data": [], "layout": {"title": "Decade data not available"}})
+        # Return the generated figures, or no_update if not available
+        price_by_year = year_trends.get('price_by_year', no_update)
+        age_price = year_trends.get('age_price_correlation', no_update)
+        decade_heatmap = year_trends.get('decade_bldg_heatmap', no_update)
         
         return price_by_year, age_price, decade_heatmap
     
@@ -684,17 +696,17 @@ def register_callbacks(app, data_provider):
     )
     def update_property_comparisons(n_clicks, compare_col, filtered_data_json, active_tab):
         try:
-            # Only update when Property Comparison tab is active
-            if active_tab != "tab-comparison":
-                # Return empty figures when tab is not active
-                empty_fig = {"data": [], "layout": {}}
-                return empty_fig, empty_fig, empty_fig, empty_fig
+            # Only update when Property Comparison tab is active and button clicked
+            if active_tab != "tab-comparison" or not n_clicks or n_clicks == 0:
+                # Return no_update when tab is not active or button not clicked
+                return no_update, no_update, no_update, no_update
             
             # Check if filtered_data_json is None
-            if filtered_data_json is None or n_clicks == 0:
+            if filtered_data_json is None:
                 # Return empty figures with a message when no data is available
                 empty_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
-                return empty_fig, empty_fig, empty_fig, empty_fig
+                # Consider returning no_update here too, unless you want to explicitly clear the charts
+                return empty_fig, empty_fig, empty_fig, empty_fig 
             
             # Convert JSON to DataFrame
             filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
@@ -730,12 +742,13 @@ def register_callbacks(app, data_provider):
     def update_data_table(filtered_data_json, active_tab):
         # Only update when Data Table tab is active
         if active_tab != "tab-data":
-            return []
+            # Return no_update when tab is not active
+            return no_update
         
         # Check if filtered_data_json is None
         if filtered_data_json is None:
-            return [html.Div("No property data available for the current filter criteria", 
-                           style={"textAlign": "center", "marginTop": "50px", "color": "#888"})]
+            # Return no_update when tab is not active
+            return no_update
         
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')

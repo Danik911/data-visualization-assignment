@@ -3,7 +3,7 @@ Callbacks module for the dashboard.
 This module handles all interactive elements and user interactions.
 """
 
-from dash import Input, Output, State, callback, dash_table, html, ctx, dcc
+from dash import Input, Output, State, callback, dash_table, html, ctx, dcc, no_update
 import pandas as pd
 import json
 from typing import Dict, List, Any, Optional
@@ -11,6 +11,7 @@ import logging
 import time
 from io import StringIO
 import plotly.express as px
+import datetime
 
 # Import visualization functions for generating plots
 from dashboard.visualizations import (
@@ -759,3 +760,36 @@ def register_callbacks(app, data_provider):
         )
         
         return [note, table]
+
+    # Callback to handle data download
+    @callback(
+        Output("download-data-csv", "data"),
+        Input("download-button", "n_clicks"),
+        State("filtered-data-store", "data"),
+        prevent_initial_call=True,
+    )
+    def download_csv(n_clicks, filtered_data_json):
+        if n_clicks is None or filtered_data_json is None:
+            return no_update
+
+        try:
+            filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"filtered_housing_data_{timestamp}.csv"
+            return dcc.send_data_frame(filtered_df.to_csv, filename=filename, index=False)
+        except Exception as e:
+            logger.error(f"Error generating CSV for download: {e}", exc_info=True)
+            # Optionally, provide user feedback here (e.g., using a notification component)
+            return no_update
+
+    # Callback to toggle help modal
+    @callback(
+        Output("help-modal", "is_open"),
+        [Input("help-button", "n_clicks"), Input("close-help-modal", "n_clicks")],
+        [State("help-modal", "is_open")],
+        prevent_initial_call=True,
+    )
+    def toggle_help_modal(n_help, n_close, is_open):
+        if n_help or n_close:
+            return not is_open
+        return is_open

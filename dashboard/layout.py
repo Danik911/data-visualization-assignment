@@ -43,10 +43,10 @@ def create_header() -> dbc.Container:
                     html.Div([
                         dbc.ButtonGroup([
                             dbc.Button(html.I(className="fas fa-download me-1"), id="download-button", color="outline-secondary", size="sm", className="me-2"),
-                            dbc.Button(html.I(className="fas fa-chart-line me-1"), id="view-trends-button", color="outline-primary", size="sm")
+                            dbc.Button(html.I(className="fas fa-question-circle me-1"), id="help-button", color="outline-info", size="sm")
                         ]),
                         dbc.Tooltip("Download Data", target="download-button"),
-                        dbc.Tooltip("View Market Trends", target="view-trends-button")
+                        dbc.Tooltip("Help / About", target="help-button")
                     ], className="d-flex justify-content-end")
                 ], width=3)
             ]),
@@ -523,7 +523,36 @@ def create_layout(data_provider=None):
             create_footer(),
             
             # Store for sharing data between callbacks
-            dcc.Store(id="filtered-data-store", data=data_provider.get_data().to_json(date_format='iso', orient='split'))
+            dcc.Store(id="filtered-data-store"),
+            
+            # Download component (invisible)
+            dcc.Download(id="download-data-csv"),
+            
+            # Help Modal
+            dbc.Modal(
+                [
+                    dbc.ModalHeader(dbc.ModalTitle("Help / About")), 
+                    dbc.ModalBody(
+                        [
+                            html.H5("Project Purpose"),
+                            html.P("This dashboard provides interactive visualization and analysis of housing data. It allows users to filter data, explore trends, and compare properties based on various attributes."),
+                            html.P("This project is part of the Data Visualization and Storytelling assignment (Spring 2025). Refer to 'data/description_of_the_assignment.md' and 'data/Assignment for Data Visualization and Storytelling Spring 2025 Updated.docx' for more details."),
+                            html.Hr(),
+                            html.H5("Developer"),
+                            html.P("Daniil Vladimirov"),
+                            html.P("Student Number: 3154227")
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        dbc.Button(
+                            "Close", id="close-help-modal", className="ms-auto", n_clicks=0
+                        )
+                    ),
+                ],
+                id="help-modal",
+                is_open=False, # Initially hidden
+                size="lg" # Larger modal
+            )
         ]
     )
     

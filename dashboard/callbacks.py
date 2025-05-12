@@ -683,36 +683,43 @@ def register_callbacks(app, data_provider):
         Input("dashboard-tabs", "active_tab")
     )
     def update_property_comparisons(n_clicks, compare_col, filtered_data_json, active_tab):
-        # Only update when Property Comparison tab is active
-        if active_tab != "tab-comparison":
-            # Return empty figures when tab is not active
-            empty_fig = {"data": [], "layout": {}}
-            return empty_fig, empty_fig, empty_fig, empty_fig
-        
-        # Check if filtered_data_json is None
-        if filtered_data_json is None or n_clicks == 0:
-            # Return empty figures with a message when no data is available
-            empty_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
-            return empty_fig, empty_fig, empty_fig, empty_fig
-        
-        # Convert JSON to DataFrame
-        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
-        
-        # Check if comparison column exists
-        if compare_col not in filtered_df.columns:
-            empty_fig = {"data": [], "layout": {"title": f"Column '{compare_col}' not found in data"}}
-            return empty_fig, empty_fig, empty_fig, empty_fig
-        
-        # Generate property comparisons
-        comparison_figs = generate_property_comparisons(filtered_df, compare_col)
-        
-        # Extract the figures we need
-        price_box = comparison_figs.get('Sale_Price_box', {"data": [], "layout": {"title": "Price data not available"}})
-        price_bar = comparison_figs.get('Sale_Price_bar', {"data": [], "layout": {"title": "Price data not available"}})
-        scatter = comparison_figs.get('price_vs_area', {"data": [], "layout": {"title": "Area data not available"}})
-        radar = comparison_figs.get('radar_comparison', {"data": [], "layout": {"title": "Comparison data not available"}})
-        
-        return price_box, price_bar, scatter, radar
+        try:
+            # Only update when Property Comparison tab is active
+            if active_tab != "tab-comparison":
+                # Return empty figures when tab is not active
+                empty_fig = {"data": [], "layout": {}}
+                return empty_fig, empty_fig, empty_fig, empty_fig
+            
+            # Check if filtered_data_json is None
+            if filtered_data_json is None or n_clicks == 0:
+                # Return empty figures with a message when no data is available
+                empty_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
+                return empty_fig, empty_fig, empty_fig, empty_fig
+            
+            # Convert JSON to DataFrame
+            filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
+            
+            # Check if comparison column exists
+            if compare_col not in filtered_df.columns:
+                empty_fig = {"data": [], "layout": {"title": f"Column '{compare_col}' not found in data"}}
+                return empty_fig, empty_fig, empty_fig, empty_fig
+            
+            # Generate property comparisons
+            comparison_figs = generate_property_comparisons(filtered_df, compare_col)
+            
+            # Extract the figures we need
+            price_box = comparison_figs.get('Sale_Price_box', {"data": [], "layout": {"title": "Price data not available"}})
+            price_bar = comparison_figs.get('Sale_Price_bar', {"data": [], "layout": {"title": "Price data not available"}})
+            scatter = comparison_figs.get('price_vs_area', {"data": [], "layout": {"title": "Area data not available"}})
+            radar = comparison_figs.get('radar_comparison', {"data": [], "layout": {"title": "Comparison data not available"}})
+            
+            return price_box, price_bar, scatter, radar
+        except Exception as e:
+            import traceback
+            print(f"Error in update_property_comparisons: {str(e)}")
+            print(traceback.format_exc())
+            error_fig = {"data": [], "layout": {"title": f"Error: {str(e)}"}}
+            return error_fig, error_fig, error_fig, error_fig
     
     # Update Data Table tab
     @callback(

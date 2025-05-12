@@ -5,205 +5,166 @@ This module defines the UI components and overall structure of the dashboard.
 
 import dash_bootstrap_components as dbc
 from dash import html, dcc, callback, Output, Input, State, no_update
+import plotly.graph_objects as go # Import Plotly graph objects
+
+# Import necessary functions from other modules
+from dashboard.data_provider import load_and_preprocess_data, get_feature_names, get_numeric_features, get_categorical_features
+from dashboard.google_maps_component import create_google_map
+from dashboard.pandas_helper import load_data
+
+# Load data to get initial values for filters if needed
+# df = load_data() # Potentially load df here if needed for initial filter values
+# min_price, max_price = df['Price'].min(), df['Price'].max()
+# min_area, max_area = df['Area'].min(), df['Area'].max()
+# building_types = df['Building_Type'].unique()
+
+# Placeholder for empty figure to avoid errors on initial load
+empty_fig = go.Figure(data=[], layout={"xaxis": {"visible": False}, "yaxis": {"visible": False}, "annotations": [{"text": "No data selected", "xref": "paper", "yref": "paper", "showarrow": False, "font": {"size": 16}}]})
 
 
-def create_header() -> dbc.Container:
+# Placeholder or function to create a default empty figure with a message
+def create_empty_figure(message="Please select data or wait for loading."):
+    """Creates an empty Plotly figure with a centered message."""
+    return {
+        "data": [],
+        "layout": {
+            "xaxis": {"visible": False},
+            "yaxis": {"visible": False},
+            "annotations": [{
+                "text": message,
+                "xref": "paper",
+                "yref": "paper",
+                "showarrow": False,
+                "font": {"size": 16},
+                "align": "center"
+            }],
+            "paper_bgcolor": 'rgba(0,0,0,0)',
+            "plot_bgcolor": 'rgba(0,0,0,0)',
+            "height": 300 # Adjust height as needed
+        }
+    }
+
+# Create default empty figures for each chart ID
+default_figures = {
+    "google-price-map": None, # Map handled differently
+    "price-distribution": create_empty_figure("Price distribution requires data."),
+    "feature-importance": create_empty_figure("Feature importance requires data."),
+    "building-type-distribution": create_empty_figure("Building type distribution requires data."),
+    "neighborhood-pie-chart": create_empty_figure("Neighborhood distribution requires data."),
+    "price-per-sqft-analysis": create_empty_figure("Price/SqFt analysis requires data."),
+    "building-type-comparison": create_empty_figure("Building type comparison requires data."),
+    "age-price-correlation": create_empty_figure("Age-Price correlation requires data."),
+    "price-vs-area-scatter": create_empty_figure("Price vs Area requires data."),
+    "property-comparison-table": None, # Table handled differently
+    "year-trend-analysis": create_empty_figure("Year trend analysis requires data."),
+    "monthly-trend-analysis": create_empty_figure("Monthly trend analysis requires data."),
+    "data-preview-table": None, # Table handled differently
+}
+
+
+def create_header() -> dbc.NavbarSimple:
     """
     Create the header section of the dashboard with title and description.
     
     Returns:
-        A Bootstrap container with the header content
+        A Bootstrap navbar with the header content
     """
-    header = dbc.Container(
-        [
-            dbc.Row([
-                dbc.Col([
-                    html.Div([
-                        html.H1("Housing Data Dashboard", className="dashboard-title"),
-                        html.P(
-                            "Interactive visualization of housing data with filters and analysis.",
-                            className="lead"
-                        ),
-                        html.Div([
-                            html.Span("Last Updated: May 7, 2025", className="text-muted me-3"),
-                            html.Span(html.I(className="fas fa-info-circle me-1"), id="info-icon"),
-                            dbc.Tooltip(
-                                [
-                                    html.P("This dashboard visualizes housing market data for property analysis."),
-                                    html.P("Use the filters on the left to refine the data view."),
-                                    html.P("Data source: Housing Data CSV")
-                                ],
-                                target="info-icon",
-                                placement="bottom"
-                            )
-                        ], className="d-flex align-items-center small")
-                    ], className="header-content fade-in")
-                ], width=9),
-                dbc.Col([
-                    html.Div([
-                        dbc.ButtonGroup([
-                            dbc.Button(html.I(className="fas fa-download me-1"), id="download-button", color="outline-secondary", size="sm", className="me-2"),
-                            dbc.Button(html.I(className="fas fa-chart-line me-1"), id="view-trends-button", color="outline-primary", size="sm")
-                        ]),
-                        dbc.Tooltip("Download Data", target="download-button"),
-                        dbc.Tooltip("View Market Trends", target="view-trends-button")
-                    ], className="d-flex justify-content-end")
-                ], width=3)
-            ]),
-            html.Hr()
+    header = dbc.NavbarSimple(
+        children=[
+            dbc.NavbarBrand("Amsterdam Housing Dashboard", href="#"),
+            dbc.Nav(
+                [
+                    dbc.NavLink("Home", href="#"),
+                    dbc.NavLink("About", href="#"),
+                    dbc.NavLink("Contact", href="#")
+                ],
+                className="ms-auto"
+            ),
+            dbc.Nav(
+                [
+                    dbc.NavLink(html.I(className="fas fa-download me-1"), href="#"),
+                    dbc.NavLink(html.I(className="fas fa-chart-line me-1"), href="#")
+                ],
+                className="ms-auto"
+            )
         ],
-        fluid=True,
-        className="py-4"
+        color="primary",
+        dark=True,
+        className="mb-4", # Add margin bottom
     )
     
     return header
 
 
-def create_filters(options: dict = None) -> dbc.Card:
+def create_filters(df) -> dbc.Card:
     """
     Create the filters sidebar for the dashboard.
     
     Args:
-        options: Dictionary containing filter options from data_provider
+        df: DataFrame with housing data (used for filter options)
         
     Returns:
         A Bootstrap card containing filter components
     """
-    if not options:
-        options = {}
-        
-    # Building Type filter if available
-    building_type_filter = html.Div([])
-    if "Bldg_Type" in options:
-        from dashboard.config import get_building_type_label
-        building_type_filter = html.Div(
-            [
-                dbc.Label("Building Type", className="form-label"),
-                html.Div([
-                    html.I(className="fas fa-building text-secondary me-2"),
+    min_area, max_area = int(df['Area'].min()), int(df['Area'].max())
+    building_types = df['Building_Type'].unique()
+
+    return dbc.Card(
+        dbc.CardBody([
+            html.H4("Filters", className="card-title"),
+            dbc.Row([
+                dbc.Col([
+                    html.Label("Building Type:"),
                     dcc.Dropdown(
-                        id="building-type-filter",
-                        options=[{"label": get_building_type_label(bt), "value": bt} for bt in options["Bldg_Type"]],
+                        id='building-type-filter',
+                        options=[{'label': b_type, 'value': b_type} for b_type in sorted(building_types)],
+                        value=None, # Default to no selection
                         multi=True,
                         placeholder="Select building types...",
-                        style={"width": "100%"},
-                    )
-                ], className="d-flex align-items-center", style={"overflow": "visible", "position": "relative", "zIndex": 1000}),
-                html.Div(style={"height": "45px"})  # Increased from 20px to 45px
-            ],
-            style={"marginBottom": "40px", "position": "relative", "zIndex": 999}
-        )
-    
-    # Price Range filter if available
-    price_filter = html.Div([])
-    if "Sale_Price" in options:
-        min_price = options["Sale_Price"]["min"]
-        max_price = options["Sale_Price"]["max"]
-        
-        price_filter = html.Div(
-            [
-                dbc.Label("Price Range", className="form-label"),
-                html.Div([
-                    html.I(className="fas fa-dollar-sign text-secondary me-2"),
-                    html.Div([
-                        dcc.RangeSlider(
-                            id="price-range-filter",
-                            min=min_price,
-                            max=max_price,
-                            step=(max_price - min_price) / 100,
-                            marks={
-                                min_price: f"${min_price:,.0f}",
-                                max_price: f"${max_price:,.0f}"
-                            },
-                            value=[min_price, max_price],
-                            tooltip={"placement": "bottom", "always_visible": True}
-                        )
-                    ], style={"width": "100%"})
-                ], className="d-flex align-items-center"),
-                html.Div([
-                    html.Span(f"${min_price:,.0f}", id="price-range-min", className="small text-muted"),
-                    html.Span(className="ms-auto", children=[
-                        f"${max_price:,.0f}", 
-                        html.Span(id="price-range-max", className="small text-muted")
-                    ])
-                ], className="d-flex justify-content-between px-2 mt-1"),
-                html.Div(style={"height": "20px"})  # Add some spacing
-            ]
-        )
-    
-    # Lot Area filter if available
-    area_filter = html.Div([])
-    if "Lot_Area" in options:
-        min_area = options["Lot_Area"]["min"]
-        max_area = options["Lot_Area"]["max"]
-        
-        area_filter = html.Div(
-            [
-                dbc.Label("Lot Area", className="form-label"),
-                html.Div([
-                    html.I(className="fas fa-ruler-combined text-secondary me-2"),
-                    html.Div([
-                        dcc.RangeSlider(
-                            id="area-range-filter",
-                            min=min_area,
-                            max=max_area,
-                            step=(max_area - min_area) / 100,
-                            marks={
-                                min_area: f"{min_area:,.0f}",
-                                max_area: f"{max_area:,.0f}"
-                            },
-                            value=[min_area, max_area],
-                            tooltip={"placement": "bottom", "always_visible": True}
-                        )
-                    ], style={"width": "100%"})
-                ], className="d-flex align-items-center"),
-                html.Div([
-                    html.Span(f"{min_area:,.0f} sq.ft", id="area-range-min", className="small text-muted"),
-                    html.Span(className="ms-auto", children=[
-                        f"{max_area:,.0f} sq.ft", 
-                        html.Span(id="area-range-max", className="small text-muted")
-                    ])
-                ], className="d-flex justify-content-between px-2 mt-1"),
-                html.Div(style={"height": "20px"})  # Add some spacing
-            ]
-        )
-    
-    # Reset button with icon
-    reset_button = dbc.Button(
-        [
-            html.I(className="fas fa-undo me-2"),
-            "Reset Filters"
-        ],
-        id="reset-filters-button",
-        color="secondary",
-        className="mt-3 w-100"
+                    ),
+                ], width=12, md=4),
+                dbc.Col([
+                    html.Label("Price Range (€):"),
+                    dcc.RangeSlider(
+                        id='price-range-filter',
+                        min=min_price,
+                        max=max_price,
+                        value=[min_price, max_price],
+                        marks={i: f'€{i // 1000}k' for i in range(min_price, max_price + 1, (max_price - min_price) // 5)},
+                        tooltip={"placement": "bottom", "always_visible": False},
+                    ),
+                ], width=12, md=4),
+                dbc.Col([
+                    html.Label("Area Range (m²):"),
+                    dcc.RangeSlider(
+                        id='area-range-filter',
+                        min=min_area,
+                        max=max_area,
+                        value=[min_area, max_area],
+                        marks={i: f'{i} m²' for i in range(min_area, max_area + 1, (max_area - min_area) // 5)},
+                        tooltip={"placement": "bottom", "always_visible": False},
+                    ),
+                ], width=12, md=4),
+            ]),
+            dbc.Row([
+                dbc.Col(
+                    dbc.Button(
+                        "Reset Filters", 
+                        id="reset-filters-button", 
+                        color="secondary", 
+                        className="mt-3",
+                        n_clicks=0
+                    ),
+                    width="auto",
+                    className="d-flex align-items-end" # Align button nicely
+                ),
+                 dbc.Col(
+                     html.Div(id='filter-count-display', className='mt-3 align-self-end') # Placeholder for filter count
+                 )
+            ], className="mt-2", justify="start")
+        ]),
+        className="mb-4" # Add margin bottom
     )
-    
-    # Filter count badge
-    filter_badge = html.Div([
-        dbc.Badge("0 active filters", id="filter-count-badge", color="light", className="text-secondary mb-3")
-    ], className="d-flex justify-content-end")
-    
-    # Create filters card
-    filters_card = dbc.Card(
-        dbc.CardBody(
-            [
-                html.Div([
-                    html.H4("Filters", className="card-title d-inline me-2"),
-                    html.I(className="fas fa-filter text-secondary")
-                ], className="d-flex align-items-center mb-2"),
-                filter_badge,
-                html.Hr(),
-                html.Div(building_type_filter, style={"marginBottom": "20px"}),
-                html.Div(price_filter, style={"marginBottom": "20px"}),
-                html.Div(area_filter, style={"marginBottom": "20px"}),
-                reset_button
-            ]
-        ),
-        className="mb-4 shadow-sm"
-    )
-    
-    return filters_card
 
 
 def create_summary_cards(summary_data: dict = None) -> dbc.Row:
@@ -492,7 +453,7 @@ def create_footer() -> dbc.Container:
         [
             html.Hr(),
             html.P(
-                "Housing Data Dashboard - Created with Dash and Plotly",
+                "Amsterdam Housing Data Dashboard © 2024",
                 className="text-center text-muted"
             )
         ],
@@ -538,7 +499,7 @@ def create_layout(data_provider=None):
                 [
                     # Filters Sidebar (3 cols)
                     dbc.Col(
-                        create_filters(filter_options),
+                        create_filters(df),
                         width=12, lg=3, 
                         className="sidebar"
                     ),
@@ -569,15 +530,19 @@ def create_layout(data_provider=None):
 
 
 @callback(
-    [Output(f"tab-content-{tab_id.split('-')[-1]}", "style") for tab_id in ["tab-overview", "tab-property", "tab-market", "tab-comparison", "tab-data"]],
-    Input("dashboard-tabs", "active_tab")
+    Output('tabs-content', 'children'),
+    Input('dashboard-tabs', 'active_tab')
 )
-def control_tab_content_visibility(active_tab_id):
-    styles = []
-    all_tabs = ["tab-overview", "tab-property", "tab-market", "tab-comparison", "tab-data"]
-    for tab_id in all_tabs:
-        if tab_id == active_tab_id:
-            styles.append({"display": "block"})
-        else:
-            styles.append({"display": "none"})
-    return styles
+def render_tab_content(active_tab):
+    """Renders the content based on the selected tab."""
+    if active_tab == 'tab-overview':
+        return create_overview_tab()
+    elif active_tab == 'tab-property':
+        return create_property_analysis_tab()
+    elif active_tab == 'tab-market':
+        return create_market_trends_tab()
+    elif active_tab == 'tab-comparison':
+        return create_property_comparison_tab()
+    elif active_tab == 'tab-data':
+        return create_data_view_tab()
+    return html.P("This tab content hasn't been implemented yet.") # Fallback

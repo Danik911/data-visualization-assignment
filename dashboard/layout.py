@@ -194,9 +194,9 @@ def create_filters(options: dict = None) -> dbc.Card:
                 ], className="d-flex align-items-center mb-2"),
                 filter_badge,
                 html.Hr(),
-                building_type_filter,
-                price_filter,
-                area_filter,
+                html.Div(building_type_filter, style={"marginBottom": "20px"}),
+                html.Div(price_filter, style={"marginBottom": "20px"}),
+                html.Div(area_filter, style={"marginBottom": "20px"}),
                 reset_button
             ]
         ),
@@ -733,25 +733,19 @@ def create_layout(data_provider=None):
                     # Summary Cards
                     create_summary_cards(summary_data),
                     
-                    # Filters - Now above tabs instead of in sidebar
-                    dbc.Row(
+                    dbc.Row( # New Row to hold filters and main content
                         [
-                            dbc.Col(
+                            dbc.Col( # Column for Filters
                                 create_filters(filter_options),
-                                width=12  # Full width for filters
+                                width=3, # Filters take 3/12 of the width
+                                className="filters-column" # Optional: for specific styling
+                            ),
+                            dbc.Col( # Column for Main Content (Tabs)
+                                create_tabs(tab_content),
+                                width=9 # Main content takes 9/12 of the width
                             )
                         ],
-                        className="mb-4"  # Add margin below filters
-                    ),
-                    
-                    # Main Dashboard Content - Full width now
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                create_tabs(tab_content),
-                                width=12  # Full width for tabs content
-                            )
-                        ]
+                        className="mb-4" 
                     )
                 ],
                 fluid=True

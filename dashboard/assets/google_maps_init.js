@@ -7,9 +7,10 @@ window.dash_clientside.googleMaps = {
         console.log('RENDER_DEBUG: dash_clientside.googleMaps.initMap CALLED. Container ID:', mapContainerId);
 
         if (!mapContainerId) {
-            console.error('RENDER_DEBUG: mapContainerId is missing!');
-            return '';
+            console.error('RENDER_DEBUG: mapContainerId is missing in initMap!');
+            return ''; // Return empty string for the status message
         }
+        const mapId = mapContainerId.replace('-container', ''); // Extract base map ID
 
         const mapElement = document.getElementById(mapContainerId);
         if (!mapElement) {
@@ -39,7 +40,7 @@ window.dash_clientside.googleMaps = {
         }
 
         if (!mapData || !mapData.data) {
-            console.warn('RENDER_DEBUG: mapData or mapData.data is null or undefined. Using default map settings.', mapData);
+            console.warn('RENDER_DEBUG: mapData or mapData.data is null or undefined. Using default map settings.');
             // Provide default values if mapData or mapData.data is not available
             mapData = { data: [], center: { lat: 42.032974, lng: -93.61969 }, zoom: 10 };
         }
@@ -102,20 +103,35 @@ window.dash_clientside.googleMaps = {
                     const marker = new google.maps.Marker({
                         position: { lat: property.Latitude, lng: property.Longitude },
                         map: map,
-                        title: `Price: $${property.Sale_Price}\nType: ${property.Bldg_Type_Display}`,
-                        // Potentially add custom icon based on cluster or price
+                        title: 'Price: $' + property.Sale_Price + '\\nType: ' + property.Bldg_Type_Display,
                     });
 
                     marker.addListener('click', () => {
-                        const content = `
-                            <div>
-                                <h6>Property Details</h6>
-                                <p><strong>Price:</strong> $${property.Sale_Price.toLocaleString()}</p>
-                                <p><strong>Type:</strong> ${property.Bldg_Type_Display}</p>
-                                <p><strong>Area:</strong> ${property.Lot_Area} sqft</p>
-                                <p><strong>Built:</strong> ${property.Year_Built}</p>
-                            </div>
-                        `;
+                        // Improved InfoWindow Content
+                        const content = 
+                            '<div style="font-family: Arial, sans-serif; padding: 5px; max-width: 250px;">' +
+                                '<h6 style="margin: 0 0 10px 0; font-size: 1.1em; color: #333; border-bottom: 1px solid #eee; padding-bottom: 5px;">' +
+                                    '<i class="fas fa-map-marker-alt" style="margin-right: 5px; color: #007bff;"></i>Property Details' +
+                                '</h6>' +
+                                '<table style="width: 100%; border-collapse: collapse;">' +
+                                    '<tr>' +
+                                        '<td style="padding: 4px 0; font-weight: bold; color: #555; width: 70px;"><i class="fas fa-dollar-sign" style="margin-right: 5px; color: #28a745;"></i>Price:</td>' +
+                                        '<td style="padding: 4px 0; color: #333;">$' + property.Sale_Price.toLocaleString() + '</td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                        '<td style="padding: 4px 0; font-weight: bold; color: #555;"><i class="fas fa-building" style="margin-right: 5px; color: #17a2b8;"></i>Type:</td>' +
+                                        '<td style="padding: 4px 0; color: #333;">' + (property.Bldg_Type_Display || 'N/A') + '</td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                        '<td style="padding: 4px 0; font-weight: bold; color: #555;"><i class="fas fa-ruler-combined" style="margin-right: 5px; color: #ffc107;"></i>Area:</td>' +
+                                        '<td style="padding: 4px 0; color: #333;">' + (property.Lot_Area ? property.Lot_Area.toLocaleString() + ' sqft' : 'N/A') + '</td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                        '<td style="padding: 4px 0; font-weight: bold; color: #555;"><i class="fas fa-calendar-alt" style="margin-right: 5px; color: #6f42c1;"></i>Built:</td>' +
+                                        '<td style="padding: 4px 0; color: #333;">' + (property.Year_Built || 'N/A') + '</td>' +
+                                    '</tr>' +
+                                '</table>' +
+                            '</div>';
                         infoWindow.setContent(content);
                         infoWindow.open(map, marker);
                     });
@@ -128,11 +144,39 @@ window.dash_clientside.googleMaps = {
             console.log('RENDER_DEBUG: No marker data provided or data is empty.');
         }
 
-        // Return a value for the Dash Output (can be empty if the output is just a placeholder)
-        return 'Map updated with ' + (mapData.data ? mapData.data.length : 0) + ' markers.';
+        const message = 'Map updated with ' + (mapData.data ? mapData.data.length : 0) + ' markers.';
+        console.log('RENDER_DEBUG: initMap for ' + mapId + ' returning message: ' + message);
+        return message; // This message goes to the google-price-map-status-message div
+    },
+
+    clearMessage: function(currentMessage) {
+        // The input `currentMessage` is the content of the status div.
+        // We need to know the ID of the status div to clear it.
+        // Assuming the map ID is 'google-price-map' based on the Python code.
+        // If map IDs can vary, this part needs to be more dynamic or the ID passed.
+        const statusDivId = 'google-price-map-status-message'; 
+        const statusDiv = document.getElementById(statusDivId);
+
+        if (statusDiv && currentMessage) { // Only run if there's a message
+            console.log('RENDER_DEBUG: clearMessage called for ' + statusDivId + ' with message: ' + currentMessage + '. Clearing in 3s.');
+            setTimeout(() => {
+                if (document.getElementById(statusDivId)) { // Check if element still exists
+                    document.getElementById(statusDivId).innerText = '';
+                    console.log('RENDER_DEBUG: Message cleared for ' + statusDivId + '.');
+                }
+            }, 3000); // Clear after 3 seconds
+        }
+        // This callback needs to return a value for its Output, but since we're directly manipulating DOM,
+        // and allow_duplicate=True is set, returning the same message or an empty string is fine.
+        // It's better to return dash.no_update if possible, but that's for server-side.
+        // For clientside, we usually return a value that makes sense for the Output.
+        // Here, we are modifying the output directly, so we don't want to cause another update cycle.
+        // However, a clientside callback MUST return a value for its output.
+        // Returning the original message won't re-trigger this specific callback if its Output value doesn't change.
+        return currentMessage; 
     }
 };
 
-console.log('Google Maps init.js PARSED and dash_clientside.googleMaps defined.');
+console.log('Google Maps init.js PARSED and dash_clientside.googleMaps defined. Includes clearMessage.');
 
 // All other previous JS code from this file is temporarily removed for this test.

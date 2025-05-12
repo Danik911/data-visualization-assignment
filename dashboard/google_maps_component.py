@@ -24,7 +24,7 @@ def create_google_map(id="google-price-map", style=None):
     if style:
         default_style.update(style)
         
-    return html.Div(
+    map_div_content = html.Div(
         [
             # Map container where Google Maps will render
             html.Div(id=f"{id}-container", style=default_style),
@@ -51,6 +51,14 @@ def create_google_map(id="google-price-map", style=None):
         style={"position": "relative", "min-height": "600px"}
     )
 
+    # Add a div for the map status message
+    status_message_div = html.Div(id=f"{id}-status-message", style={"textAlign": "center", "padding": "10px", "color": "green"})
+
+    return html.Div([
+        map_div_content, # The original map content
+        status_message_div # The new status message div
+    ])
+
 
 def register_google_map_callbacks(app, api_key):
     """
@@ -72,9 +80,26 @@ def register_google_map_callbacks(app, api_key):
             namespace='googleMaps',
             function_name='initMap'
         ),
-        dash.Output("google-price-map-loading-placeholder", "children"),
-        [dash.Input("google-price-map-data", "children")],
-        # Optionally, if your JS initMap needs the map container ID passed explicitly from here:
-        dash.State("google-price-map-container", "id") 
-        # Then your JS function would be: function(data, container_id) { ... }
+        dash.Output(f"{id_prefix}-status-message", "children"), # Changed from google-price-map-loading-placeholder
+        [dash.Input(f"{id_prefix}-data", "children")],
+        dash.State(f"{id_prefix}-container", "id")
     )
+
+    # New clientside callback to clear the status message
+    app.clientside_callback(
+        ClientsideFunction(
+            namespace='googleMaps',
+            function_name='clearMessage'
+        ),
+        dash.Output(f"{id_prefix}-status-message", "children", allow_duplicate=True), # Keep existing output to avoid error
+        [dash.Input(f"{id_prefix}-status-message", "children")],
+        prevent_initial_call=True # Important: prevent_initial_call=True
+    )
+
+# Helper to get the id prefix, assuming your map id is like "google-price-map"
+def get_id_prefix(map_component_id):
+    if map_component_id.endswith("-container"):
+        return map_component_id[:-len("-container")]
+    return map_component_id
+
+id_prefix = get_id_prefix("google-price-map") # Example usage, adjust as needed based on actual id

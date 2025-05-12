@@ -412,36 +412,6 @@ def create_tab_content():
             ),
             dbc.Row(
                 [
-                    # Price vs Property Age
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([
-                                html.H4("Price vs Property Age"),
-                                dcc.Loading(
-                                    dcc.Graph(id="age-price-correlation")
-                                )
-                            ]),
-                            className="mb-4"
-                        ),
-                        width=6
-                    ),
-                    # Decade & Building Type Heatmap
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([
-                                html.H4("Price by Decade & Building Type"),
-                                dcc.Loading(
-                                    dcc.Graph(id="decade-bldg-heatmap")
-                                )
-                            ]),
-                            className="mb-4"
-                        ),
-                        width=6
-                    )
-                ]
-            ),
-            dbc.Row(
-                [
                     # Area-Price Ratio Trend
                     dbc.Col(
                         dbc.Card(
@@ -700,8 +670,7 @@ def create_layout(data_provider=None):
                         ],
                         className="mb-4" 
                     ),
-                    
-                    # New Row for Price Distribution and Feature Importance
+                    # New Row for Price Distribution and Feature Importance (Overview only)
                     dbc.Row(
                         [
                             dbc.Col(
@@ -731,8 +700,7 @@ def create_layout(data_provider=None):
                         ],
                         className="mb-4"
                     ),
-                    
-                    # New Row for Building Type Distribution and Neighborhood Pie Chart
+                    # New Row for Building Type Distribution and Neighborhood Pie Chart (Overview only)
                     dbc.Row(
                         [
                             dbc.Col(
@@ -753,6 +721,36 @@ def create_layout(data_provider=None):
                                         html.H4("Neighborhood Distribution"),
                                         dcc.Loading(
                                             dcc.Graph(id="neighborhood-pie-chart")
+                                        )
+                                    ]),
+                                    className="mb-4"
+                                ),
+                                width=6
+                            )
+                        ],
+                        className="mb-4"
+                    ),
+                    # New Row for Price vs Property Age and Price by Decade & Building Type (Market Trends)
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                dbc.Card(
+                                    dbc.CardBody([
+                                        html.H4("Price vs Property Age"),
+                                        dcc.Loading(
+                                            dcc.Graph(id="age-price-correlation")
+                                        )
+                                    ]),
+                                    className="mb-4"
+                                ),
+                                width=6
+                            ),
+                            dbc.Col(
+                                dbc.Card(
+                                    dbc.CardBody([
+                                        html.H4("Price by Decade & Building Type"),
+                                        dcc.Loading(
+                                            dcc.Graph(id="decade-bldg-heatmap")
                                         )
                                     ]),
                                     className="mb-4"

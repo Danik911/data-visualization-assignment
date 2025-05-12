@@ -292,6 +292,65 @@ def create_tab_content():
                         width=12  # Changed from 8 to 12 for full width
                     )
                 ]
+            ),
+            # Add the four overview charts here
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Price Distribution"),
+                                dcc.Loading(
+                                    dcc.Graph(id="price-distribution")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    ),
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Feature Importance for Price"),
+                                dcc.Loading(
+                                    dcc.Graph(id="feature-importance")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    )
+                ],
+                className="mb-4"
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Distribution by Building Type"),
+                                dcc.Loading(
+                                    dcc.Graph(id="building-type-distribution")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    ),
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Neighborhood Distribution"),
+                                dcc.Loading(
+                                    dcc.Graph(id="neighborhood-pie-chart")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    )
+                ],
+                className="mb-4"
             )
         ],
         fluid=True
@@ -439,6 +498,36 @@ def create_tab_content():
                         width=6
                     )
                 ]
+            ),
+            # Add the two market charts here
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Price vs Property Age"),
+                                dcc.Loading(
+                                    dcc.Graph(id="age-price-correlation")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    ),
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody([
+                                html.H4("Price by Decade & Building Type"),
+                                dcc.Loading(
+                                    dcc.Graph(id="decade-bldg-heatmap")
+                                )
+                            ]),
+                            className="mb-4"
+                        ),
+                        width=6
+                    )
+                ],
+                className="mb-4"
             )
         ],
         fluid=True
@@ -669,96 +758,6 @@ def create_layout(data_provider=None):
                             )
                         ],
                         className="mb-4" 
-                    ),
-                    # New Row for Price Distribution and Feature Importance (Overview only)
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                dbc.Card(
-                                    dbc.CardBody([
-                                        html.H4("Price Distribution"),
-                                        dcc.Loading(
-                                            dcc.Graph(id="price-distribution")
-                                        )
-                                    ]),
-                                    className="mb-4"
-                                ),
-                                width=6
-                            ),
-                            dbc.Col(
-                                dbc.Card(
-                                    dbc.CardBody([
-                                        html.H4("Feature Importance for Price"),
-                                        dcc.Loading(
-                                            dcc.Graph(id="feature-importance")
-                                        )
-                                    ]),
-                                    className="mb-4"
-                                ),
-                                width=6
-                            )
-                        ],
-                        className="mb-4"
-                    ),
-                    # New Row for Building Type Distribution and Neighborhood Pie Chart (Overview only)
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                dbc.Card(
-                                    dbc.CardBody([
-                                        html.H4("Distribution by Building Type"),
-                                        dcc.Loading(
-                                            dcc.Graph(id="building-type-distribution")
-                                        )
-                                    ]),
-                                    className="mb-4"
-                                ),
-                                width=6
-                            ),
-                            dbc.Col(
-                                dbc.Card(
-                                    dbc.CardBody([
-                                        html.H4("Neighborhood Distribution"),
-                                        dcc.Loading(
-                                            dcc.Graph(id="neighborhood-pie-chart")
-                                        )
-                                    ]),
-                                    className="mb-4"
-                                ),
-                                width=6
-                            )
-                        ],
-                        className="mb-4"
-                    ),
-                    # New Row for Price vs Property Age and Price by Decade & Building Type (Market Trends)
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                dbc.Card(
-                                    dbc.CardBody([
-                                        html.H4("Price vs Property Age"),
-                                        dcc.Loading(
-                                            dcc.Graph(id="age-price-correlation")
-                                        )
-                                    ]),
-                                    className="mb-4"
-                                ),
-                                width=6
-                            ),
-                            dbc.Col(
-                                dbc.Card(
-                                    dbc.CardBody([
-                                        html.H4("Price by Decade & Building Type"),
-                                        dcc.Loading(
-                                            dcc.Graph(id="decade-bldg-heatmap")
-                                        )
-                                    ]),
-                                    className="mb-4"
-                                ),
-                                width=6
-                            )
-                        ],
-                        className="mb-4"
                     )
                 ],
                 fluid=True

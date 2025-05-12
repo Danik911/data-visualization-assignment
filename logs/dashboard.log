@@ -3738,3 +3738,9 @@ ValueError: cannot convert float NaN to integer
 2025-05-11 22:07:48,914 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 22:07:48] "POST /_dash-update-component HTTP/1.1" 200 -
 2025-05-11 22:07:49,207 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 22:07:49] "POST /_dash-update-component HTTP/1.1" 200 -
 2025-05-11 22:07:49,250 [INFO] werkzeug: 127.0.0.1 - - [11/May/2025 22:07:49] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-12 10:31:19,854 [INFO] dashboard.dash_app: Creating dashboard application
+2025-05-12 10:31:19,941 [INFO] dashboard.dash_app: Dashboard application created successfully
+2025-05-12 10:31:19,944 [INFO] dash.dash: Dash is running on http://localhost:8050/
+
+2025-05-12 10:31:25,683 [INFO] dashboard.dash_app: Creating dashboard application
+2025-05-12 10:31:25,737 [INFO] dashboard.dash_app: Dashboard application created successfully

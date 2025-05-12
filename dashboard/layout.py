@@ -486,6 +486,21 @@ def create_layout(data_provider=None):
     # Add a dcc.Store to track the active tab
     active_tab_store = dcc.Store(id="active-tab-store", data="tab-overview")
 
+    # Add a hidden container with all Output IDs for Dash callbacks
+    hidden_charts = html.Div([
+        dcc.Graph(id="price-distribution", style={"display": "none"}),
+        dcc.Graph(id="feature-importance", style={"display": "none"}),
+        dcc.Graph(id="building-type-distribution", style={"display": "none"}),
+        dcc.Graph(id="neighborhood-pie-chart", style={"display": "none"}),
+        dcc.Graph(id="age-price-correlation", style={"display": "none"}),
+        dcc.Graph(id="decade-bldg-heatmap", style={"display": "none"}),
+        dcc.Graph(id="comparison-price-box", style={"display": "none"}),
+        dcc.Graph(id="comparison-price-bar", style={"display": "none"}),
+        dcc.Graph(id="comparison-scatter", style={"display": "none"}),
+        dcc.Graph(id="comparison-radar", style={"display": "none"}),
+        # Add any other Output IDs used in callbacks here
+    ], id="hidden-charts", style={"display": "none"})
+
     # Create main layout
     layout = html.Div(
         [
@@ -515,7 +530,9 @@ def create_layout(data_provider=None):
                     # Add the dcc.Store for active tab
                     active_tab_store,
                     # Full-width chart rows for each tab, conditionally rendered
-                    html.Div(id="full-width-charts-row")
+                    html.Div(id="full-width-charts-row"),
+                    # Hidden charts for Dash Output IDs
+                    hidden_charts
                 ],
                 fluid=True
             ),

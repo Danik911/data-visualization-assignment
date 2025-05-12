@@ -292,53 +292,6 @@ def create_tab_content():
                         width=12  # Changed from 8 to 12 for full width
                     )
                 ]
-            ),
-            dbc.Row(
-                [
-                    # Price Distribution
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([
-                                html.H4("Price Distribution"),
-                                dcc.Loading(
-                                    dcc.Graph(id="price-distribution")
-                                )
-                            ]),
-                            className="mb-4"
-                        ),
-                        width=6  # Changed from 4 to 6 for better balance after making map full width
-                    ),
-                    # Feature Importance
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([
-                                html.H4("Feature Importance for Price"),
-                                dcc.Loading(
-                                    dcc.Graph(id="feature-importance")
-                                )
-                            ]),
-                            className="mb-4"
-                        ),
-                        width=6
-                    )
-                ]
-            ),
-            dbc.Row(
-                [
-                    # Building Type Distribution
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([
-                                html.H4("Distribution by Building Type"),
-                                dcc.Loading(
-                                    dcc.Graph(id="building-type-distribution")
-                                )
-                            ]),
-                            className="mb-4"
-                        ),
-                        width=6
-                    )
-                ]
             )
         ],
         fluid=True
@@ -733,7 +686,7 @@ def create_layout(data_provider=None):
                     # Summary Cards
                     create_summary_cards(summary_data),
                     
-                    dbc.Row( # New Row to hold filters and main content
+                    dbc.Row( # Row to hold filters and main content
                         [
                             dbc.Col( # Column for Filters
                                 create_filters(filter_options),
@@ -746,6 +699,68 @@ def create_layout(data_provider=None):
                             )
                         ],
                         className="mb-4" 
+                    ),
+                    
+                    # New Row for Price Distribution and Feature Importance
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                dbc.Card(
+                                    dbc.CardBody([
+                                        html.H4("Price Distribution"),
+                                        dcc.Loading(
+                                            dcc.Graph(id="price-distribution")
+                                        )
+                                    ]),
+                                    className="mb-4"
+                                ),
+                                width=6
+                            ),
+                            dbc.Col(
+                                dbc.Card(
+                                    dbc.CardBody([
+                                        html.H4("Feature Importance for Price"),
+                                        dcc.Loading(
+                                            dcc.Graph(id="feature-importance")
+                                        )
+                                    ]),
+                                    className="mb-4"
+                                ),
+                                width=6
+                            )
+                        ],
+                        className="mb-4"
+                    ),
+                    
+                    # New Row for Building Type Distribution and Neighborhood Pie Chart
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                dbc.Card(
+                                    dbc.CardBody([
+                                        html.H4("Distribution by Building Type"),
+                                        dcc.Loading(
+                                            dcc.Graph(id="building-type-distribution")
+                                        )
+                                    ]),
+                                    className="mb-4"
+                                ),
+                                width=6
+                            ),
+                            dbc.Col(
+                                dbc.Card(
+                                    dbc.CardBody([
+                                        html.H4("Neighborhood Distribution"),
+                                        dcc.Loading(
+                                            dcc.Graph(id="neighborhood-pie-chart")
+                                        )
+                                    ]),
+                                    className="mb-4"
+                                ),
+                                width=6
+                            )
+                        ],
+                        className="mb-4"
                     )
                 ],
                 fluid=True

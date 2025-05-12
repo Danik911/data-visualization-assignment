@@ -10,6 +10,7 @@ from typing import Dict, List, Any, Optional
 import logging
 import time
 from io import StringIO
+import plotly.express as px
 
 # Import visualization functions for generating plots
 from dashboard.visualizations import (
@@ -261,6 +262,7 @@ def register_callbacks(app, data_provider):
         Output("price-distribution", "figure"),
         Output("feature-importance", "figure"),
         Output("building-type-distribution", "figure"),
+        Output("neighborhood-pie-chart", "figure"),  # Add output for new pie chart
         Input("filtered-data-store", "data"),
         Input("dashboard-tabs", "active_tab"),
         prevent_initial_call='initial_duplicate'
@@ -286,11 +288,11 @@ def register_callbacks(app, data_provider):
                 'timestamp': time.time(),
                 'tab_activated_timestamp': None # Explicitly None
             }
-            return json.dumps(empty_map_data_inactive_tab), empty_fig, empty_fig, empty_fig
+            return json.dumps(empty_map_data_inactive_tab), empty_fig, empty_fig, empty_fig, empty_fig
             
         # Check if filtered_data_json is None or represents an empty DataFrame
         if filtered_data_json is None:
-            return None, no_data_fig, no_data_fig, no_data_fig
+            return None, no_data_fig, no_data_fig, no_data_fig, no_data_fig
         
         # Convert JSON to DataFrame
         filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
@@ -308,7 +310,7 @@ def register_callbacks(app, data_provider):
                 'tab_activated_timestamp': time.time(),
                 'error': 'No data for selected filters.'
             }
-            return json.dumps(empty_map_data), no_data_fig, no_data_fig, no_data_fig
+            return json.dumps(empty_map_data), no_data_fig, no_data_fig, no_data_fig, no_data_fig
         
         # Generate visualizations
         try:
@@ -390,7 +392,35 @@ def register_callbacks(app, data_provider):
         else:
             building_type_dist = {"data": [], "layout": {"title": "Building Type data not available"}}
         
-        return price_map_json, price_distribution, feature_importance, building_type_dist
+        # Neighborhood pie chart
+        if "Neighborhood" in filtered_df.columns:
+            # Count properties by neighborhood
+            neighborhood_counts = filtered_df["Neighborhood"].value_counts().reset_index()
+            neighborhood_counts.columns = ["Neighborhood", "Count"]
+            
+            # Get top 10 neighborhoods for better visualization
+            top_neighborhoods = neighborhood_counts.head(10)
+            
+            # Create pie chart
+            neighborhood_pie = px.pie(
+                top_neighborhoods,
+                values="Count",
+                names="Neighborhood",
+                title="Top 10 Neighborhoods",
+                hole=0.3,  # Donut chart style
+                color_discrete_sequence=px.colors.qualitative.Pastel
+            )
+            
+            # Update layout for better appearance
+            neighborhood_pie.update_traces(textposition='inside', textinfo='percent+label')
+            neighborhood_pie.update_layout(
+                margin=dict(t=30, b=10, l=10, r=10),
+                legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
+            )
+        else:
+            neighborhood_pie = {"data": [], "layout": {"title": "Neighborhood data not available"}}
+        
+        return price_map_json, price_distribution, feature_importance, building_type_dist, neighborhood_pie
     
     # Add fallback for Google Maps if it doesn't load
     @callback(

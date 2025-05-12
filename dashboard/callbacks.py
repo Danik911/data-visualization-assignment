@@ -393,20 +393,47 @@ def register_callbacks(app, data_provider):
             building_type_dist = {"data": [], "layout": {"title": "Building Type data not available"}}
         
         # Neighborhood pie chart
-        if "Neighborhood" in filtered_df.columns:
-            # Count properties by neighborhood
-            neighborhood_counts = filtered_df["Neighborhood"].value_counts().reset_index()
-            neighborhood_counts.columns = ["Neighborhood", "Count"]
+        try:
+            print(f"DEBUG: Available columns in dataframe: {filtered_df.columns.tolist()}")
             
-            # Get top 10 neighborhoods for better visualization
-            top_neighborhoods = neighborhood_counts.head(10)
+            # Try to use MS_Zoning or Bldg_Type as a reliable fallback
+            if "MS_Zoning" in filtered_df.columns:
+                category_col = "MS_Zoning"
+                title = "Distribution by Zoning"
+            elif "Bldg_Type" in filtered_df.columns:
+                category_col = "Bldg_Type"
+                title = "Distribution by Building Type"
+            else:
+                # Find any categorical column with a reasonable number of categories
+                potential_cols = []
+                for col in filtered_df.columns:
+                    if filtered_df[col].dtype == 'object' and filtered_df[col].nunique() < 15:
+                        potential_cols.append((col, filtered_df[col].nunique()))
+                
+                # Sort by number of categories (prefer columns with 5-10 categories)
+                potential_cols.sort(key=lambda x: abs(x[1] - 7))
+                
+                if potential_cols:
+                    category_col = potential_cols[0][0]
+                    title = f"Distribution by {category_col.replace('_', ' ')}"
+                else:
+                    # No suitable categorical column found
+                    raise ValueError("No suitable categorical column found for pie chart")
+            
+            # Count properties by the selected category
+            category_counts = filtered_df[category_col].value_counts().reset_index()
+            category_counts.columns = ["Category", "Count"]
+            
+            # Get top categories (or all if less than 10)
+            top_count = min(10, len(category_counts))
+            top_categories = category_counts.head(top_count)
             
             # Create pie chart
             neighborhood_pie = px.pie(
-                top_neighborhoods,
+                top_categories,
                 values="Count",
-                names="Neighborhood",
-                title="Top 10 Neighborhoods",
+                names="Category",
+                title=title,
                 hole=0.3,  # Donut chart style
                 color_discrete_sequence=px.colors.qualitative.Pastel
             )
@@ -417,8 +444,14 @@ def register_callbacks(app, data_provider):
                 margin=dict(t=30, b=10, l=10, r=10),
                 legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
             )
-        else:
-            neighborhood_pie = {"data": [], "layout": {"title": "Neighborhood data not available"}}
+            
+        except Exception as e:
+            # Log error and create fallback
+            print(f"ERROR generating neighborhood pie chart: {str(e)}")
+            import traceback
+            print(traceback.format_exc())
+            
+            neighborhood_pie = {"data": [], "layout": {"title": f"Error generating chart: {str(e)}"}}
         
         return price_map_json, price_distribution, feature_importance, building_type_dist, neighborhood_pie
     

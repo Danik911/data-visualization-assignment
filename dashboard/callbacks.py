@@ -100,15 +100,19 @@ def register_callbacks(app, data_provider):
         Input("building-type-filter", "value"),
         Input("price-range-filter", "value"),
         Input("area-range-filter", "value"),
-        Input("reset-filters-button", "n_clicks"),
-        prevent_initial_call=True
+        Input("reset-filters-button", "n_clicks")
     )
     def filter_data(building_types, price_range, area_range, reset_clicks):
+        # Get context to understand the initial call vs. user interaction
+        triggered_id = ctx.triggered_id
+        is_initial_call = triggered_id is None
+
         # Create filters dictionary
         filters = {}
         
         # Debug filter values received from UI
         print("==== FILTER DEBUG ====")
+        print(f"Triggered ID: {triggered_id}, Initial Call: {is_initial_call}")
         print(f"Building types from dropdown: {building_types}")
         if building_types:
             print(f"Building type value type: {type(building_types)}")
@@ -116,28 +120,41 @@ def register_callbacks(app, data_provider):
                 for bt in building_types:
                     print(f"  - '{bt}' (type: {type(bt)})")
             
-        # Only add filters if they have values
-        if building_types:
-            filters["Bldg_Type"] = building_types
-            print(f"Applied Building Type filter: {building_types}")
-            
-        if price_range:
-            filters["Sale_Price"] = {"range": price_range}
-            print(f"Applied Price Range filter: {price_range}")
-            
-        if area_range:
-            filters["Lot_Area"] = {"range": area_range}
-            print(f"Applied Lot Area filter: {area_range}")
-        
-        # Check if reset button was clicked
-        is_reset = ctx.triggered and "reset-filters-button" in ctx.triggered[0]["prop_id"]
-        
-        # Reset filters on button click
-        if is_reset:
-            filters = {}
-            print("Reset all filters")
-            
-        # Get filtered data from provider
+        # Default ranges needed for initialization and reset
+        column_options = data_provider.get_column_options()
+        default_price_range = [column_options["Sale_Price"]["min"], column_options["Sale_Price"]["max"]] if "Sale_Price" in column_options else []
+        default_area_range = [column_options["Lot_Area"]["min"], column_options["Lot_Area"]["max"]] if "Lot_Area" in column_options else []
+
+        # Determine if reset was clicked
+        is_reset = triggered_id == "reset-filters-button"
+
+        # Apply filters only if it's not the initial call AND not a reset
+        if not is_initial_call and not is_reset:
+            if building_types:
+                filters["Bldg_Type"] = building_types
+                print(f"Applied Building Type filter: {building_types}")
+            if price_range:
+                # Ensure price_range isn't the default before applying
+                if price_range != default_price_range:
+                    filters["Sale_Price"] = {"range": price_range}
+                    print(f"Applied Price Range filter: {price_range}")
+                else:
+                    print("Price range is default, not applying filter.")
+            if area_range:
+                 # Ensure area_range isn't the default before applying
+                if area_range != default_area_range:
+                    filters["Lot_Area"] = {"range": area_range}
+                    print(f"Applied Lot Area filter: {area_range}")
+                else:
+                    print("Area range is default, not applying filter.")
+        elif is_reset:
+            print("Reset button clicked, clearing filters.")
+            # Filters remain empty
+        else: # Initial call
+            print("Initial call, applying no filters.")
+            # Filters remain empty
+
+        # Get filtered data from provider (will be all data on initial call/reset)
         filtered_df = data_provider.get_filtered_data(filters)
         
         # Debug dataset after filtering
@@ -171,25 +188,13 @@ def register_callbacks(app, data_provider):
         # Update filter count badge text
         filter_badge_text = f"{active_filter_count} active filter{'s' if active_filter_count != 1 else ''}"
         
-        # Get default ranges for price and area if needed for reset
-        column_options = data_provider.get_column_options()
-        default_price_range = [
-            column_options["Sale_Price"]["min"], 
-            column_options["Sale_Price"]["max"]
-        ] if "Sale_Price" in column_options else price_range
-        
-        default_area_range = [
-            column_options["Lot_Area"]["min"],
-            column_options["Lot_Area"]["max"]
-        ] if "Lot_Area" in column_options else area_range
-        
+        # Determine output values for filters
+        output_building_types = [] if is_reset or is_initial_call else building_types
+        output_price_range = default_price_range if is_reset or is_initial_call else price_range
+        output_area_range = default_area_range if is_reset or is_initial_call else area_range
+
         # Return appropriate values for all outputs
-        if is_reset:
-            # When reset button is clicked, return reset values for UI components
-            return filtered_json, filter_badge_text, [], default_price_range, default_area_range
-        else:
-            # During normal filtering, return current values for UI components to maintain their state
-            return filtered_json, filter_badge_text, building_types, price_range, area_range
+        return filtered_json, filter_badge_text, output_building_types, output_price_range, output_area_range
     
     # Update filter badge styling based on active filter count
     @callback(
@@ -610,46 +615,54 @@ def register_callbacks(app, data_provider):
             # Return no_update when tab is not active
             return no_update, no_update
         
+        # Define figure for no data
+        no_data_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
+
         # Check if filtered_data_json is None
         if filtered_data_json is None:
-            # Return no_update when tab is not active
-            return no_update, no_update
+            # Return message figure when no data
+            return no_data_fig, no_data_fig
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
-        
-        # Calculate price per square foot if columns exist
-        if "Sale_Price" in filtered_df.columns and "Lot_Area" in filtered_df.columns:
-            filtered_df["Price_Per_SqFt"] = filtered_df["Sale_Price"] / filtered_df["Lot_Area"]
+        try:
+            filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
             
-            # Generate scatter plot for price per sq ft
-            price_per_sqft_fig = generate_scatter_plot(
-                filtered_df, 
-                "Lot_Area", 
-                "Price_Per_SqFt", 
-                "Bldg_Type" if "Bldg_Type" in filtered_df.columns else None
-            )
-        else:
-            price_per_sqft_fig = {"data": [], "layout": {"title": "Required columns not available"}}
-        
-        # Generate building type comparison chart
-        if "Bldg_Type" in filtered_df.columns and "Sale_Price" in filtered_df.columns:
-            # Aggregate average price by building type
-            building_type_avg = filtered_df.groupby("Bldg_Type")["Sale_Price"].mean().reset_index()
+            # Calculate price per square foot if columns exist
+            if "Sale_Price" in filtered_df.columns and "Lot_Area" in filtered_df.columns:
+                filtered_df["Price_Per_SqFt"] = filtered_df["Sale_Price"] / filtered_df["Lot_Area"]
+                
+                # Generate scatter plot for price per sq ft
+                price_per_sqft_fig = generate_scatter_plot(
+                    filtered_df, 
+                    "Lot_Area", 
+                    "Price_Per_SqFt", 
+                    "Bldg_Type" if "Bldg_Type" in filtered_df.columns else None
+                )
+            else:
+                price_per_sqft_fig = {"data": [], "layout": {"title": "Required columns not available"}}
             
-            # Create comparison bar chart
-            import plotly.express as px
-            building_type_fig = px.bar(
-                building_type_avg, 
-                x="Bldg_Type", 
-                y="Sale_Price",
-                title="Average Price by Building Type",
-                labels={"Sale_Price": "Average Sale Price", "Bldg_Type": "Building Type"}
-            )
-        else:
-            building_type_fig = {"data": [], "layout": {"title": "Building Type data not available"}}
-        
-        return price_per_sqft_fig, building_type_fig
+            # Generate building type comparison chart
+            if "Bldg_Type" in filtered_df.columns and "Sale_Price" in filtered_df.columns:
+                # Aggregate average price by building type
+                building_type_avg = filtered_df.groupby("Bldg_Type")["Sale_Price"].mean().reset_index()
+                
+                # Create comparison bar chart
+                building_type_fig = px.bar(
+                    building_type_avg, 
+                    x="Bldg_Type", 
+                    y="Sale_Price",
+                    title="Average Price by Building Type",
+                    labels={"Sale_Price": "Average Sale Price", "Bldg_Type": "Building Type"}
+                )
+            else:
+                building_type_fig = {"data": [], "layout": {"title": "Building Type data not available"}}
+            
+            return price_per_sqft_fig, building_type_fig
+        except Exception as e:
+            import traceback
+            print(f"Error in update_market_trends_visualizations: {str(e)}")
+            print(traceback.format_exc())
+            return no_update, no_update
     
     # Update Market Trends tab with temporal analysis
     @callback(
@@ -665,23 +678,32 @@ def register_callbacks(app, data_provider):
             # Return no_update when tab is not active
             return no_update, no_update, no_update
         
+        # Define figure for no data
+        no_data_fig = {"data": [], "layout": {"title": "No property data available for the current filter criteria"}}
+
         # Check if filtered_data_json is None
         if filtered_data_json is None:
-            # Return no_update when tab is not active
-            return no_update, no_update, no_update
+            # Return message figure when no data
+            return no_data_fig, no_data_fig, no_data_fig
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
-        
-        # Generate year trend visualizations
-        year_trends = generate_year_trend_analysis(filtered_df)
-        
-        # Return the generated figures, or no_update if not available
-        price_by_year = year_trends.get('price_by_year', no_update)
-        age_price = year_trends.get('age_price_correlation', no_update)
-        decade_heatmap = year_trends.get('decade_bldg_heatmap', no_update)
-        
-        return price_by_year, age_price, decade_heatmap
+        try:
+            filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
+            
+            # Generate year trend visualizations
+            year_trends = generate_year_trend_analysis(filtered_df)
+            
+            # Return the generated figures, or no_update if not available
+            price_by_year = year_trends.get('price_by_year', no_update)
+            age_price = year_trends.get('age_price_correlation', no_update)
+            decade_heatmap = year_trends.get('decade_bldg_heatmap', no_update)
+            
+            return price_by_year, age_price, decade_heatmap
+        except Exception as e:
+            import traceback
+            print(f"Error in update_year_trend_visualizations: {str(e)}")
+            print(traceback.format_exc())
+            return no_update, no_update, no_update
     
     # Handle property comparisons tab
     @callback(
@@ -745,13 +767,24 @@ def register_callbacks(app, data_provider):
             # Return no_update when tab is not active
             return no_update
         
+        # Define message for no data
+        no_data_message = html.Div("No property data available for the current filter criteria", 
+                               style={"textAlign": "center", "marginTop": "50px", "color": "#888"})
+
         # Check if filtered_data_json is None
         if filtered_data_json is None:
-            # Return no_update when tab is not active
-            return no_update
+            # Return message when no data
+            return no_data_message
         
         # Convert JSON to DataFrame
-        filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
+        try:
+            filtered_df = pd.read_json(StringIO(filtered_data_json), orient='split')
+        except ValueError:
+             return html.Div("Error reading filtered data.", style={"textAlign": "center", "marginTop": "50px", "color": "red"})
+
+        # ADD Check for empty DataFrame AFTER conversion
+        if filtered_df.empty:
+            return no_data_message
         
         # Limit to 1000 rows for performance
         if len(filtered_df) > 1000:

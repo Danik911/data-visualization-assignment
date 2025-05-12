@@ -354,9 +354,7 @@ def create_tab_content():
                                 id="comparison-column",
                                 options=[
                                     {"label": "Building Type", "value": "Bldg_Type"},
-                                    {"label": "House Style", "value": "House_Style"},
-                                    {"label": "Neighborhood", "value": "Neighborhood"},
-                                    {"label": "Sale Condition", "value": "Sale_Condition"}
+                                    {"label": "House Style", "value": "House_Style"}
                                 ],
                                 value="Bldg_Type",
                                 clearable=False

@@ -1,0 +1,81 @@
+/* dashboard/assets/styles.css */
+
+/* Style for active tab content */
+.tab-content {
+    padding-top: 20px; /* Add some space above tab content */
+    display: block; /* Show by default */
+}
+
+/* Style to hide inactive tab content */
+/* Dash automatically adds 'active' class to the active tab's parent element, 
+   so we hide siblings that are NOT active. This is a common pattern but 
+   might need adjustment depending on the exact structure Dash renders.
+   A more direct approach is to use a callback to set display: none/block. */
+
+/* Hide all tab content divs initially */
+.tab-content {
+    display: none;
+}
+
+/* Show only the active tab's content div. 
+   Requires a callback to add/remove an 'active-tab-content' class. */
+.tab-content.active-tab-content {
+    display: block;
+}
+
+/* Additional Custom Styles */
+.dashboard-container {
+    padding-top: 20px;
+}
+
+.header-content {
+    margin-bottom: 20px;
+}
+
+.dashboard-title {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.summary-card .card-body {
+    padding: 1rem; /* Adjust padding */
+}
+
+.summary-icon {
+    font-size: 1.5rem; /* Slightly smaller icons */
+}
+
+.card-title {
+    margin-bottom: 0.75rem;
+}
+
+/* Fade-in animation */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Ensure dropdowns in filters don't get cut off */
+.filters-column .card-body > div {
+    position: relative;
+    z-index: 10; /* Adjust if necessary */
+}
+.filters-column .card-body > div + div {
+    z-index: 9; /* Lower z-index for subsequent filters */
+}
+
+
+/* Specific Z-index for building type dropdown parent */
+#building-type-filter-container {
+    position: relative;
+    z-index: 100; /* High z-index */
+}
+
+/* Ensure RangeSlider tooltips are visible */
+.rc-slider-tooltip {
+    z-index: 101 !important; /* Ensure tooltip is above everything */
+} 

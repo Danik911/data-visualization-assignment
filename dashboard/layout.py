@@ -273,7 +273,7 @@ def create_tab_content():
     """
     from dashboard.google_maps_component import create_google_map
 
-    # Overview Tab: Only the first row (map)
+    # Overview Tab Content
     overview_tab = dbc.Container(
         [
             dbc.Row(
@@ -290,60 +290,90 @@ def create_tab_content():
                         width=12
                     )
                 ]
-            )
+            ),
+            dbc.Row([
+                dbc.Col(dbc.Card(dbc.CardBody([html.H4("Price Distribution"), dcc.Loading(dcc.Graph(id="price-distribution"))])), width=6, className="mb-4"),
+                dbc.Col(dbc.Card(dbc.CardBody([html.H4("Building Type Distribution"), dcc.Loading(dcc.Graph(id="building-type-distribution"))])), width=6, className="mb-4"),
+            ]),
+            dbc.Row([
+                 dbc.Col(dbc.Card(dbc.CardBody([html.H4("Feature Importance"), dcc.Loading(dcc.Graph(id="feature-importance"))])), width=6, className="mb-4"),
+                 dbc.Col(dbc.Card(dbc.CardBody([html.H4("Distribution by Category"), dcc.Loading(dcc.Graph(id="neighborhood-pie-chart"))])), width=6, className="mb-4"), # Placeholder for pie chart
+            ])
         ],
         fluid=True
     )
 
-    # Property Analysis Tab: Correlation Analysis first row (full-width)
+    # Property Analysis Tab Content
     property_analysis_tab = dbc.Container(
         [
-            dbc.Row(
+            dbc.Row( # First row: Correlation and Parallel Coords
                 [
-                    dbc.Col(
-                        dbc.Card(
+                    dbc.Col(dbc.Card(dbc.CardBody([html.H4("Correlation Analysis"), dcc.Loading(dcc.Graph(id="correlation-heatmap"))])), width=6, className="mb-4"),
+                    dbc.Col(dbc.Card(dbc.CardBody([html.H4("Parallel Coordinates"), dcc.Loading(dcc.Graph(id="parallel-coordinates"))])), width=6, className="mb-4"),
+                ]
+            ),
+            dbc.Row( # Second row: Scatter and Box plots with controls
+                [
+                    dbc.Col([
+                        dbc.Card([
+                            dbc.CardHeader("Scatter Plot"),
                             dbc.CardBody([
-                                html.H4("Correlation Analysis"),
-                                dcc.Loading(
-                                    dcc.Graph(id="correlation-heatmap")
-                                )
-                            ]),
-                            className="mb-4"
-                        ),
-                        width=12
-                    )
+                                dbc.Row([
+                                    dbc.Col(dcc.Dropdown(id="scatter-x-axis", placeholder="Select X-axis"), width=4),
+                                    dbc.Col(dcc.Dropdown(id="scatter-y-axis", placeholder="Select Y-axis"), width=4),
+                                    dbc.Col(dcc.Dropdown(id="scatter-color", placeholder="Select Color"), width=4)
+                                ]),
+                                dcc.Loading(dcc.Graph(id="property-scatter-plot"))
+                            ])
+                        ])
+                    ], width=6, className="mb-4"),
+                    dbc.Col([
+                        dbc.Card([
+                             dbc.CardHeader("Box Plot"),
+                             dbc.CardBody([
+                                dbc.Row([
+                                    dbc.Col(dcc.Dropdown(id="box-plot-numeric", placeholder="Select Numeric Var"), width=6),
+                                    dbc.Col(dcc.Dropdown(id="box-plot-category", placeholder="Select Category Var"), width=6)
+                                ]),
+                                dcc.Loading(dcc.Graph(id="property-box-plot"))
+                             ])
+                        ])
+                    ], width=6, className="mb-4"),
                 ]
             )
         ],
         fluid=True
     )
 
-    # Market Trends Tab: Only the first row (Price by Year)
+    # Market Trends Tab Content
     market_trends_tab = dbc.Container(
         [
             dbc.Row(
                 [
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([
-                                html.H4("Price Trends by Year Built"),
-                                dcc.Loading(
-                                    dcc.Graph(id="price-by-year")
-                                )
-                            ]),
-                            className="mb-4"
-                        ),
-                        width=12
-                    )
+                    dbc.Col(dbc.Card(dbc.CardBody([html.H4("Price Trends by Year Built"), dcc.Loading(dcc.Graph(id="price-by-year"))])), width=12, className="mb-4")
+                ]
+            ),
+            dbc.Row(
+                [
+                     dbc.Col(dbc.Card(dbc.CardBody([html.H4("Age vs Price Correlation"), dcc.Loading(dcc.Graph(id="age-price-correlation"))])), width=6, className="mb-4"),
+                     dbc.Col(dbc.Card(dbc.CardBody([html.H4("Decade vs Building Type Heatmap"), dcc.Loading(dcc.Graph(id="decade-bldg-heatmap"))])), width=6, className="mb-4"),
+                ]
+            ),
+            # Add Price per SqFt and Building Type comparison charts
+            dbc.Row(
+                [
+                    dbc.Col(dbc.Card(dbc.CardBody([html.H4("Price per SqFt Analysis"), dcc.Loading(dcc.Graph(id="price-per-sqft-analysis"))])), width=6, className="mb-4"),
+                    dbc.Col(dbc.Card(dbc.CardBody([html.H4("Building Type Average Price"), dcc.Loading(dcc.Graph(id="building-type-comparison"))])), width=6, className="mb-4"),
                 ]
             )
         ],
         fluid=True
     )
 
-    # Property Comparison Tab: Only the first row (controls)
+    # Property Comparison Tab Content
     property_comparison_tab = dbc.Container(
         [
+            # Controls Row
             dbc.Row(
                 [
                     dbc.Col(
@@ -357,27 +387,42 @@ def create_tab_content():
                                     {"label": "Neighborhood", "value": "Neighborhood"},
                                     {"label": "Sale Condition", "value": "Sale_Condition"}
                                 ],
-                                value="Bldg_Type",
+                                value="Bldg_Type", # Default value
                                 clearable=False
                             ),
                             dbc.Button(
                                 "Generate Comparisons",
                                 id="generate-comparison-button",
                                 color="primary",
-                                className="mt-3"
+                                className="mt-3 w-100" # Make button full width of column
                             )
                         ],
-                        width=3,
-                        style={"textAlign": "left"}
+                        width=3, # Control column takes 3/12 width
+                        className="mb-4" # Add margin below controls
+                    ),
+                    dbc.Col( # Placeholder or initial message for charts area
+                        html.Div("Select a category and click 'Generate Comparisons' to view charts.",
+                                 style={'textAlign': 'center', 'marginTop': '20px', 'color': '#888'}),
+                        width=9,
+                        id="comparison-charts-area" # We might still need this ID if we want to update the placeholder dynamically
                     )
                 ],
-                className="mb-3"
-            )
+                className="mb-3 align-items-start" # Align items at the start
+            ),
+            # Charts Row (Initially maybe hidden or empty, updated by callback)
+             dbc.Row([
+                dbc.Col(dbc.Card(dbc.CardBody([html.H4("Price Distribution by Category"), dcc.Loading(dcc.Graph(id="comparison-price-box"))])), width=6, className="mb-4"),
+                dbc.Col(dbc.Card(dbc.CardBody([html.H4("Average Price by Category"), dcc.Loading(dcc.Graph(id="comparison-price-bar"))])), width=6, className="mb-4"),
+            ]),
+             dbc.Row([
+                 dbc.Col(dbc.Card(dbc.CardBody([html.H4("Price vs Area by Category"), dcc.Loading(dcc.Graph(id="comparison-scatter"))])), width=6, className="mb-4"),
+                 dbc.Col(dbc.Card(dbc.CardBody([html.H4("Multi-Metric Comparison"), dcc.Loading(dcc.Graph(id="comparison-radar"))])), width=6, className="mb-4"),
+            ]),
         ],
         fluid=True
     )
 
-    # Data Table Tab (unchanged)
+    # Data Table Tab Content (Remains simple)
     data_table_tab = dbc.Container(
         [
             dbc.Card(
@@ -386,7 +431,7 @@ def create_tab_content():
                     dcc.Loading(
                         id="data-table-loading",
                         children=[
-                            html.Div(id="data-table-container")
+                            html.Div(id="data-table-container") # Container for the DataTable
                         ],
                         type="circle"
                     )
@@ -420,11 +465,11 @@ def create_tabs(tab_content: dict) -> dbc.Container:
         [
             dbc.Tabs(
                 [
-                    dbc.Tab(tab_content["overview"], label="Overview", tab_id="tab-overview"),
-                    dbc.Tab(tab_content["property_analysis"], label="Property Analysis", tab_id="tab-property"),
-                    dbc.Tab(tab_content["market_trends"], label="Market Trends", tab_id="tab-market"),
-                    dbc.Tab(tab_content["property_comparison"], label="Property Comparison", tab_id="tab-comparison"),
-                    dbc.Tab(tab_content["data_table"], label="Data Table", tab_id="tab-data")
+                    dbc.Tab(html.Div(tab_content["overview"], id="tab-content-overview", className="tab-content"), label="Overview", tab_id="tab-overview"),
+                    dbc.Tab(html.Div(tab_content["property_analysis"], id="tab-content-property", className="tab-content"), label="Property Analysis", tab_id="tab-property"),
+                    dbc.Tab(html.Div(tab_content["market_trends"], id="tab-content-market", className="tab-content"), label="Market Trends", tab_id="tab-market"),
+                    dbc.Tab(html.Div(tab_content["property_comparison"], id="tab-content-comparison", className="tab-content"), label="Property Comparison", tab_id="tab-comparison"),
+                    dbc.Tab(html.Div(tab_content["data_table"], id="tab-content-data", className="tab-content"), label="Data Table", tab_id="tab-data")
                 ],
                 id="dashboard-tabs",
                 active_tab="tab-overview"
@@ -480,223 +525,59 @@ def create_layout(data_provider=None):
         from dashboard.visualizations import generate_summary_cards
         summary_data = generate_summary_cards(df)
     
-    # Create tab content
+    # Create tab content (now includes all charts)
     tab_content = create_tab_content()
     
     # Add a dcc.Store to track the active tab
     active_tab_store = dcc.Store(id="active-tab-store", data="tab-overview")
 
-    # Add a hidden container with all Output IDs for Dash callbacks
-    hidden_charts = html.Div([
-        dcc.Graph(id="price-distribution", style={"display": "none"}),
-        dcc.Graph(id="feature-importance", style={"display": "none"}),
-        dcc.Graph(id="building-type-distribution", style={"display": "none"}),
-        dcc.Graph(id="neighborhood-pie-chart", style={"display": "none"}),
-        dcc.Graph(id="age-price-correlation", style={"display": "none"}),
-        dcc.Graph(id="decade-bldg-heatmap", style={"display": "none"}),
-        dcc.Graph(id="comparison-price-box", style={"display": "none"}),
-        dcc.Graph(id="comparison-price-bar", style={"display": "none"}),
-        dcc.Graph(id="comparison-scatter", style={"display": "none"}),
-        dcc.Graph(id="comparison-radar", style={"display": "none"}),
-        # Add any other Output IDs used in callbacks here
-    ], id="hidden-charts", style={"display": "none"})
-
-    # Create main layout
-    layout = html.Div(
+    layout = dbc.Container(
         [
-            # Header
             create_header(),
-            
-            # Main Content
-            dbc.Container(
+            dbc.Row(
                 [
-                    # Summary Cards
-                    create_summary_cards(summary_data),
-                    
-                    dbc.Row( # Row to hold filters and main content
-                        [
-                            dbc.Col( # Column for Filters
-                                create_filters(filter_options),
-                                width=3, # Filters take 3/12 of the width
-                                className="filters-column" # Optional: for specific styling
-                            ),
-                            dbc.Col( # Column for Main Content (Tabs)
-                                create_tabs(tab_content),
-                                width=9 # Main content takes 9/12 of the width
-                            )
-                        ],
-                        className="mb-4" 
+                    # Filters Sidebar (3 cols)
+                    dbc.Col(
+                        create_filters(filter_options),
+                        width=12, lg=3, 
+                        className="sidebar"
                     ),
-                    # Add the dcc.Store for active tab
-                    active_tab_store,
-                    # Full-width chart rows for each tab, conditionally rendered
-                    html.Div(id="full-width-charts-row"),
-                    # Hidden charts for Dash Output IDs
-                    hidden_charts
+                    
+                    # Main Content Area (9 cols)
+                    dbc.Col(
+                        [
+                            create_summary_cards(summary_data),
+                            create_tabs(tab_content) # Tabs now contain full content
+                        ],
+                        width=12, lg=9, 
+                        className="main-content"
+                    )
                 ],
-                fluid=True
+                className="mb-4"
             ),
-            
-            # Footer
             create_footer(),
             
-            # Store for sharing data between callbacks
-            dcc.Store(id="filtered-data-store", data=data_provider.get_data().to_json(date_format='iso', orient='split'))
-        ]
+            # Stores
+            dcc.Store(id="filtered-data-store"),
+            active_tab_store,
+        ],
+        fluid=True,
+        className="dashboard-container"
     )
     
     return layout
 
-# Dash callback to update active_tab_store when tab changes
+
 @callback(
-    Output("active-tab-store", "data"),
+    [Output(f"tab-content-{tab_id.split('-')[-1]}", "style") for tab_id in ["tab-overview", "tab-property", "tab-market", "tab-comparison", "tab-data"]],
     Input("dashboard-tabs", "active_tab")
 )
-def update_active_tab_store(active_tab):
-    return active_tab
-
-# Dash callback to render full-width chart rows based on active tab
-@callback(
-    Output("full-width-charts-row", "children"),
-    Input("active-tab-store", "data")
-)
-def render_full_width_charts(active_tab):
-    if active_tab == "tab-overview":
-        return [
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Price Distribution"),
-                    dcc.Loading(dcc.Graph(id="price-distribution"))
-                ]), className="mb-4"), width=6),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Feature Importance for Price"),
-                    dcc.Loading(dcc.Graph(id="feature-importance"))
-                ]), className="mb-4"), width=6)
-            ], className="mb-4"),
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Distribution by Building Type"),
-                    dcc.Loading(dcc.Graph(id="building-type-distribution"))
-                ]), className="mb-4"), width=6),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Neighborhood Distribution"),
-                    dcc.Loading(dcc.Graph(id="neighborhood-pie-chart"))
-                ]), className="mb-4"), width=6)
-            ], className="mb-4")
-        ]
-    elif active_tab == "tab-property":
-        return [
-            dbc.Row([
-                dbc.Col(
-                    dbc.Card(
-                        dbc.CardBody([
-                            html.H4("Property Attribute Analysis"),
-                            dbc.Row([
-                                dbc.Col([
-                                    dbc.Label("X-Axis"),
-                                    dcc.Dropdown(
-                                        id="scatter-x-axis",
-                                        placeholder="Select x-axis attribute..."
-                                    )
-                                ], width=5),
-                                dbc.Col([
-                                    dbc.Label("Y-Axis"),
-                                    dcc.Dropdown(
-                                        id="scatter-y-axis",
-                                        placeholder="Select y-axis attribute..."
-                                    )
-                                ], width=5),
-                                dbc.Col([
-                                    dbc.Label("Color By"),
-                                    dcc.Dropdown(
-                                        id="scatter-color",
-                                        placeholder="Select color attribute..."
-                                    )
-                                ], width=2)
-                            ], className="mb-3"),
-                            dcc.Loading(
-                                dcc.Graph(id="property-scatter-plot")
-                            )
-                        ]),
-                        className="mb-4"
-                    ),
-                    width=8
-                ),
-                dbc.Col(
-                    dbc.Card(
-                        dbc.CardBody([
-                            html.H4("Distribution Analysis"),
-                            dbc.Row([
-                                dbc.Col([
-                                    dbc.Label("Numeric Variable"),
-                                    dcc.Dropdown(
-                                        id="box-plot-numeric",
-                                        placeholder="Select numeric variable..."
-                                    )
-                                ], width=6),
-                                dbc.Col([
-                                    dbc.Label("Group By"),
-                                    dcc.Dropdown(
-                                        id="box-plot-category",
-                                        placeholder="Select category..."
-                                    )
-                                ], width=6)
-                            ], className="mb-3"),
-                            dcc.Loading(
-                                dcc.Graph(id="property-box-plot")
-                            )
-                        ]),
-                        className="mb-4"
-                    ),
-                    width=4
-                )
-            ], className="mb-4")
-        ]
-    elif active_tab == "tab-market":
-        return [
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Price per Square Foot Analysis"),
-                    dcc.Loading(dcc.Graph(id="price-per-sqft-analysis"))
-                ]), className="mb-4"), width=6),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Building Type Comparison"),
-                    dcc.Loading(dcc.Graph(id="building-type-comparison"))
-                ]), className="mb-4"), width=6)
-            ], className="mb-4"),
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Price vs Property Age"),
-                    dcc.Loading(dcc.Graph(id="age-price-correlation"))
-                ]), className="mb-4"), width=6),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Price by Decade & Building Type"),
-                    dcc.Loading(dcc.Graph(id="decade-bldg-heatmap"))
-                ]), className="mb-4"), width=6)
-            ], className="mb-4")
-        ]
-    elif active_tab == "tab-comparison":
-        return [
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Price Distribution by Category"),
-                    dcc.Loading(dcc.Graph(id="comparison-price-box"))
-                ]), className="mb-4"), width=6),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Average Price by Category"),
-                    dcc.Loading(dcc.Graph(id="comparison-price-bar"))
-                ]), className="mb-4"), width=6)
-            ], className="mb-4"),
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Price vs Area by Category"),
-                    dcc.Loading(dcc.Graph(id="comparison-scatter"))
-                ]), className="mb-4"), width=6),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Multi-Metric Comparison"),
-                    dcc.Loading(dcc.Graph(id="comparison-radar"))
-                ]), className="mb-4"), width=6)
-            ], className="mb-4")
-        ]
-    else:
-        return []
+def control_tab_content_visibility(active_tab_id):
+    styles = []
+    all_tabs = ["tab-overview", "tab-property", "tab-market", "tab-comparison", "tab-data"]
+    for tab_id in all_tabs:
+        if tab_id == active_tab_id:
+            styles.append({"display": "block"})
+        else:
+            styles.append({"display": "none"})
+    return styles

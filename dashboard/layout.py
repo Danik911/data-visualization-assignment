@@ -295,7 +295,7 @@ def create_tab_content():
         fluid=True
     )
 
-    # Property Analysis Tab: Correlation Analysis first row (full-width), then Property Attribute/Distribution side-by-side
+    # Property Analysis Tab: Correlation Analysis first row (full-width)
     property_analysis_tab = dbc.Container(
         [
             dbc.Row(
@@ -311,73 +311,6 @@ def create_tab_content():
                             className="mb-4"
                         ),
                         width=12
-                    )
-                ]
-            ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([
-                                html.H4("Property Attribute Analysis"),
-                                dbc.Row([
-                                    dbc.Col([
-                                        dbc.Label("X-Axis"),
-                                        dcc.Dropdown(
-                                            id="scatter-x-axis",
-                                            placeholder="Select x-axis attribute..."
-                                        )
-                                    ], width=5),
-                                    dbc.Col([
-                                        dbc.Label("Y-Axis"),
-                                        dcc.Dropdown(
-                                            id="scatter-y-axis",
-                                            placeholder="Select y-axis attribute..."
-                                        )
-                                    ], width=5),
-                                    dbc.Col([
-                                        dbc.Label("Color By"),
-                                        dcc.Dropdown(
-                                            id="scatter-color",
-                                            placeholder="Select color attribute..."
-                                        )
-                                    ], width=2)
-                                ], className="mb-3"),
-                                dcc.Loading(
-                                    dcc.Graph(id="property-scatter-plot")
-                                )
-                            ]),
-                            className="mb-4"
-                        ),
-                        width=8
-                    ),
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([
-                                html.H4("Distribution Analysis"),
-                                dbc.Row([
-                                    dbc.Col([
-                                        dbc.Label("Numeric Variable"),
-                                        dcc.Dropdown(
-                                            id="box-plot-numeric",
-                                            placeholder="Select numeric variable..."
-                                        )
-                                    ], width=6),
-                                    dbc.Col([
-                                        dbc.Label("Group By"),
-                                        dcc.Dropdown(
-                                            id="box-plot-category",
-                                            placeholder="Select category..."
-                                        )
-                                    ], width=6)
-                                ], className="mb-3"),
-                                dcc.Loading(
-                                    dcc.Graph(id="property-box-plot")
-                                )
-                            ]),
-                            className="mb-4"
-                        ),
-                        width=4
                     )
                 ]
             )
@@ -426,21 +359,19 @@ def create_tab_content():
                                 ],
                                 value="Bldg_Type",
                                 clearable=False
+                            ),
+                            dbc.Button(
+                                "Generate Comparisons",
+                                id="generate-comparison-button",
+                                color="primary",
+                                className="mt-3"
                             )
                         ],
-                        width=4
-                    ),
-                    dbc.Col(
-                        dbc.Button(
-                            "Generate Comparisons",
-                            id="generate-comparison-button",
-                            color="primary",
-                            className="mt-4"
-                        ),
-                        width=4
+                        width=3,
+                        style={"textAlign": "left"}
                     )
                 ],
-                className="mb-4"
+                className="mb-3"
             )
         ],
         fluid=True
@@ -634,6 +565,74 @@ def render_full_width_charts(active_tab):
                     html.H4("Neighborhood Distribution"),
                     dcc.Loading(dcc.Graph(id="neighborhood-pie-chart"))
                 ]), className="mb-4"), width=6)
+            ], className="mb-4")
+        ]
+    elif active_tab == "tab-property":
+        return [
+            dbc.Row([
+                dbc.Col(
+                    dbc.Card(
+                        dbc.CardBody([
+                            html.H4("Property Attribute Analysis"),
+                            dbc.Row([
+                                dbc.Col([
+                                    dbc.Label("X-Axis"),
+                                    dcc.Dropdown(
+                                        id="scatter-x-axis",
+                                        placeholder="Select x-axis attribute..."
+                                    )
+                                ], width=5),
+                                dbc.Col([
+                                    dbc.Label("Y-Axis"),
+                                    dcc.Dropdown(
+                                        id="scatter-y-axis",
+                                        placeholder="Select y-axis attribute..."
+                                    )
+                                ], width=5),
+                                dbc.Col([
+                                    dbc.Label("Color By"),
+                                    dcc.Dropdown(
+                                        id="scatter-color",
+                                        placeholder="Select color attribute..."
+                                    )
+                                ], width=2)
+                            ], className="mb-3"),
+                            dcc.Loading(
+                                dcc.Graph(id="property-scatter-plot")
+                            )
+                        ]),
+                        className="mb-4"
+                    ),
+                    width=8
+                ),
+                dbc.Col(
+                    dbc.Card(
+                        dbc.CardBody([
+                            html.H4("Distribution Analysis"),
+                            dbc.Row([
+                                dbc.Col([
+                                    dbc.Label("Numeric Variable"),
+                                    dcc.Dropdown(
+                                        id="box-plot-numeric",
+                                        placeholder="Select numeric variable..."
+                                    )
+                                ], width=6),
+                                dbc.Col([
+                                    dbc.Label("Group By"),
+                                    dcc.Dropdown(
+                                        id="box-plot-category",
+                                        placeholder="Select category..."
+                                    )
+                                ], width=6)
+                            ], className="mb-3"),
+                            dcc.Loading(
+                                dcc.Graph(id="property-box-plot")
+                            )
+                        ]),
+                        className="mb-4"
+                    ),
+                    width=4
+                )
             ], className="mb-4")
         ]
     elif active_tab == "tab-market":

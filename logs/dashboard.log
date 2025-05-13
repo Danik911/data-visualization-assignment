@@ -6521,3 +6521,19 @@ dash.exceptions.DuplicateIdError: Duplicate component id found in the initial la
 2025-05-12 19:33:52,099 [INFO] werkzeug: 127.0.0.1 - - [12/May/2025 19:33:52] "POST /_dash-update-component HTTP/1.1" 200 -
 2025-05-12 19:33:52,426 [INFO] werkzeug: 127.0.0.1 - - [12/May/2025 19:33:52] "POST /_dash-update-component HTTP/1.1" 200 -
 2025-05-12 19:33:52,489 [INFO] werkzeug: 127.0.0.1 - - [12/May/2025 19:33:52] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-05-13 08:08:43,652 [INFO] dashboard.dash_app: Creating dashboard application
+2025-05-13 08:08:43,705 [INFO] dashboard.dash_app: Dashboard application created successfully
+2025-05-13 08:08:43,708 [INFO] dash.dash: Dash is running on http://localhost:8050/
+
+2025-05-13 08:08:49,595 [INFO] dashboard.dash_app: Creating dashboard application
+2025-05-13 08:08:49,633 [INFO] dashboard.dash_app: Dashboard application created successfully
+2025-05-13 08:13:58,090 [INFO] dashboard.dash_app: Creating dashboard application
+2025-05-13 08:13:58,161 [INFO] dashboard.dash_app: Dashboard application created successfully
+2025-05-13 08:13:58,163 [INFO] dash.dash: Dash is running on http://localhost:8050/
+
+2025-05-13 08:14:03,886 [INFO] dashboard.dash_app: Creating dashboard application
+2025-05-13 08:14:03,938 [INFO] dashboard.dash_app: Dashboard application created successfully
+2025-05-13 08:17:26,378 [INFO] dashboard.dash_app: Creating dashboard application
+2025-05-13 08:17:26,431 [INFO] dashboard.dash_app: Dashboard application created successfully
+2025-05-13 08:17:36,152 [INFO] dashboard.dash_app: Creating dashboard application
+2025-05-13 08:17:36,199 [INFO] dashboard.dash_app: Dashboard application created successfully

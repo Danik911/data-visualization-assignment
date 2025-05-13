@@ -71,7 +71,7 @@ def create_dash_app(data_path=None, debug=None):
     
     # Get Google Maps API key from environment
     google_maps_api_key = os.environ.get("GOOGLE_MAPS_API_KEY")
-    print(f"DEBUG: Attempting to use Google Maps API Key: {google_maps_api_key}")
+    # print(f"DEBUG: Attempting to use Google Maps API Key: {google_maps_api_key}")
     if not google_maps_api_key:
         logger.error("GOOGLE_MAPS_API_KEY environment variable is not set")
         raise ValueError("GOOGLE_MAPS_API_KEY environment variable must be set")

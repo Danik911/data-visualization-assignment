@@ -12,7 +12,44 @@ A Dash-based interactive dashboard for analyzing housing data.
 
 ## Live Demo
 
-*Note: This repository contains code for a Dash application which requires a Python server to run. GitHub Pages hosts the code and documentation, but the live dashboard must be run locally or deployed to a Python-compatible hosting service.*
+The dashboard is deployed on Render:
+
+https://data-visualization-assignment.onrender.com/
+
+*Note: If the Render instance is sleeping, the first load may take up to a minute.*
+
+## Screenshots
+
+Below are a few highlights from the app. Place the images in `docs/screenshots/` with the filenames shown to render them on GitHub.
+
+1) Filters panel and active filters count
+
+![Filters panel](docs/screenshots/filters-panel.png)
+
+- Multi-select building type filter
+- Interactive price and lot-area range sliders
+- One-click Reset Filters button and live “active filters” badge
+
+2) Overview with key metrics and tabs
+
+![Overview metrics](docs/screenshots/overview-metrics.png)
+
+- Summary KPIs: total properties, average/median price, price range, and most common building type
+- Navigation tabs for Overview, Property Analysis, Market Trends, Property Comparison, and Data Table
+
+3) Interactive map with Google Maps markers and rich tooltips
+
+![Map tooltip](docs/screenshots/map-property-tooltip.png)
+
+- Click markers to see price, type, area, and year built
+- Pan/zoom and change map style using the built-in Google Maps controls
+
+4) Price vs. Area by category with trendline
+
+![Price vs Area](docs/screenshots/price-vs-area.png)
+
+- Scatter plot grouped by building type
+- Hover tooltips with exact values and an overall trendline for quick insight
 
 ## Installation
 
@@ -72,6 +109,10 @@ While GitHub Pages hosts this code repository, to deploy the live dashboard you 
 - [Heroku](https://www.heroku.com/)
 - [PythonAnywhere](https://www.pythonanywhere.com/)
 - [AWS Elastic Beanstalk](https://aws.amazon.com/elasticbeanstalk/)
+
+Currently deployed on Render at:
+
+https://data-visualization-assignment.onrender.com/
 
 ## Contributing
 
